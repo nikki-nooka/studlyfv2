@@ -30,7 +30,13 @@ export default defineConfig(({ mode }) => {
               return undefined;
             }
 
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'vendor_react';
+            // Keep react ecosystem together to avoid circular chunk deps
+            if (
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/scheduler/') ||
+              id.includes('node_modules/use-sync-external-store/')
+            ) return 'vendor_react';
             if (id.includes('node_modules/react-router-dom') || id.includes('node_modules/react-router')) return 'vendor_router';
             if (id.includes('node_modules/framer-motion')) return 'vendor_framer-motion';
             if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-icons')) return 'vendor_icons';
@@ -42,8 +48,12 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/qrcode')) return 'vendor_qrcode';
             if (id.includes('node_modules/react-syntax-highlighter')) return 'vendor_syntax';
             if (id.includes('node_modules/react-helmet-async')) return 'vendor_helmet';
+            if (id.includes('node_modules/three') || id.includes('node_modules/@react-three')) return 'vendor_three';
+            if (id.includes('node_modules/@google/genai')) return 'vendor_genai';
 
-            return 'vendor_misc';
+            // Let Rollup split remaining deps — a catch-all vendor_misc caused
+            // circular chunk warnings (vendor_misc <-> vendor_react) and TDZ errors in prod.
+            return undefined;
           }
         }
       }

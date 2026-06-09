@@ -1045,8 +1045,8 @@ const OpportunityDetails: React.FC = () => {
         const regStatusStrLower = (effectiveRegStatus || 'NOT_REGISTERED').toLowerCase();
         
         const stages = opportunity?.stages || [];
-        const stageIndex = stages.findIndex((st: any) => st.name === s.name);
-        const participantStageIndex = stages.findIndex((st: any) => st.name === participantStage);
+        const stageIndex = stages.findIndex((st: any) => st.id === s.id || st.name === s.name);
+        const participantStageIndex = stages.findIndex((st: any) => st.id === participantStage || st.name === participantStage);
         
         const stageVisibility = String(s?.visibility || s?.config?.visibility || '').toLowerCase().trim();
         const requiresShortlist = stageVisibility.includes('shortlist');
@@ -1054,6 +1054,7 @@ const OpportunityDetails: React.FC = () => {
         const isSoloEvent = pType === 'individual' || pType === 'both';
         const isSoloParticipant = !myApplication?.team_id || myApplication?.is_solo_participant === true;
 
+        // Base status-based authorization
         let isAuthorized = false;
         if (!requiresShortlist) {
             isAuthorized = regStatusStrLower !== 'not_registered' && regStatusStrLower !== 'rejected';
@@ -1064,11 +1065,36 @@ const OpportunityDetails: React.FC = () => {
             }
             isAuthorized = allowedStatuses.includes(regStatusStrLower);
         }
-        if (!isAuthorized && participantStageIndex >= stageIndex - 1) {
-            isAuthorized = true;
+
+        // Progression-based authorization (Strict)
+        // 1. Must be the current stage or a previous stage
+        if (isAuthorized && participantStageIndex < stageIndex) {
+            isAuthorized = false;
         }
+
+        // 2. Depends on rules (if provided by DB)
+        const dependsOn = s.depends_on || s.config?.depends_on || [];
+        if (isAuthorized && Array.isArray(dependsOn) && dependsOn.length > 0) {
+            for (const depId of dependsOn) {
+                const depStage = stages.find((st: any) => st.id === depId || st.name === depId);
+                if (depStage) {
+                    // Check if dependency is completed
+                    const depIdx = stages.indexOf(depStage);
+                    if (participantStageIndex <= depIdx) {
+                        isAuthorized = false;
+                        break;
+                    }
+                } else {
+                    // Orphan dependency ID: fail closed for safety
+                    isAuthorized = false;
+                    break;
+                }
+            }
+        }
+
         return isAuthorized;
     };
+
 
     const handleStageClick = (s: any) => {
         const stype = s.type?.toUpperCase();
@@ -1253,8 +1279,10 @@ const OpportunityDetails: React.FC = () => {
     const submittableStages = stagesList.filter((s: any) => {
         const st = String(s?.type || '').toUpperCase();
         const sn = String(s?.name || '').toLowerCase();
-        return st !== 'REGISTRATION' && st !== 'TEAM_FORMATION'
-            && !sn.includes('regist') && !sn.includes('team formation');
+        // Strict filter: only SUBMISSION type stages or those explicitly marked for submission
+        return (st === 'SUBMISSION' || sn.includes('submission')) && 
+               st !== 'REGISTRATION' && st !== 'TEAM_FORMATION' &&
+               !sn.includes('regist') && !sn.includes('team formation');
     });
     const hasSubmittableStages = submittableStages.length > 0;
     
@@ -1420,15 +1448,9 @@ const OpportunityDetails: React.FC = () => {
                         {eventId && submittableStages.length > 0 ? (
                             <div className="space-y-8">
                                 {submittableStages.map((stage: any, idx: number) => {
-                                    // Determine lock status from participant data
-                                    const st = String(stage.type || '').toUpperCase();
-                                    const stageRegStatus = String(myApplication?.status || '').toLowerCase();
-                                    const pType = String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase();
-                                    const isSoloEvent = pType === 'individual' || pType === 'both';
-                                    const isSolo = !myApplication?.team_id || myApplication?.is_solo_participant === true;
-                                    const allowedStatuses = ['approved', 'shortlisted', 'accepted'];
-                                    if (isSoloEvent && isSolo) allowedStatuses.push('registered');
-                                    const isStageAuthorized = allowedStatuses.includes(stageRegStatus);
+                                    // Use the hardened database-driven authorization check
+                                    const isStageAuthorized = checkStageAuthorization(stage);
+
 
                                     return (
                                         <div key={stage.id || idx} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

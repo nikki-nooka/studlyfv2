@@ -108,6 +108,10 @@ async def create_team(
             {"$set": {"team_id": team_id, "updated_at": datetime.now(timezone.utc)}}
         )
 
+        # ADVANCE STAGE: Move to next stage (e.g. Idea Submission) after team formation
+        from services.stage_service import advance_participant_to_next_stage
+        await advance_participant_to_next_stage(event_id, user_id)
+
         return {
             "status": "success",
             "message": f"Team '{team_name}' created successfully",
@@ -304,8 +308,12 @@ async def join_team_with_code(
         # Update participant with team_id
         await participants_col.update_one(
             {"_id": participant["_id"]},
-            {"$set": {"team_id": team_id, "is_solo_participant": True, "updated_at": datetime.now(timezone.utc)}}
+            {"$set": {"team_id": str(team["_id"]), "is_solo_participant": True, "updated_at": datetime.now(timezone.utc)}}
         )
+
+        # ADVANCE STAGE
+        from services.stage_service import advance_participant_to_next_stage
+        await advance_participant_to_next_stage(event_id, user_id)
 
         return {
             "status": "success",
@@ -439,6 +447,10 @@ async def create_solo_team(event_id: str, user_id: str) -> dict:
             {"_id": participant["_id"]},
             {"$set": {"team_id": team_id, "updated_at": datetime.now(timezone.utc)}}
         )
+
+        # ADVANCE STAGE
+        from services.stage_service import advance_participant_to_next_stage
+        await advance_participant_to_next_stage(event_id, user_id)
 
         return {
             "status": "success",

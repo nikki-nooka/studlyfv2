@@ -97,6 +97,60 @@ class FormField:
 # STAGE PROGRESSION SERVICE
 # ─────────────────────────────────────────────────────────────────────────────
 
+async def advance_participant_to_next_stage(event_id: str, user_id: str) -> dict:
+    """
+    Move participant to the next logical stage based on current progression.
+    Used after completing registration or team formation.
+    """
+    try:
+        participant = await participants_col.find_one({"event_id": str(event_id), "user_id": str(user_id)})
+        if not participant:
+            return {"error": "Participant not found"}
+            
+        event = await events_col.find_one({"_id": ObjectId(event_id)})
+        if not event or not event.get("stages"):
+            return {"error": "Event or stages not found"}
+            
+        stages = event["stages"]
+        current_stage_id = participant.get("current_stage")
+        
+        # Find index of current stage
+        current_idx = -1
+        for i, s in enumerate(stages):
+            if s.get("id") == current_stage_id or s.get("name") == current_stage_id:
+                current_idx = i
+                break
+        
+        # Move to next index
+        next_idx = current_idx + 1
+        if next_idx >= len(stages):
+            return {"status": "success", "message": "Already at final stage"}
+            
+        next_stage = stages[next_idx]
+        next_stage_name = next_stage.get("name") or next_stage.get("id")
+        
+        # Update participant
+        update_data = {
+            "current_stage": next_stage_name,
+            "updated_at": datetime.now(timezone.utc)
+        }
+        
+        # Also auto-approve/shortlist if moving to a restricted stage
+        # This allows participants who just formed a team to access the Idea Submission stage
+        visibility = str(next_stage.get("visibility") or (next_stage.get("config") or {}).get("visibility") or "").lower()
+        if "shortlist" in visibility or "approved" in visibility or "accepted" in visibility:
+            update_data["status"] = "shortlisted"
+            
+        await participants_col.update_one(
+            {"_id": participant["_id"]},
+            {"$set": update_data}
+        )
+        
+        return {"status": "success", "next_stage": next_stage_name, "new_status": update_data.get("status")}
+    except Exception as e:
+        print(f"[ERROR] advance_participant_to_next_stage: {e}")
+        return {"error": str(e)}
+
 async def get_event_stages(event_id: str) -> List[dict]:
     """Get all stages for an event with metadata."""
     try:

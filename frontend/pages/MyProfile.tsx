@@ -1537,7 +1537,6 @@ const publicProfileUrl = user?.user_id && typeof window !== 'undefined'
     { id: 'achievements', label: 'Accomplishments', icon: Award, required: false },
     { id: 'social', label: 'Social Links', icon: Share2, required: false },
     { id: 'preferences', label: 'Preferences', icon: Settings, required: false },
-    { id: 'scanner', label: 'Resume Scanner', icon: Scan, required: false },
   ];
 
   const renderContent = () => {
@@ -2700,20 +2699,20 @@ const publicProfileUrl = user?.user_id && typeof window !== 'undefined'
                       </div>
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] group-focus-within:text-[#7C3AED] transition-colors">{social.label}</label>
                    </div>
-                   <input 
-                    type="text" 
+                   <input
+                    type="text"
                     name={social.id}
                     value={(formData as any)[social.id] || ''}
                     onChange={handleChange}
-                    className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-[#7C3AED]/5 focus:border-[#7C3AED]/30 transition-all outline-none" 
-                    placeholder={social.placeholder} 
+                    className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-[#7C3AED]/5 focus:border-[#7C3AED]/30 transition-all outline-none"
+                    placeholder={social.placeholder}
                    />
                  </div>
                ))}
             </div>
 
             <div className="pt-8 flex justify-end">
-               <button 
+               <button
                 onClick={() => handleSave('Social Links')}
                 disabled={isSaving}
                 className="px-12 py-4 bg-[#7C3AED] text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-[#6D28D9] transition-all shadow-xl shadow-[#7C3AED]/20 flex items-center gap-3 disabled:opacity-50"
@@ -2721,73 +2720,6 @@ const publicProfileUrl = user?.user_id && typeof window !== 'undefined'
                  {isSaving ? <Plus className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                  {isSaving ? 'Saving...' : 'Save All Profiles'}
                </button>
-            </div>
-          </motion.div>
-        );
-
-      case 'scanner':
-        return (
-          <motion.div
-            key="scanner"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-12"
-          >
-            <div className="flex items-center justify-between border-b border-gray-100 pb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
-                  <Scan className="w-6 h-6" />
-                </div>
-                <h2 className="text-xl font-black uppercase text-gray-900 tracking-tight">AI Resume Scanner</h2>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-               <div className="lg:col-span-2 space-y-10">
-                  {/* Step 1 */}
-                  <div className="space-y-4">
-                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Step 1: Select Resume</span>
-                     <div className="bg-white border border-gray-100 rounded-3xl p-6 flex items-center justify-between shadow-sm">
-                        <div className="flex items-center gap-4">
-                           <FileText className="w-5 h-5 text-red-500" />
-                           <span className="text-sm font-bold text-gray-900">{formData.resume.fileName}</span>
-                        </div>
-                        <button 
-                          onClick={() => resumeInputRef.current?.click()}
-                          className="text-[10px] font-black text-[#7C3AED] uppercase tracking-widest hover:underline"
-                        >
-                          Change
-                        </button>
-                     </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="space-y-4">
-                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Step 2: Job Description</span>
-                     <textarea 
-                        name="jobDescription"
-                        value={formData.jobDescription}
-                        onChange={handleChange}
-                        className="w-full px-8 py-6 bg-gray-50 border border-transparent rounded-[2rem] text-sm font-bold min-h-[200px] leading-relaxed text-gray-900 focus:bg-white transition-all outline-none" 
-                        placeholder="Paste the job description here to analyze matching score..." 
-                     />
-                  </div>
-               </div>
-
-               {/* Analysis Result Card */}
-               <div className="bg-[#7C3AED] rounded-[3.5rem] p-10 text-white flex flex-col justify-between shadow-2xl shadow-[#7C3AED]/30 relative overflow-hidden group">
-                  <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
-                  
-                  <div className="relative z-10 space-y-6">
-                     <h3 className="text-3xl font-black uppercase tracking-tight leading-none">Ready to Analyze</h3>
-                     <p className="text-xs font-medium text-white/70 leading-relaxed">Our AI will compare your resume against the job requirements to calculate your ATS compatibility score.</p>
-                  </div>
-
-                  <button className="w-full py-6 bg-white text-[#7C3AED] rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-gray-50 transition-all shadow-xl relative z-10">
-                     Run Analysis
-                  </button>
-               </div>
             </div>
           </motion.div>
         );

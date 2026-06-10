@@ -110,12 +110,20 @@ async def delete_judge(judge_id: str):
 
 @portal_router.get("/invitation-details")
 async def portal_invitation_details(token: str = Query(...)):
+    print(f"DEBUG: Received invitation-details request for token: '{token}'")
     try:
-        return await get_judge_invitation_details(token)
+        result = await get_judge_invitation_details(token)
+        print(f"DEBUG: Successfully found invitation for token: '{token}'")
+        return result
     except LookupError:
+        print(f"DEBUG: Invitation not found for token: '{token}'")
         raise HTTPException(status_code=404, detail="Invitation not found or expired")
     except ValueError as e:
+        print(f"DEBUG: Value error for token: '{token}', error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"DEBUG: Unexpected error for token: '{token}', error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @portal_router.post("/respond")

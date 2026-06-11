@@ -86,12 +86,12 @@ interface EventDetailsProps {
     onEditEvent?: (eventId: string) => void;
 }
 
-const BUNDLE_TABS = ['shortlisted', 'approved', 'pending', 'rejected'] as const;
+const BUNDLE_TABS = ['shortlisted', 'approved', 'waitlisted', 'pending'] as const;
 const BUNDLE_TAB_LABEL: Record<string, string> = {
     shortlisted: 'Shortlisted',
     approved: 'Approved',
+    waitlisted: 'Waitlisted',
     pending: 'Pending',
-    rejected: 'Rejected',
 };
 
 const getBundleSourceLabel = (item: any) => {
@@ -105,6 +105,7 @@ const getBundleStatusLabel = (status: string) => {
     const normalized = String(status || '').toLowerCase();
     if (normalized === 'accepted') return 'Approved';
     if (normalized === 'shortlisted') return 'Shortlisted';
+    if (normalized === 'waitlisted') return 'Waitlisted';
     if (normalized === 'rejected') return 'Rejected';
     if (normalized === 'pending review' || normalized === 'under review') return 'Pending Review';
     if (normalized === 'evaluated') return 'Evaluated';
@@ -149,6 +150,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     const [bundleTab, setBundleTab] = useState<string>('shortlisted');
     const [teams, setTeams] = useState<ITeam[]>([]);
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
+    const [loadingTeamDetails, setLoadingTeamDetails] = useState(false);
     const [submissions, setSubmissions] = useState<ISubmission[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -159,6 +161,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     const [quizzes, setQuizzes] = useState<any[]>([]);
     const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
     const [previewAsset, setPreviewAsset] = useState<{ url: string; filename: string; type: string } | null>(null);
+    const [previewRecommendation, setPreviewRecommendation] = useState<{ title: string; text: string } | null>(null);
     const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
     const [quizStageId, setQuizStageId] = useState<string | null>(null);
     const [reviewQuiz, setReviewQuiz] = useState<{ quizId: string; quizTitle: string; stageName: string } | null>(null);
@@ -169,6 +172,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     const [stageSubmissions, setStageSubmissions] = useState<ISubmission[]>([]);
     const [submissionSubTab, setSubmissionSubTab] = useState<'projects' | 'assets' | 'assessments'>('projects');
     const [selectedSubTabQuizStageId, setSelectedSubTabQuizStageId] = useState<string>('');
+    const [selectedProjectStageId, setSelectedProjectStageId] = useState<string>('');
     const [quizResults, setQuizResults] = useState<any[]>([]);
     const [quizResultsLoading, setQuizResultsLoading] = useState(false);
     const [quizResultsError, setQuizResultsError] = useState('');
@@ -677,14 +681,46 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     setQuizzes(Array.isArray(dashboardData.quizzes) ? dashboardData.quizzes : []);
 
                     const legacySubmissions = Array.isArray(dashboardData.submissions) ? dashboardData.submissions : [];
-                    const stageSubmissions = Array.isArray(dashboardData.stage_submissions) ? dashboardData.stage_submissions.map((ss: any) => ({
-                        ...ss,
-                        _sourceType: 'stage',
-                        source: 'stage_deliverable',
-                        teamName: ss.team_id || (ss.data?.team_name) || '',
-                        user_name: ss.data?.name || ss.data?.full_name || '',
-                        submitted_at: ss.submitted_at || ss.last_updated_at,
-                    })) : [];
+                    const dashboardTeams = Array.isArray(dashboardData.teams) ? dashboardData.teams : [];
+                    const dashboardTeamLookup = new Map<string, any>();
+                    dashboardTeams.forEach((t: any) => {
+                        if (t._id) dashboardTeamLookup.set(String(t._id), t);
+                        if (t.team_id) dashboardTeamLookup.set(String(t.team_id), t);
+                    });
+                    const resolveDashboardTeamMeta = (teamId: string | undefined, data: Record<string, any> = {}) => {
+                        const teamDoc = teamId ? dashboardTeamLookup.get(String(teamId)) : null;
+                        const leader = teamDoc?.members?.find(
+                            (m: any) => m.is_leader || String(m.user_id) === String(teamDoc?.team_leader_id)
+                        );
+                        return {
+                            teamName:
+                                data?.team_name ||
+                                data?.team_display_name ||
+                                data?.name ||
+                                teamDoc?.team_name ||
+                                teamDoc?.name ||
+                                '',
+                            teamLead: leader?.name || leader?.email || data?.lead_name || '',
+                        };
+                    };
+                    const stageSubmissions = Array.isArray(dashboardData.stage_submissions)
+                        ? dashboardData.stage_submissions.map((ss: any) => {
+                              const data = ss.data || {};
+                              const meta = resolveDashboardTeamMeta(ss.team_id, data);
+                              return {
+                                  ...ss,
+                                  _sourceType: 'stage',
+                                  source: 'stage_deliverable',
+                                  team_id: ss.team_id,
+                                  teamName: ss.team_name || meta.teamName,
+                                  teamLead: meta.teamLead,
+                                  team_name: ss.team_name || meta.teamName,
+                                  team_lead: meta.teamLead,
+                                  user_name: data?.name || data?.full_name || '',
+                                  submitted_at: ss.submitted_at || ss.last_updated_at,
+                              };
+                          })
+                        : [];
                     setSubmissions([...legacySubmissions, ...stageSubmissions]);
                 }
                 
@@ -883,7 +919,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         if (quizStages.length > 0 && !selectedSubTabQuizStageId) {
             setSelectedSubTabQuizStageId(quizStages[0].id);
         }
-    }, [stages, selectedSubTabQuizStageId]);
+        
+        const projStages = stages.filter(s => s.type === 'SUBMISSION' || s.type === 'DELIVERABLE' || !s.type);
+        if (projStages.length > 0 && !selectedProjectStageId) {
+            setSelectedProjectStageId(projStages[0].id);
+        }
+    }, [stages, selectedSubTabQuizStageId, selectedProjectStageId]);
 
     useEffect(() => {
         if (activeTab === 'submissions' && submissionSubTab === 'assessments' && selectedSubTabQuizStageId) {
@@ -1710,6 +1751,308 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     };
 
 
+    const isSubmissionFileField = (f: any) => {
+        const t = (f.type || '').toLowerCase();
+        const l = (f.label || f.key || '').toLowerCase();
+        if (['file', 'document', 'link', 'upload', 'url', 'image', 'video', 'audio'].includes(t)) return true;
+        return l.includes('pdf') || l.includes('ppt') || l.includes('file') || l.includes('upload')
+            || l.includes('document') || l.includes('link') || l.includes('presentation') || l.includes('video');
+    };
+
+    const getStageTextFields = (stage: any) => {
+        const fields = stage?.fields || stage?.config?.fields || [];
+        return fields.filter((f: any) => !isSubmissionFileField(f));
+    };
+
+    const buildTeamLookup = () => {
+        const lookup = new Map<string, any>();
+        (teams || []).forEach((t: any) => {
+            if (t._id) lookup.set(String(t._id), t);
+            if (t.team_id) lookup.set(String(t.team_id), t);
+        });
+        return lookup;
+    };
+
+    const resolveTeamLeadName = (teamDoc: any) => {
+        const leader = teamDoc?.members?.find(
+            (m: any) => m.is_leader || String(m.user_id) === String(teamDoc?.team_leader_id)
+        );
+        return leader?.name || leader?.email || '';
+    };
+
+    type SubmissionAsset = { type: 'file' | 'link'; url: string; mime?: string; domain?: string };
+
+    const collectSubmissionAssets = (sub: any, activeStage: any): SubmissionAsset[] => {
+        const assets: SubmissionAsset[] = [];
+        const pushAsset = (value: string) => {
+            if (!value?.trim()) return;
+            if (value.startsWith('data:')) {
+                assets.push({ type: 'file', url: value, mime: value.split(';')[0].split(':')[1] || '' });
+            } else if (value.startsWith('http://') || value.startsWith('https://')) {
+                let domain = '';
+                try { domain = new URL(value).hostname; } catch { /* ignore */ }
+                assets.push({ type: 'link', url: value, domain });
+            }
+        };
+
+        if (sub.pptLink) pushAsset(sub.pptLink);
+        if (sub.githubLink) pushAsset(sub.githubLink);
+
+        const stageData = sub._sourceType === 'stage' ? sub.data : null;
+        const fields = activeStage?.fields || activeStage?.config?.fields || [];
+        if (stageData && typeof stageData === 'object') {
+            for (const f of fields) {
+                const key = f.id || f.key;
+                const value = stageData[key];
+                if (typeof value === 'string') pushAsset(value);
+            }
+            if (fields.length === 0) {
+                Object.values(stageData).forEach((value) => {
+                    if (typeof value === 'string') pushAsset(value);
+                });
+            }
+        }
+        return assets;
+    };
+
+    const handleOpenSubmissionTeam = async (sub: any) => {
+        const teamId = sub.team_id || sub.teamId;
+        const displayName = sub.teamName || sub.team_name || sub.user_name || sub.name || 'Team';
+        let team = teams.find(
+            (t: any) =>
+                (teamId && (String(t._id) === String(teamId) || String(t.team_id) === String(teamId)))
+                || (displayName && String(t.team_name || '').toLowerCase() === String(displayName).toLowerCase())
+        );
+
+        if (!team && eventId) {
+            setLoadingTeamDetails(true);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/institution/events/${eventId}/teams`, {
+                    headers: { ...authHeaders() },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const freshTeams = Array.isArray(data) ? data : [];
+                    setTeams(freshTeams);
+                    team = freshTeams.find(
+                        (t: any) =>
+                            (teamId && (String(t._id) === String(teamId) || String(t.team_id) === String(teamId)))
+                            || (displayName && String(t.team_name || '').toLowerCase() === String(displayName).toLowerCase())
+                    );
+                }
+            } catch (err) {
+                console.error('Failed to fetch team details:', err);
+            } finally {
+                setLoadingTeamDetails(false);
+            }
+        }
+
+        if (team) {
+            setSelectedTeam(team);
+            return;
+        }
+
+        const leadName = sub.teamLead || sub.team_lead || '';
+        const members: any[] = [];
+        if (leadName) members.push({ name: leadName, role: 'Lead', is_leader: true });
+        const rawMembers = sub.teamMembers || sub.team_members;
+        if (rawMembers) {
+            const names: string[] = typeof rawMembers === 'string'
+                ? rawMembers.split(',').map((m: string) => m.trim()).filter(Boolean)
+                : (Array.isArray(rawMembers) ? rawMembers : []);
+            names.forEach((name: string) => {
+                if (name && name.toLowerCase() !== leadName.toLowerCase()) {
+                    members.push({ name, role: 'Member' });
+                }
+            });
+        }
+        setSelectedTeam({
+            _id: teamId || sub._id,
+            team_name: displayName,
+            members,
+            status: sub.status || 'Pending',
+        });
+    };
+
+    const renderSubmissionAssetButtons = (assets: SubmissionAsset[]) => {
+        if (assets.length === 0) {
+            return <span className="text-xs text-slate-300 font-bold italic">No files</span>;
+        }
+        return (
+            <div className="flex flex-wrap items-center gap-2">
+                {assets.map((asset, ai) => {
+                    const icon = asset.type === 'file'
+                        ? (asset.mime?.includes('pdf') ? <FileText size={16} /> :
+                            asset.mime?.includes('presentation') ? <FileCheck size={16} /> :
+                            asset.mime?.startsWith('image/') ? <FileImage size={16} /> :
+                            asset.mime?.startsWith('video/') ? <FileVideo size={16} /> : <FileText size={16} />)
+                        : (asset.domain?.includes('github.com') ? <Github size={16} /> : <Globe size={16} />);
+                    return asset.type === 'file' ? (
+                        <button
+                            key={ai}
+                            type="button"
+                            onClick={() => setPreviewAsset({ url: asset.url, filename: `Attachment.${(asset.mime || '').split('/')[1] || 'bin'}`, type: 'file' })}
+                            className="flex items-center gap-2 justify-center px-3 h-9 bg-amber-50 text-amber-600 rounded-xl border border-amber-100 hover:bg-amber-100 transition-colors cursor-pointer text-xs font-bold whitespace-nowrap"
+                        >
+                            {icon} {asset.mime?.includes('pdf') ? 'PDF' : asset.mime?.includes('presentation') ? 'PPT' : 'File'}
+                        </button>
+                    ) : (
+                        <a
+                            key={ai}
+                            href={asset.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-2 justify-center px-3 h-9 bg-slate-100 text-slate-600 rounded-xl border border-slate-200 hover:bg-slate-200 transition-colors text-xs font-bold whitespace-nowrap"
+                        >
+                            {icon} {asset.domain || 'Link'}
+                        </a>
+                    );
+                })}
+            </div>
+        );
+    };
+
+    const renderTeamDetailModal = () => {
+        if (!selectedTeam) return null;
+        return (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-in fade-in duration-300" onClick={() => setSelectedTeam(null)}>
+                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+                    <div className="p-8 border-b bg-slate-50/50">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{selectedTeam.team_name || 'Unnamed Team'}</h2>
+                                    <span className={`px-3 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border ${
+                                        selectedTeam.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                        selectedTeam.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
+                                        'bg-slate-50 text-slate-600 border-slate-100'
+                                    }`}>
+                                        {selectedTeam.status || 'Pending'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <span className="flex items-center gap-1.5"><Users size={14} /> {selectedTeam.members?.length || 0} Members</span>
+                                    <span>•</span>
+                                    <span>Team ID: {selectedTeam._id}</span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTeam(null)}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-200 transition-all shadow-sm"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-8">
+                        <div className="space-y-8">
+                            <div>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Team Roster</h3>
+                                <div className="bg-slate-50 rounded-[1.5rem] border border-slate-100 overflow-hidden">
+                                    {loadingTeamDetails ? (
+                                        <div className="flex items-center justify-center py-16">
+                                            <Loader2 size={28} className="animate-spin text-[#6C3BFF]" />
+                                        </div>
+                                    ) : (
+                                        <table className="min-w-full divide-y divide-slate-200">
+                                            <thead className="bg-slate-100/50">
+                                                <tr>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Member</th>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</th>
+                                                    <th className="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Registration</th>
+                                                    <th className="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Submission</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 bg-white">
+                                                {(selectedTeam.members || []).length > 0 ? selectedTeam.members.map((member: any, index: number) => (
+                                                    <tr key={index} className="hover:bg-slate-50/50 transition-colors">
+                                                        <td className="px-6 py-4">
+                                                            <div className="font-bold text-slate-900 text-sm">{member.name || 'N/A'}</div>
+                                                            <div className="text-xs text-slate-400 font-medium">{member.email || 'N/A'}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            {member.is_leader ? (
+                                                                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-indigo-100">
+                                                                    Leader
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[11px] font-bold text-slate-400">{member.role || 'Member'}</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                                                                member.registration_status === 'shortlisted' ? 'bg-emerald-50 text-emerald-600' :
+                                                                member.registration_status === 'rejected' ? 'bg-red-50 text-red-600' :
+                                                                'bg-slate-50 text-slate-500'
+                                                            }`}>
+                                                                {member.registration_status || 'Registered'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                                                                member.submission_status === 'submitted' ? 'bg-indigo-50 text-indigo-600' :
+                                                                'bg-slate-50 text-slate-500'
+                                                            }`}>
+                                                                {member.submission_status === 'submitted' ? 'Submitted' : 'Pending'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                )) : (
+                                                    <tr>
+                                                        <td colSpan={4} className="px-6 py-10 text-center text-sm font-bold text-slate-400">
+                                                            No member details available for this team.
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {activeTab === 'teams' && (
+                        <div className="p-8 border-t bg-slate-50/50 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTeam(null)}
+                                className="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"
+                            >
+                                Close
+                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleUpdateTeamStatus(selectedTeam._id, 'approved');
+                                        setSelectedTeam(null);
+                                    }}
+                                    className="px-6 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-900/20"
+                                >
+                                    Approve Team
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleUpdateTeamStatus(selectedTeam._id, 'rejected');
+                                        setSelectedTeam(null);
+                                    }}
+                                    className="px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-900/20"
+                                >
+                                    Reject Team
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+
     const tabs = [
         { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
         { id: 'basic', label: 'Basic Info', icon: Info },
@@ -1729,31 +2072,52 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
     
     const renderTabContent_SubmissionManagement = () => {
+        const teamLookup = buildTeamLookup();
         // Merge hackathon + regular submissions for ALL event types
         const allSubmissions = [
             ...(hackathonSubmissions || []).map((s: any) => ({
                 ...s,
                 _sourceType: 'hackathon',
                 project_title: s.project_title || s.teamName || s.team_name || '',
-                team_name: s.team_name || s.teamLead || s.teamLeadName || '',
+                team_name: s.team_name || s.teamName || s.teamLead || s.teamLeadName || '',
+                teamName: s.teamName || s.team_name || '',
+                teamLead: s.teamLead || s.team_lead || '',
                 event_title: s.event_title || s.eventName || '',
                 status: s.status || '',
             })),
             ...(submissions || []).map((s: any) => {
                 const isStage = s.source === 'stage_deliverable';
                 const data = s.data || {};
+                const teamDoc = s.team_id ? teamLookup.get(String(s.team_id)) : null;
+                const resolvedLead = s.teamLead || s.team_lead || resolveTeamLeadName(teamDoc) || s.user_name || s.name || '';
                 // For stage deliverables, the actual content is in the data field
                 const stageFileField = isStage ? Object.keys(data).find(k => typeof data[k] === 'string' && data[k].startsWith('data:')) : null;
                 const stageUrlField = isStage ? Object.keys(data).find(k => typeof data[k] === 'string' && (data[k].startsWith('http://') || data[k].startsWith('https://'))) : null;
-                const stageDesc = isStage ? (data.description || data.problem_statement || data.solution || '') : '';
+                const stageDesc = isStage ? (data.description || data.problem_statement || data.solution || data.idea_abstract || '') : '';
+                const resolvedTeamName =
+                    s.teamName ||
+                    s.team_name ||
+                    teamDoc?.team_name ||
+                    teamDoc?.name ||
+                    data.team_display_name ||
+                    data.team_name ||
+                    s.user_name ||
+                    s.name ||
+                    '';
                 return {
                     ...s,
                     _sourceType: isStage ? 'stage' : 'regular',
-                    teamName: s.teamName || s.team_name || s.user_name || s.name || '',
-                    teamLead: s.teamLead || s.team_lead || s.team_name || s.user_name || s.name || '',
+                    teamName: resolvedTeamName,
+                    teamLead: resolvedLead,
                     problemStatement: isStage
                         ? (stageDesc || (stageUrlField ? 'Submitted link' : stageFileField ? 'Submitted file' : '') || s.stage_name || '')
                         : (s.problemStatement || s.problem_statement || s.stage_name || s.stage_type || ''),
+                    solutionDescription: isStage
+                        ? (data.solution || data.proposed_solution || data.proposed_solution_description || '')
+                        : (s.solutionDescription || s.solution || ''),
+                    ideaAbstract: isStage
+                        ? (data.idea_abstract || data.abstract || data.description || data.problem_statement || '')
+                        : (s.ideaAbstract || s.problemStatement || s.problem_statement || ''),
                     pptLink: isStage
                         ? (stageFileField ? data[stageFileField] : stageUrlField ? data[stageUrlField] : '')
                         : (s.pptLink || s.ppt_link || ''),
@@ -1762,8 +2126,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     totalScore: s.totalScore ?? s.total_score ?? 0,
                     project_title: isStage
                         ? (s.stage_name || s.stage_type || '')
-                        : (s.project_title || s.title || s.team_name || ''),
-                    team_name: s.team_name || s.user_name || s.name || '',
+                        : (s.project_title || s.title || resolvedTeamName || ''),
+                    team_name: resolvedTeamName,
                     event_title: s.event_title || event?.title || s.stage_name || '',
                     status: s.status || '',
                 };
@@ -1779,13 +2143,16 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         });
         const allDomains = [...new Set(dedupedSubmissions.map(s => s.domain).filter(Boolean))];
         const domains = ['All Domains', ...allDomains];
+        const projectStages = stages.filter(s => s.type === 'SUBMISSION' || s.type === 'DELIVERABLE' || !s.type);
+        
         const filtered = dedupedSubmissions.filter(s => {
             const name = s.teamName || s.team_name || s.user_name || '';
             const lead = s.teamLead || s.team_lead || '';
             const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || lead.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesDomain = domainFilter === 'All Domains' || s.domain === domainFilter;
             const matchesJudge = judgeFilter === 'All Judges' || s.assignedJudgeId === judgeFilter;
-            return matchesSearch && matchesDomain && matchesJudge;
+            const matchesStage = !selectedProjectStageId || String(s.stage_id || '') === String(selectedProjectStageId);
+            return matchesSearch && matchesDomain && matchesJudge && matchesStage;
         });
 
         if (submissionSubTab === 'assessments') {
@@ -2025,6 +2392,18 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     >
                         Quizzes & Assessments
                     </button>
+                    {projectStages.length > 0 && (
+                        <select
+                            value={selectedProjectStageId}
+                            onChange={(e) => setSelectedProjectStageId(e.target.value)}
+                            className="ml-4 px-6 py-2 bg-white border border-slate-200 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest text-[#6C3BFF] outline-none shadow-sm focus:ring-2 focus:ring-purple-200"
+                        >
+                            <option value="">All Stages</option>
+                            {projectStages.map(s => (
+                                <option key={s.id} value={s.id}>{s.name}</option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-6 px-4">
@@ -2077,13 +2456,43 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     </div>
                 </div>
 
+                {(() => {
+                    const activeSubmissionStage = stages.find(s => String(s.id) === String(selectedProjectStageId));
+                    const submissionTextFields = activeSubmissionStage ? getStageTextFields(activeSubmissionStage) : [];
+                    const useDynamicSubmissionColumns = Boolean(activeSubmissionStage && submissionTextFields.length > 0);
+                    const submissionTableColSpan =
+                        (isBulkMode ? 1 : 0) + 1 + (useDynamicSubmissionColumns ? submissionTextFields.length : 2) + 4;
+
+                    const renderSubmissionFieldValue = (sub: any, key: string) => {
+                        const stageData = sub._sourceType === 'stage' ? sub.data : null;
+                        let value = stageData && typeof stageData === 'object' ? stageData[key] : '';
+                        if (!value) value = '-';
+                        if (typeof value === 'string' && (value.startsWith('data:') || value.startsWith('http://') || value.startsWith('https://'))) {
+                            return 'View in Files';
+                        }
+                        return value;
+                    };
+
+                    return (
                 <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50">
                                 {isBulkMode && <th className="px-10 py-6 w-10"></th>}
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Detail</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Idea & Solution</th>
+                                {useDynamicSubmissionColumns ? (
+                                    submissionTextFields.map((f: any) => (
+                                        <th key={f.id || f.key} className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                                            {f.label || f.key}
+                                        </th>
+                                    ))
+                                ) : (
+                                    <>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Idea Abstract</th>
+                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Proposed Solution Description</th>
+                                    </>
+                                )}
+                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Files</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Judge</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Score</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
@@ -2091,12 +2500,18 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {filtered.length > 0 ? (
-                                filtered.map((sub, idx) => (
+                                filtered.map((sub) => {
+                                    const rowStage = stages.find(s => String(s.id) === String(sub.stage_id || selectedProjectStageId));
+                                    const rowAssets = collectSubmissionAssets(sub, rowStage || activeSubmissionStage);
+                                    const displayTeamName = sub.teamName || sub.team_name || 'Unnamed Team';
+                                    const displayLead = sub.teamLead || sub.team_lead || '';
+
+                                    return (
                                     <tr key={sub._id} className="hover:bg-slate-50/30 transition-colors group">
                                         {isBulkMode && (
                                             <td className="px-10 py-8">
-                                                <input 
-                                                    type="checkbox" 
+                                                <input
+                                                    type="checkbox"
                                                     checked={selectedSubmissions.includes(sub._id)}
                                                     onChange={(e) => {
                                                         if (e.target.checked) setSelectedSubmissions([...selectedSubmissions, sub._id]);
@@ -2108,11 +2523,21 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                         )}
                                         <td className="px-10 py-8">
                                             <div className="flex flex-col">
-                                                <span className="font-black text-slate-900 text-lg tracking-tight">{sub.teamName || sub.team_name || sub.teamLead || sub.team_lead || sub.user_name || sub.name}</span>
-                                                {sub.teamLead || sub.team_lead || sub.team_name ? (
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Lead: {sub.teamLead || sub.team_lead || sub.team_name}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleOpenSubmissionTeam(sub)}
+                                                    className="font-black text-slate-900 text-lg tracking-tight text-left hover:text-[#6C3BFF] transition-colors"
+                                                >
+                                                    {displayTeamName}
+                                                </button>
+                                                {displayLead ? (
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                                        Lead: {displayLead}
+                                                    </span>
                                                 ) : null}
-                                                {sub.domain && <span className="text-[9px] font-black text-purple-600 uppercase tracking-[0.2em] mt-2">{sub.domain}</span>}
+                                                {sub.domain && (
+                                                    <span className="text-[9px] font-black text-purple-600 uppercase tracking-[0.2em] mt-2">{sub.domain}</span>
+                                                )}
                                                 {sub._sourceType === 'stage' && sub.stage_name ? (
                                                     <span className="mt-2 inline-flex w-fit px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-black uppercase tracking-widest">
                                                         {sub.stage_name}
@@ -2120,123 +2545,37 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                 ) : null}
                                             </div>
                                         </td>
-                                        <td className="px-10 py-8 max-w-md">
-                                            <div className="space-y-2">
-                                                {(() => {
-                                                    const stageData = sub._sourceType === 'stage' ? sub.data : null;
-                                                    if (stageData && typeof stageData === 'object') {
-                                                        // Find stage config for field labels
-                                                        const stageConfig = stages.find((st: any) =>
-                                                            st.id === sub.stage_id || st._id === sub.stage_id
-                                                        );
-                                                        const fieldConfigs: Record<string, any> = {};
-                                                        if (stageConfig) {
-                                                            const fields = stageConfig.fields || (stageConfig.config?.fields) || [];
-                                                            for (const f of fields) {
-                                                                fieldConfigs[f.id || f.key] = f;
-                                                            }
-                                                        }
-                                                        const fieldEntries = Object.entries(stageData).filter(
-                                                            ([k, v]) => typeof v === 'string' && v.trim()
-                                                        );
-                                                        return (
-                                                            <div className="divide-y divide-slate-100">
-                                                                {fieldEntries.map(([key, value]) => {
-                                                                    const label = fieldConfigs[key]?.label || key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
-                                                                    if (value.startsWith('data:')) {
-                                                                        const mime = value.split(';')[0].split(':')[1] || '';
-                                                                        const icon = mime.includes('pdf') ? <FileText size={14} /> :
-                                                                            mime.includes('presentation') || mime.includes('ppt') ? <FileCheck size={14} /> :
-                                                                            mime.startsWith('image/') ? <FileImage size={14} /> :
-                                                                            mime.startsWith('video/') ? <FileVideo size={14} /> : <FileText size={14} />;
-                                                                        return (
-                                                                            <div key={key} className="py-2 first:pt-0 last:pb-0">
-                                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">{label}</span>
-                                                                                <button onClick={() => setPreviewAsset({ url: value, filename: `Attachment.${mime.split('/')[1] || 'bin'}`, type: 'file' })}
-                                                                                    className="flex items-center gap-2 text-xs font-bold text-purple-600 hover:text-purple-800 transition-colors">
-                                                                                    {icon} View {mime.includes('pdf') ? 'PDF' : mime.includes('presentation') ? 'PPT' : mime.startsWith('image/') ? 'Image' : 'File'}
-                                                                                </button>
-                                                                            </div>
-                                                                        );
-                                                                    }
-                                                                    if (value.startsWith('http://') || value.startsWith('https://')) {
-                                                                        let domain = '';
-                                                                        try { domain = new URL(value).hostname; } catch {}
-                                                                        const icon = domain.includes('github.com') ? <Github size={14} /> : <Globe size={14} />;
-                                                                        return (
-                                                                            <div key={key} className="py-2 first:pt-0 last:pb-0">
-                                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">{label}</span>
-                                                                                <a href={value} target="_blank" rel="noreferrer"
-                                                                                    className="flex items-center gap-2 text-xs font-bold text-purple-600 hover:text-purple-800 transition-colors">
-                                                                                    {icon} {domain}
-                                                                                </a>
-                                                                            </div>
-                                                                        );
-                                                                    }
-                                                                    return (
-                                                                        <div key={key} className="py-2 first:pt-0 last:pb-0">
-                                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">{label}</span>
-                                                                            <p className="text-sm font-bold text-slate-800">{value}</p>
-                                                                        </div>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        );
-                                                    }
-                                                    // Legacy non-stage submissions
-                                                    const descText = sub.problemStatement && sub.problemStatement !== 'Submitted link' && sub.problemStatement !== 'Submitted file' ? sub.problemStatement : '';
-                                                    interface LegacyAsset { type: 'file' | 'link'; url: string; mime?: string; domain?: string }
-                                                    const assets: LegacyAsset[] = [];
-                                                    if (sub.pptLink) {
-                                                        if (sub.pptLink.startsWith('data:')) {
-                                                            const mime = sub.pptLink.split(';')[0].split(':')[1] || '';
-                                                            assets.push({ type: 'file', url: sub.pptLink, mime });
-                                                        } else {
-                                                            let domain = '';
-                                                            try { domain = new URL(sub.pptLink).hostname; } catch {}
-                                                            assets.push({ type: 'link', url: sub.pptLink, domain });
-                                                        }
-                                                    }
-                                                    if (sub.githubLink) {
-                                                        let domain = '';
-                                                        try { domain = new URL(sub.githubLink).hostname; } catch {}
-                                                        assets.push({ type: 'link', url: sub.githubLink, domain });
-                                                    }
-                                                    return (
-                                                        <>
-                                                            {descText && <p className="text-sm font-bold text-slate-800 line-clamp-2">{descText}</p>}
-                                                            {assets.length > 0 && (
-                                                                <div className="flex items-center gap-2 mt-1">
-                                                                    {assets.map((asset, ai) => {
-                                                                        const icon = asset.type === 'file'
-                                                                            ? (asset.mime?.includes('pdf') ? <FileText size={16} /> :
-                                                                                asset.mime?.includes('presentation') ? <FileCheck size={16} /> :
-                                                                                asset.mime?.startsWith('image/') ? <FileImage size={16} /> :
-                                                                                asset.mime?.startsWith('video/') ? <FileVideo size={16} /> : <FileText size={16} />)
-                                                                            : (asset.domain?.includes('github.com') ? <Github size={16} /> : <Globe size={16} />);
-                                                                        return asset.type === 'file' ? (
-                                                                            <button key={ai}
-                                                                                onClick={() => setPreviewAsset({ url: asset.url, filename: `Attachment.${(asset.mime || '').split('/')[1] || 'bin'}`, type: 'file' })}
-                                                                                className="flex items-center justify-center w-9 h-9 bg-amber-50 text-amber-600 rounded-xl border border-amber-100 hover:bg-amber-100 transition-colors cursor-pointer">
-                                                                                {icon}
-                                                                            </button>
-                                                                        ) : (
-                                                                            <a key={ai} href={asset.url} target="_blank" rel="noreferrer"
-                                                                                className="flex items-center justify-center w-9 h-9 bg-slate-100 text-slate-600 rounded-xl border border-slate-200 hover:bg-slate-200 transition-colors">
-                                                                                {icon}
-                                                                            </a>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    );
-                                                })()}
-                                            </div>
+                                        {useDynamicSubmissionColumns ? (
+                                            submissionTextFields.map((f: any) => {
+                                                const key = f.id || f.key;
+                                                return (
+                                                    <td key={key} className="px-10 py-8 max-w-[200px] whitespace-pre-wrap break-words">
+                                                        <p className="text-sm font-bold text-slate-800 line-clamp-3">
+                                                            {renderSubmissionFieldValue(sub, key)}
+                                                        </p>
+                                                    </td>
+                                                );
+                                            })
+                                        ) : (
+                                            <>
+                                                <td className="px-10 py-8 max-w-[200px]">
+                                                    <p className="text-sm font-bold text-slate-800 line-clamp-3">
+                                                        {sub.ideaAbstract || sub.problemStatement || '-'}
+                                                    </p>
+                                                </td>
+                                                <td className="px-10 py-8 max-w-[200px]">
+                                                    <p className="text-sm font-bold text-slate-800 line-clamp-3">
+                                                        {sub.solutionDescription || '-'}
+                                                    </p>
+                                                </td>
+                                            </>
+                                        )}
+                                        <td className="px-10 py-8">
+                                            {renderSubmissionAssetButtons(rowAssets)}
                                         </td>
                                         <td className="px-10 py-8">
                                             <div className="flex items-center gap-4">
-                                                <select 
+                                                <select
                                                     value={sub.assignedJudgeId || ""}
                                                     onChange={(e) => {
                                                         handleBulkAssign(e.target.value, [sub._id]);
@@ -2258,7 +2597,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                         </td>
                                         <td className="px-10 py-8 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <button 
+                                                <button
+                                                    type="button"
                                                     onClick={async () => {
                                                         setEvaluatingSubmission(sub);
                                                         try {
@@ -2289,15 +2629,18 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                             </div>
                                         </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <tr>
-                                    <td colSpan={isBulkMode ? 6 : 5} className="px-10 py-32 text-center text-slate-300 font-black text-[10px] uppercase tracking-[0.4em]">No submissions match your filters</td>
+                                    <td colSpan={submissionTableColSpan} className="px-10 py-32 text-center text-slate-300 font-black text-[10px] uppercase tracking-[0.4em]">No submissions match your filters</td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
+                    );
+                })()}
 
             {/* Bundle Categorization Section */}
             <div className="mt-16 space-y-8">
@@ -2332,6 +2675,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Candidate Identity</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Judge Status</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Score Aggregate</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Recommendation</th>
                                 <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                             </tr>
                         </thead>
@@ -2383,12 +2727,28 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                 {item.score ? item.score.toFixed(1) : '0.0'}
                                             </span>
                                         </td>
+                                        <td className="px-10 py-8 max-w-[200px] text-center">
+                                            {item.recommendation ? (
+                                                <button 
+                                                    onClick={() => setPreviewRecommendation({ title: item.team_name || item.display_name, text: item.recommendation })}
+                                                    className="text-[11px] font-bold text-slate-600 hover:text-purple-600 underline decoration-dashed underline-offset-4 text-left w-full line-clamp-2"
+                                                    title="Click to view full recommendation"
+                                                >
+                                                    {item.recommendation}
+                                                </button>
+                                            ) : (
+                                                <span className="text-[10px] font-bold text-slate-300 italic">No feedback</span>
+                                            )}
+                                        </td>
                                         <td className="px-10 py-8 text-right">
                                             <div className="flex gap-2 justify-end">
                                                 {(() => {
                                                     const status = (item.status || '').toLowerCase();
                                                     if (status === 'approved' || status === 'accepted') {
                                                         return <div className="px-4 py-2 text-emerald-600 text-[10px] font-black uppercase tracking-widest bg-emerald-50 rounded-xl border border-emerald-100">Approved</div>;
+                                                    }
+                                                    if (status === 'waitlisted') {
+                                                        return <div className="px-4 py-2 text-amber-600 text-[10px] font-black uppercase tracking-widest bg-amber-50 rounded-xl border border-amber-100">Waitlisted</div>;
                                                     }
                                                     if (status === 'rejected') {
                                                         return <div className="px-4 py-2 text-rose-600 text-[10px] font-black uppercase tracking-widest bg-rose-50 rounded-xl border border-rose-100">Rejected</div>;
@@ -2404,6 +2764,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                                     Shortlist
                                                                 </button>
                                                             ) : null}
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(item.team_id || item.submission_id, 'Waitlisted', item)}
+                                                                className="p-3 text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white rounded-xl transition-all shadow-sm text-xs font-bold"
+                                                                title="Place on waitlist"
+                                                            >
+                                                                Waitlist
+                                                            </button>
                                                             <button
                                                                 onClick={() => handleUpdateStatus(item.team_id || item.submission_id, 'Accepted', item)}
                                                                 className="p-3 text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white rounded-xl transition-all shadow-sm text-xs font-bold"
@@ -3636,125 +4003,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                 </table>
                             </div>
                         </div>
-
-                        {selectedTeam && (
-                            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-in fade-in duration-300" onClick={() => setSelectedTeam(null)}>
-                                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-                                    <div className="p-8 border-b bg-slate-50/50">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{selectedTeam.team_name || 'Unnamed Team'}</h2>
-                                                    <span className={`px-3 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border ${
-                                                        selectedTeam.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                                        selectedTeam.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
-                                                        'bg-slate-50 text-slate-600 border-slate-100'
-                                                    }`}>
-                                                        {selectedTeam.status || 'Pending'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                                                    <span className="flex items-center gap-1.5"><Users size={14} /> {selectedTeam.members?.length || 0} Members</span>
-                                                    <span>•</span>
-                                                    <span>Team ID: {selectedTeam._id}</span>
-                                                </div>
-                                            </div>
-                                            <button 
-                                                onClick={() => setSelectedTeam(null)}
-                                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-200 transition-all shadow-sm"
-                                            >
-                                                <X size={20} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex-1 overflow-y-auto p-8">
-                                        <div className="space-y-8">
-                                            <div>
-                                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Team Roster</h3>
-                                                <div className="bg-slate-50 rounded-[1.5rem] border border-slate-100 overflow-hidden">
-                                                    <table className="min-w-full divide-y divide-slate-200">
-                                                        <thead className="bg-slate-100/50">
-                                                            <tr>
-                                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Member</th>
-                                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</th>
-                                                                <th className="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Registration</th>
-                                                                <th className="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Submission</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-slate-100 bg-white">
-                                                            {selectedTeam.members?.map((member: any, index: number) => (
-                                                                <tr key={index} className="hover:bg-slate-50/50 transition-colors">
-                                                                    <td className="px-6 py-4">
-                                                                        <div className="font-bold text-slate-900 text-sm">{member.name || 'N/A'}</div>
-                                                                        <div className="text-xs text-slate-400 font-medium">{member.email || 'N/A'}</div>
-                                                                    </td>
-                                                                    <td className="px-6 py-4">
-                                                                        {member.is_leader ? (
-                                                                            <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-indigo-100">
-                                                                                Leader
-                                                                            </span>
-                                                                        ) : (
-                                                                            <span className="text-[11px] font-bold text-slate-400">Member</span>
-                                                                        )}
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
-                                                                            member.registration_status === 'shortlisted' ? 'bg-emerald-50 text-emerald-600' :
-                                                                            member.registration_status === 'rejected' ? 'bg-red-50 text-red-600' :
-                                                                            'bg-slate-50 text-slate-500'
-                                                                        }`}>
-                                                                            {member.registration_status || 'Registered'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
-                                                                            member.submission_status === 'submitted' ? 'bg-indigo-50 text-indigo-600' :
-                                                                            'bg-slate-50 text-slate-500'
-                                                                        }`}>
-                                                                            {member.submission_status === 'submitted' ? 'Submitted' : 'Pending'}
-                                                                        </span>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="p-8 border-t bg-slate-50/50 flex justify-end gap-3">
-                                        <button 
-                                            onClick={() => setSelectedTeam(null)}
-                                            className="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"
-                                        >
-                                            Close
-                                        </button>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    handleUpdateTeamStatus(selectedTeam._id, 'approved');
-                                                    setSelectedTeam(null);
-                                                }}
-                                                className="px-6 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-900/20"
-                                            >
-                                                Approve Team
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    handleUpdateTeamStatus(selectedTeam._id, 'rejected');
-                                                    setSelectedTeam(null);
-                                                }}
-                                                className="px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-900/20"
-                                            >
-                                                Reject Team
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 );
             case 'basic':
@@ -4875,8 +5123,55 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 stageName={reviewQuiz?.stageName || ''}
             />
 
-            {/* Asset Preview Modal */}
+            {/* Modals and Overlays */}
+            {renderTeamDetailModal()}
             <FramerAnimatePresence>
+                {previewRecommendation && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[85vh]"
+                        >
+                            <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900">{previewRecommendation.title}</h3>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Judge Recommendation</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setPreviewRecommendation(null)}
+                                        className="p-2.5 rounded-xl hover:bg-slate-200/50 text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="p-8 overflow-y-auto">
+                                <div className="prose prose-slate prose-p:leading-relaxed max-w-none text-slate-700">
+                                    {previewRecommendation.text.split('\n').map((para, i) => (
+                                        <p key={i} className="mb-4 last:mb-0 text-sm font-medium">{para}</p>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+                                <button
+                                    onClick={() => setPreviewRecommendation(null)}
+                                    className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
                 {previewAsset && (
                     <motion.div 
                         initial={{ opacity: 0 }}

@@ -137,10 +137,10 @@ def _apply_event_snapshot_to_opportunity(doc: dict, ev: dict) -> None:
     if fd.get("endDate"):
         doc["eventEndDate"] = fd.get("endDate")
     # Some events store timeline directly on the event payload (not inside festivalData)
-    if ev.get("startDate") or ev.get("start_date"):
-        doc["eventStartDate"] = ev.get("startDate") or ev.get("start_date")
-    if ev.get("endDate") or ev.get("end_date"):
-        doc["eventEndDate"] = ev.get("endDate") or ev.get("end_date")
+    if ev.get("startDate") or ev.get("start_date") or ev.get("eventStartDate"):
+        doc["eventStartDate"] = ev.get("eventStartDate") or ev.get("startDate") or ev.get("start_date")
+    if ev.get("endDate") or ev.get("end_date") or ev.get("eventEndDate"):
+        doc["eventEndDate"] = ev.get("eventEndDate") or ev.get("endDate") or ev.get("end_date")
     if fd.get("details"):
         doc["festivalDetails"] = fd.get("details")
     if ev.get("websiteUrl"):

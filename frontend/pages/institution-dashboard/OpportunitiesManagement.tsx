@@ -153,10 +153,7 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
 
     useEffect(() => {
         const fetchEvents = async () => {
-            if (!institutionId || cache['institutionOpportunities']) {
-                if (loading) setLoading('institutionOpportunities', false);
-                return;
-            }
+            if (!institutionId) return;
             try {
                 setLoading('institutionOpportunities', true);
                 console.log(`DEBUG: Fetching events for institution: ${institutionId}`);
@@ -255,8 +252,13 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                 setLoading('institutionOpportunities', false);
             }
         };
+        // Fetch immediately when component mounts (e.g. tab switch)
         fetchEvents();
-    }, [institutionId, cache, loading, setCacheData, setLoading]);
+        // Also listen for custom refresh event from sibling components (e.g. after edit save)
+        const handleRefresh = () => fetchEvents();
+        window.addEventListener('opportunity-list-refresh', handleRefresh);
+        return () => window.removeEventListener('opportunity-list-refresh', handleRefresh);
+    }, [institutionId, setCacheData, setLoading]);
 
     const filteredEvents = events.filter(event => {
         const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase());

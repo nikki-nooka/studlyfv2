@@ -166,6 +166,7 @@ class DatabaseManager:
             await self.db.scores.create_index("event_id")
             await self.db.scores.create_index("submission_id")
             await self.db.scores.create_index([("event_id", 1), ("submission_id", 1)])
+            await self.db.scores.create_index([("event_id", 1), ("team_id", 1)])
             
             # ── Notifications ──
             await self.db.notifications.create_index([("user_id", 1), ("is_read", 1)])
@@ -177,6 +178,8 @@ class DatabaseManager:
             
             # ── Leaderboard ──
             await self.db.leaderboard.create_index([("event_id", 1), ("score", -1)])
+            # Compound index for sorted leaderboard queries (filter by event, sort by rank)
+            await self.db.leaderboard.create_index([("event_id", 1), ("rank", 1)])
             
             # ── Opportunities (student-facing dashboard) ──
             await self.db.opportunities.create_index([("institution_id", 1), ("status", 1)])

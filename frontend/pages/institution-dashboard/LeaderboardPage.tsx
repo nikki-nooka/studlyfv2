@@ -7,19 +7,70 @@ import { API_BASE_URL, authHeaders } from '../../apiConfig';
 
 interface LeaderboardEntry {
     rank: number;
+    team_id: string;
     team_name: string;
     project_title: string;
     total_score: number;
     college?: string;
     prize?: string;
+    criteria_scores?: any;
 }
 
 interface LeaderboardPageProps {
     eventId?: string;
     refreshCounter?: number;
+    submissions?: any[]; // Pass submissions as a prop
 }
 
-const LeaderboardPage: React.FC<LeaderboardPageProps> = ({ eventId, refreshCounter }) => {
+const TeamDetailsView = ({ teamId, submissions }: { teamId: string, submissions?: any[] }) => {
+    // Filter submission by team name
+    const details = Array.isArray(submissions) 
+        ? submissions.find((s: any) => String(s.team_name || s.teamName) === String(teamId)) 
+        : null;
+
+    if (!details) return <div className="p-10 text-center text-slate-400">Team details not found in submission data.</div>;
+
+    // Helper to safely extract data from submission structure
+    const data = details.data || {};
+    
+    return (
+        <div className="p-10 bg-white grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Idea Abstract</h4>
+                <p className="text-sm text-gray-700">{details.problem_statement || data.idea_abstract || data.abstract || 'No abstract provided.'}</p>
+            </div>
+            <div>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Proposed Solution</h4>
+                <p className="text-sm text-gray-700">{details.solution || data.solution_description || data.description || 'No description provided.'}</p>
+            </div>
+            <div>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Files</h4>
+                <div className="flex gap-2">
+                    {/* Render ppt_link if exists, or files array */}
+                    {details.ppt_link && (
+                        <a href={details.ppt_link} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-slate-100 rounded text-xs text-blue-600 hover:underline">
+                            View PPT
+                        </a>
+                    )}
+                    {data.files?.map((f: any, i: number) => (
+                        <a key={i} href={f.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-slate-100 rounded text-xs text-blue-600 hover:underline">
+                            {f.name || `File ${i+1}`}
+                        </a>
+                    ))}
+                </div>
+            </div>
+            <div>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Evaluator Score</h4>
+                <p className="text-sm text-gray-900 font-bold">{details.total_score || details.score || 'Not evaluated'}</p>
+            </div>
+        </div>
+    );
+};
+
+const LeaderboardPage: React.FC<LeaderboardPageProps> = ({ eventId, refreshCounter, submissions = [] }) => {
+    // ... (rest of the component) ...
+    // Inside the map loop:
+    // <TeamDetailsView teamId={r.team_name} submissions={submissions} />
     const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
@@ -52,16 +103,7 @@ const LeaderboardPage: React.FC<LeaderboardPageProps> = ({ eventId, refreshCount
         const fetchRankings = async () => {
             if (!eventId) return;
             try {
-                // First, try to refresh/recalculate unified leaderboard standings
-                try {
-                    await fetch(`${API_BASE_URL}/api/v1/institution/leaderboard/${eventId}/refresh`, {
-                        method: 'POST',
-                        headers: { ...authHeaders() }
-                    });
-                } catch (e) {
-                    console.warn("Leaderboard refresh error:", e);
-                }
-
+                // The GET endpoint auto-recalculates if leaderboard is empty (no separate refresh POST needed)
                 // Primary: unified institution leaderboard (supports both standard and stage submissions)
                 let res = await fetch(`${API_BASE_URL}/api/v1/institution/leaderboard/${eventId}`, {
                     headers: { ...authHeaders() }
@@ -97,8 +139,9 @@ const LeaderboardPage: React.FC<LeaderboardPageProps> = ({ eventId, refreshCount
                 if (res.ok) {
                     const mapped = (Array.isArray(data) ? data : []).map((d: any) => ({
                         rank: d.rank,
+                        team_id: d.team_id || d.student_id || d.id || d._id || '',
                         team_name: d.teamName || d.team_name || d.student_name || '',
-                        project_title: d.projectTitle || d.project_title || d.project_name || d.teamLead || d.student_name || '',
+                        project_title: d.projectTitle || d.project_title || d.project_name || d.teamLead || d.student_name || 'Individual Project',
                         total_score: Number(d.totalScore ?? d.total_score ?? 0),
                         college: d.college || d.institution || d.institution_name,
                         criteria_scores: d.rubricScores || d.rubric_scores || d.criteria_scores || {}
@@ -261,25 +304,7 @@ const LeaderboardPage: React.FC<LeaderboardPageProps> = ({ eventId, refreshCount
                                                                     exit={{ height: 0, opacity: 0 }}
                                                                     className="overflow-hidden"
                                                                 >
-                                                                    <div className="p-10 bg-slate-50/50 grid grid-cols-1 md:grid-cols-4 gap-8">
-                                                                        {r.criteria_scores ? Object.entries(r.criteria_scores).map(([key, val]: any) => (
-                                                                            <div key={key} className="space-y-3">
-                                                                                <div className="flex justify-between items-center">
-                                                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{key}</label>
-                                                                                    <span className="text-sm font-black text-blue-600">{val}</span>
-                                                                                </div>
-                                                                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
-                                                                                    <motion.div 
-                                                                                        initial={{ width: 0 }}
-                                                                                        animate={{ width: `${(val/25)*100}%` }}
-                                                                                        className="h-full bg-blue-500 rounded-full"
-                                                                                    />
-                                                                                </div>
-                                                                            </div>
-                                                                        )) : (
-                                                                            <div className="col-span-4 text-center py-6 text-slate-400 italic">No dimension scores found for this entry.</div>
-                                                                        )}
-                                                                    </div>
+                                                                    <TeamDetailsView teamId={r.team_id} submissions={submissions} />
                                                                 </motion.div>
                                                             </td>
                                                         </tr>

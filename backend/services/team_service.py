@@ -471,7 +471,11 @@ async def create_solo_team(event_id: str, user_id: str) -> dict:
 async def get_team_details(team_id: str) -> dict:
     """Get full team details including member info."""
     try:
-        team = await teams_col.find_one({"_id": ObjectId(team_id)})
+        query = {"team_id": team_id}
+        if ObjectId.is_valid(team_id):
+            query = {"$or": [{"_id": ObjectId(team_id)}, {"team_id": team_id}]}
+            
+        team = await teams_col.find_one(query)
         if not team:
             return {"error": "Team not found"}
         

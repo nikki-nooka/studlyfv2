@@ -50,6 +50,8 @@ async def _create_opportunity_for_event(event_data: dict, opportunities_col):
             "description": event_data.get("description", ""),
             "location": ", ".join(_loc_parts),
             "deadline": event_data.get("registrationDeadline") or event_data.get("registration_deadline") or datetime.utcnow(),
+            "eventStartDate": event_data.get("eventStartDate") or event_data.get("startDate") or event_data.get("start_date") or "",
+            "eventEndDate": event_data.get("eventEndDate") or event_data.get("endDate") or event_data.get("end_date") or "",
             "applicantsCount": 0,
             "createdBy": str(event_data.get("institution_id", "")),
             "institution_id": str(event_data.get("institution_id", "")),

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Award, Search, Download, ExternalLink, Calendar, CheckCircle2, ShieldCheck, Loader2, LayoutTemplate, Sparkles, Send, Trophy, Medal, Users, Info } from 'lucide-react';
 import { API_BASE_URL, authHeaders } from '../../apiConfig';
 import CertificateTemplateBuilder from './components/CertificateTemplateBuilder';
@@ -6,6 +6,7 @@ import CertificateTemplateBuilder from './components/CertificateTemplateBuilder'
 interface Certificate {
     _id: string; student_name: string; event_title: string;
     certificate_id: string; issue_date: string; category: string;
+    team_name?: string; team_id?: string; event_id?: string;
 }
 interface EventOption {
     _id: string;
@@ -35,6 +36,8 @@ interface AwardBand {
     template_id?: string;
 }
 interface CertificatesPageProps { institutionId: string; }
+
+const eventsCache = new Map<string, EventOption[]>();
 
 const TABS = [
     { id: 'registry', label: 'Achievement Registry', icon: Award },
@@ -66,6 +69,12 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
 
     useEffect(() => {
         if (!institutionId) return;
+        const cached = eventsCache.get(institutionId);
+        if (cached) {
+            setEvents(cached);
+            if (!selectedEventId && cached.length > 0) setSelectedEventId(cached[0]._id);
+            return;
+        }
         (async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/v1/institution/events/${institutionId}`, { headers: { ...authHeaders() } });
@@ -77,93 +86,88 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                     status: event.status || 'Unknown',
                     finalized_at: event.finalized_at,
                 }));
+                eventsCache.set(institutionId, mapped);
                 setEvents(mapped);
-                if (!selectedEventId && mapped.length > 0) {
-                    setSelectedEventId(mapped[0]._id);
-                }
+                if (!selectedEventId && mapped.length > 0) setSelectedEventId(mapped[0]._id);
             } catch (error) {
             }
         })();
     }, [institutionId]);
 
-    useEffect(() => {
+    const loadEventDetails = useCallback(async () => {
+        if (!selectedEventId) return;
+        try {
+            const detailRes = await fetch(`${API_BASE_URL}/api/v1/institution/events/${selectedEventId}/details`, {
+                headers: { ...authHeaders() },
+            });
+            if (!detailRes.ok) return;
+            const detail = await detailRes.json();
+            const savedConfig = detail?.certificate_award_config;
+            if (savedConfig) {
+                if (savedConfig.awardPolicy) setAwardPolicy(savedConfig.awardPolicy);
+                if (savedConfig.topNValue != null) setTopNValue(String(savedConfig.topNValue));
+                if (savedConfig.minScoreValue != null) setMinScoreValue(String(savedConfig.minScoreValue));
+                if (Array.isArray(savedConfig.awardBands) && savedConfig.awardBands.length > 0) {
+                    setAwardBands(savedConfig.awardBands.map((band: any, index: number) => ({
+                        id: String(band.id || `saved-band-${index}`),
+                        label: String(band.label || 'Award'),
+                        achievement_type: String(band.achievement_type || 'top_performer'),
+                        min_score: band.min_score == null ? '' : String(band.min_score),
+                        max_score: band.max_score == null ? '' : String(band.max_score),
+                        limit: band.limit == null ? '' : String(band.limit),
+                        template_id: band.template_id || undefined,
+                    })));
+                }
+            }
+        } catch (error) {}
+    }, [selectedEventId]);
+
+    const loadLeaderboard = useCallback(async () => {
         if (!selectedEventId) {
             setLeaderboard([]);
             return;
         }
+        try {
+            setLoadingPreview(true);
+            // Refresh first to ensure we have the latest leaderboard
+            await fetch(`${API_BASE_URL}/api/v1/institution/leaderboard/${selectedEventId}/refresh`, { 
+                method: 'POST',
+                headers: { ...authHeaders() }
+            });
 
-        (async () => {
-            try {
-                const detailRes = await fetch(`${API_BASE_URL}/api/v1/institution/events/${selectedEventId}/details`, {
-                    headers: { ...authHeaders() },
-                });
-                if (!detailRes.ok) return;
-                const detail = await detailRes.json();
-                const savedConfig = detail?.certificate_award_config;
-                if (savedConfig) {
-                    if (savedConfig.awardPolicy) {
-                        setAwardPolicy(savedConfig.awardPolicy);
-                    }
-                    if (savedConfig.topNValue !== undefined && savedConfig.topNValue !== null) {
-                        setTopNValue(String(savedConfig.topNValue));
-                    }
-                    if (savedConfig.minScoreValue !== undefined && savedConfig.minScoreValue !== null) {
-                        setMinScoreValue(String(savedConfig.minScoreValue));
-                    }
-                    if (Array.isArray(savedConfig.awardBands) && savedConfig.awardBands.length > 0) {
-                        setAwardBands(savedConfig.awardBands.map((band: any, index: number) => ({
-                            id: String(band.id || `saved-band-${index}`),
-                            label: String(band.label || 'Award'),
-                            achievement_type: String(band.achievement_type || 'top_performer'),
-                            min_score: band.min_score === undefined || band.min_score === null ? '' : String(band.min_score),
-                            max_score: band.max_score === undefined || band.max_score === null ? '' : String(band.max_score),
-                            limit: band.limit === undefined || band.limit === null ? '' : String(band.limit),
-                            template_id: band.template_id || undefined,
-                        })));
-                    }
-                }
-            } catch (error) {
+            let res = await fetch(`${API_BASE_URL}/api/v1/institution/leaderboard/${selectedEventId}`);
+            let data: any[] = [];
+            if (res.ok) data = await res.json();
+            if (!res.ok || !Array.isArray(data) || data.length === 0) {
+                const fb = await fetch(`${API_BASE_URL}/api/judging/leaderboard/${selectedEventId}`);
+                if (fb.ok) { res = fb; data = await fb.json(); }
             }
-        })();
-
-        (async () => {
-            try {
-                setLoadingPreview(true);
-                // Try dynamic unified rankings first
-                let res = await fetch(`${API_BASE_URL}/api/v1/institution/leaderboard/${selectedEventId}`);
-                let data = [];
-                if (res.ok) {
-                    data = await res.json();
-                }
-
-                // Fallback to legacy judging leaderboard if unified is empty or failed
-                if (!res.ok || !Array.isArray(data) || data.length === 0) {
-                    const fallbackRes = await fetch(`${API_BASE_URL}/api/judging/leaderboard/${selectedEventId}`);
-                    if (fallbackRes.ok) {
-                        res = fallbackRes;
-                        data = await fallbackRes.json();
-                    }
-                }
-
-                if (res.ok) {
-                    const mapped = (Array.isArray(data) ? data : []).map((entry: any) => ({
-                        rank: Number(entry.rank || 0),
-                        team_name: entry.teamName || entry.team_name || entry.student_name || '',
-                        student_name: entry.student_name || entry.recipient_name || '',
-                        project_title: entry.projectTitle || entry.project_title || entry.project_name || '',
-                        total_score: Number(entry.totalScore ?? entry.total_score ?? 0),
-                    }));
-                    setLeaderboard(mapped);
-                } else {
-                    setLeaderboard([]);
-                }
-            } catch (error) {
+            if (res.ok) {
+                setLeaderboard((Array.isArray(data) ? data : []).map((entry: any) => ({
+                    rank: Number(entry.rank || 0),
+                    team_name: entry.teamName || entry.team_name || entry.student_name || '',
+                    student_name: entry.student_name || entry.recipient_name || '',
+                    project_title: entry.projectTitle || entry.project_title || entry.project_name || '',
+                    total_score: Number(entry.totalScore ?? entry.total_score ?? 0),
+                })));
+            } else {
                 setLeaderboard([]);
-            } finally {
-                setLoadingPreview(false);
             }
-        })();
+        } catch (error) {
+            setLeaderboard([]);
+        } finally {
+            setLoadingPreview(false);
+        }
     }, [selectedEventId]);
+
+    useEffect(() => {
+        if (selectedEventId) {
+            loadEventDetails();
+            loadLeaderboard();
+        } else {
+            setLeaderboard([]);
+        }
+    }, [selectedEventId, loadEventDetails, loadLeaderboard]);
 
     useEffect(() => {
         if (!institutionId) return;
@@ -198,7 +202,7 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
     }, [institutionId, tab]);
 
     const refreshCertificates = async () => {
-        const res = await fetch(`${API_BASE_URL}/api/v1/institution/certificates/${institutionId}`, { headers: { ...authHeaders() } });
+        const res = await fetch(`${API_BASE_URL}/api/v1/institution/institution/certificates/${institutionId}`, { headers: { ...authHeaders() } });
         if (res.ok) setCertificates(await res.json());
     };
 
@@ -227,7 +231,8 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                 throw new Error(err.detail || err.message || 'Failed to save award setup');
             }
 
-            setIssueMessage('Award setup saved for this event.');
+            setIssueMessage('Award setup saved — preview updated.');
+            loadLeaderboard();
         } catch (error: any) {
             setIssueMessage(error?.message || 'Failed to save award setup.');
         }
@@ -271,7 +276,7 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
             total: selected.length,
             selected,
         };
-    }, [awardPolicy, leaderboard]);
+    }, [awardPolicy, leaderboard, awardBands]);
 
     const handleIssueCertificates = async () => {
         if (!selectedEventId) {
@@ -295,9 +300,9 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                     bands: awardPolicy === 'bands' ? awardBands.map((band) => ({
                         label: band.label,
                         achievement_type: band.achievement_type,
-                        min_score: band.min_score === '' ? undefined : Number(band.min_score),
-                        max_score: band.max_score === '' ? undefined : Number(band.max_score),
-                        limit: band.limit === '' ? undefined : Number(band.limit),
+                        min_score: band.min_score === '' ? undefined : band.min_score,
+                        max_score: band.max_score === '' ? undefined : band.max_score,
+                        limit: band.limit === '' ? undefined : band.limit,
                         template_id: band.template_id || undefined,
                     })) : undefined,
                     send_email: true,
@@ -357,11 +362,25 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                             <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Achievement Registry</h1>
                             <p className="text-slate-500 mt-1 font-medium">Verify and manage official recognition issued by your institution.</p>
                         </div>
-                        <div className="relative group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#6C3BFF] transition-colors" size={18} />
-                            <input type="text" placeholder="Search name or ID..." value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                className="pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-purple-50 focus:border-[#6C3BFF] transition-all w-72 font-medium text-slate-700 placeholder:text-slate-300 text-sm" />
+                        <div className="flex items-center gap-3">
+                            {!loading && filtered.length > 0 && (
+                                <button
+                                    onClick={() => {
+                                        filtered.forEach(cert => {
+                                            window.open(`${API_BASE_URL}/api/v1/institution/download-certificate/${cert.certificate_id}`, '_blank');
+                                        });
+                                    }}
+                                    className="flex items-center gap-2 px-5 py-4 rounded-2xl bg-[#6C3BFF] hover:bg-[#5B2EEB] text-white transition-all font-black uppercase tracking-[0.2em] text-[10px]"
+                                >
+                                    <Download size={14} /> Export PDF ({filtered.length})
+                                </button>
+                            )}
+                            <div className="relative group">
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#6C3BFF] transition-colors" size={18} />
+                                <input type="text" placeholder="Search name or ID..." value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    className="pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-purple-50 focus:border-[#6C3BFF] transition-all w-72 font-medium text-slate-700 placeholder:text-slate-300 text-sm" />
+                            </div>
                         </div>
                     </div>
 
@@ -370,9 +389,7 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at top left, rgba(255,255,255,0.25), transparent 28%), radial-gradient(circle at bottom right, rgba(124,58,237,0.25), transparent 24%)' }} />
                         <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                             <div className="max-w-2xl">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-[0.25em] mb-4">
-                                    <Sparkles size={12} /> Unstop-style issuance
-                                </div>
+
                                 <h2 className="text-3xl md:text-4xl font-black tracking-tight">Issue certificates in one action</h2>
                                 <p className="text-white/70 mt-3 leading-relaxed">
                                     Select one template, pick an award policy, and issue either ranked awards or participation certificates in a controlled batch.
@@ -455,8 +472,7 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                                 </button>
                                 <button
                                     onClick={saveAwardSetup}
-                                    disabled={issuing}
-                                    className="sm:col-span-3 flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all font-black uppercase tracking-[0.2em] text-[10px] disabled:opacity-60"
+                                    className="sm:col-span-3 flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 transition-all font-black uppercase tracking-[0.2em] text-[10px] shadow-lg shadow-emerald-900/30"
                                 >
                                     Save Award Setup
                                 </button>
@@ -479,54 +495,54 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                                 </div>
                                 <div className="space-y-3">
                                     {awardBands.map((band, index) => (
-                                        <div key={band.id} className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr_0.8fr_0.6fr_1.2fr_auto] gap-3 items-center bg-white/5 rounded-2xl p-3">
+                                        <div key={band.id} className="grid grid-cols-1 lg:grid-cols-[repeat(6,1fr)_auto] gap-2 items-center bg-white/5 rounded-2xl p-3 min-w-0">
                                             <input
                                                 value={band.label}
                                                 onChange={e => setAwardBands(prev => prev.map(item => item.id === band.id ? { ...item, label: e.target.value } : item))}
-                                                className="px-3 py-2 rounded-xl bg-white text-slate-900 text-sm font-medium outline-none"
+                                                className="px-2 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium outline-none w-full min-w-0"
                                                 placeholder="Band label"
                                             />
                                             <input
                                                 value={band.achievement_type}
                                                 onChange={e => setAwardBands(prev => prev.map(item => item.id === band.id ? { ...item, achievement_type: e.target.value } : item))}
-                                                className="px-3 py-2 rounded-xl bg-white text-slate-900 text-sm font-medium outline-none"
-                                                placeholder="achievement_type"
+                                                className="px-2 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium outline-none w-full min-w-0"
+                                                placeholder="Type"
                                             />
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={band.min_score}
                                                 onChange={e => setAwardBands(prev => prev.map(item => item.id === band.id ? { ...item, min_score: e.target.value } : item))}
-                                                className="px-3 py-2 rounded-xl bg-white text-slate-900 text-sm font-medium outline-none"
-                                                placeholder="Min score"
+                                                className="px-2 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium outline-none w-full min-w-0 text-center"
+                                                placeholder="Min"
                                             />
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={band.max_score}
                                                 onChange={e => setAwardBands(prev => prev.map(item => item.id === band.id ? { ...item, max_score: e.target.value } : item))}
-                                                className="px-3 py-2 rounded-xl bg-white text-slate-900 text-sm font-medium outline-none"
-                                                placeholder="Max score"
+                                                className="px-2 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium outline-none w-full min-w-0 text-center"
+                                                placeholder="Max"
                                             />
                                             <input
                                                 type="number"
                                                 step="1"
                                                 value={band.limit}
                                                 onChange={e => setAwardBands(prev => prev.map(item => item.id === band.id ? { ...item, limit: e.target.value } : item))}
-                                                className="px-3 py-2 rounded-xl bg-white text-slate-900 text-sm font-medium outline-none"
-                                                placeholder="Limit"
+                                                className="px-2 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium outline-none w-full min-w-0 text-center"
+                                                placeholder="Lim"
                                             />
                                             <select
                                                 value={band.template_id || ''}
                                                 onChange={e => setAwardBands(prev => prev.map(item => item.id === band.id ? { ...item, template_id: e.target.value } : item))}
-                                                className="px-3 py-2 rounded-xl bg-white text-slate-900 text-sm font-medium outline-none"
+                                                className="px-2 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium outline-none w-full min-w-0"
                                             >
                                                 <option value="">Default</option>
                                                 {templates.map(t => <option key={t.template_id} value={t.template_id}>{t.name}</option>)}
                                             </select>
                                             <button
                                                 onClick={() => setAwardBands(prev => prev.filter(item => item.id !== band.id))}
-                                                className="px-3 py-2 rounded-xl bg-rose-500/20 text-rose-200 text-[10px] font-black uppercase tracking-[0.2em]"
+                                                className="px-3 py-2 rounded-xl bg-rose-500/20 text-rose-200 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap"
                                                 disabled={awardBands.length === 1}
                                             >
                                                 Remove
@@ -572,18 +588,40 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                                     <p className="text-sm text-white/60">Loading leaderboard preview...</p>
                                 ) : (
                                     <div className="space-y-2 text-sm text-white/80">
-                                        <p><span className="font-black text-white">{awardPreview.total}</span> recipients in this issuance set</p>
-                                                {awardPolicy === 'bands' ? (
-                                                    <p>Custom bands: <span className="font-black text-white">{awardBands.length}</span></p>
-                                                ) : awardPreview.minScore !== null ? (
-                                                    <p>Minimum score: <span className="font-black text-white">{awardPreview.minScore}</span></p>
-                                                ) : (
-                                                    <p>Top N: <span className="font-black text-white">{awardPreview.limit}</span></p>
-                                                )}
-                                                <p>Winners: <span className="font-black text-white">{awardPreview.winnerCount}</span></p>
-                                                <p>Runner Ups: <span className="font-black text-white">{awardPreview.runnerUpCount}</span></p>
-                                                <p>Second Runner Ups: <span className="font-black text-white">{awardPreview.secondRunnerUpCount}</span></p>
-                                                <p>Other finalists: <span className="font-black text-white">{awardPreview.finalistCount}</span></p>
+                                        <p><span className="font-black text-white">{leaderboard.length > 0 ? awardPreview.total : certificates.filter(c => c.event_id === selectedEventId).length}</span> recipients in this issuance set</p>
+                                        {awardPolicy === 'bands' ? (
+                                            <div className="space-y-1">
+                                                {(() => {
+                                                    const hasLeaderboard = leaderboard.length > 0;
+                                                    const seen = new Set<number>();
+                                                    return awardBands.map((band, i) => {
+                                                        if (hasLeaderboard) {
+                                                            const min = band.min_score !== '' ? Number(band.min_score) : Number.NEGATIVE_INFINITY;
+                                                            const max = band.max_score !== '' ? Number(band.max_score) : Number.POSITIVE_INFINITY;
+                                                            const raw = leaderboard.filter(item => {
+                                                                const s = Number(item.total_score || 0);
+                                                                return s >= min && s <= max;
+                                                            });
+                                                            const limitN = band.limit !== '' ? Number(band.limit) : raw.length;
+                                                            const available = raw.filter(r => !seen.has(r.rank)).length;
+                                                            const capped = Math.min(available, limitN);
+                                                            raw.slice(0, capped).forEach(r => seen.add(r.rank));
+                                                            return (
+                                                                <p key={i}>{band.label || `Band ${i + 1}`}: <span className="font-black text-white">{capped}</span>{band.limit !== '' ? ` (limit ${band.limit})` : ''}</p>
+                                                            );
+                                                        }
+                                                        const certCount = certificates.filter(c => c.category?.toLowerCase() === (band.achievement_type || band.label).toLowerCase()).length;
+                                                        return (
+                                                            <p key={i}>{band.label || `Band ${i + 1}`}: <span className="font-black text-white">{certCount}</span> (issued)</p>
+                                                        );
+                                                    });
+                                                })()}
+                                            </div>
+                                        ) : awardPreview.minScore !== null ? (
+                                            <p>Minimum score: <span className="font-black text-white">{awardPreview.minScore}</span></p>
+                                        ) : (
+                                            <p>Top N: <span className="font-black text-white">{awardPreview.limit}</span></p>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -631,7 +669,9 @@ const CertificatesPage: React.FC<CertificatesPageProps> = ({ institutionId }) =>
                                                     <div className="w-10 h-10 rounded-2xl bg-purple-50 flex items-center justify-center text-[#6C3BFF] font-black text-sm">{cert.student_name[0]}</div>
                                                     <div>
                                                         <p className="font-black text-slate-900 text-sm">{cert.student_name}</p>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase">{cert.category || 'Participant'}</p>
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase">
+                                                            {cert.team_name ? `${cert.category || 'Participant'} · ${cert.team_name}` : (cert.category || 'Participant')}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </td>

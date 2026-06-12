@@ -17,28 +17,31 @@ class NotificationService:
         self,
         user_id: str,
         notification_type: str,
-        title: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        payload: Dict[str, Any],
         institution_id: Optional[str] = None,
         event_id: Optional[str] = None
     ):
-        """Create a new notification"""
+        """Create a new notification using dynamic template engine"""
+        from services.notification_template_engine import NotificationTemplateEngine
+        
+        # Generate dynamic content
+        content = NotificationTemplateEngine.generate(notification_type, payload)
         
         notification_doc = {
             "user_id": user_id,
             "type": notification_type,
-            "title": title,
-            "message": message,
+            "title": content["title"],
+            "message": content["message"],
             "is_read": False,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "priority": "medium",  # high, medium, low
             "category": "general"  # general, judge, event, system
         }
         
-        # Add optional fields
-        if metadata:
-            notification_doc["meta"] = metadata
+        # Add payload as metadata
+        notification_doc["meta"] = payload
+        notification_doc["meta"]["action_url"] = content["action_url"]
+            
         if institution_id:
             notification_doc["institution_id"] = institution_id
         if event_id:
@@ -59,9 +62,9 @@ class NotificationService:
             await notify_institution(
                 institution_id,
                 type=notification_type,
-                title=title,
-                message=message,
-                meta=metadata
+                title=content["title"],
+                message=content["message"],
+                meta=notification_doc["meta"]
             )
         
         return {"notification_id": notification_id, "status": "created"}
@@ -200,12 +203,10 @@ class NotificationService:
         self,
         judge_email: str,
         notification_type: str,
-        title: str,
-        message: str,
-        event_id: str,
-        metadata: Optional[Dict[str, Any]] = None
+        payload: Dict[str, Any],
+        event_id: str
     ):
-        """Create notification for a judge"""
+        """Create notification for a judge using dynamic template engine"""
         
         # Find judge in judges collection first
         from db import judges_col
@@ -227,9 +228,7 @@ class NotificationService:
         return await self.create_notification(
             user_id=user_id,
             notification_type=notification_type,
-            title=title,
-            message=message,
-            metadata=metadata,
+            payload=payload,
             event_id=event_id
         )
     
@@ -237,12 +236,10 @@ class NotificationService:
         self,
         institution_id: str,
         notification_type: str,
-        title: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        payload: Dict[str, Any],
         event_id: Optional[str] = None
     ):
-        """Create notifications for all institution admins"""
+        """Create notifications for all institution admins using dynamic template engine"""
         
         # Get institution users with admin role
         institution_users = []
@@ -260,9 +257,7 @@ class NotificationService:
                 result = await self.create_notification(
                     user_id=user_id,
                     notification_type=notification_type,
-                    title=title,
-                    message=message,
-                    metadata=metadata,
+                    payload=payload,
                     institution_id=institution_id,
                     event_id=event_id
                 )

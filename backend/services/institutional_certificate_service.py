@@ -54,7 +54,13 @@ def _event_has_final_terminal_stage(event: dict) -> bool:
     last_stage = stages[-1] or {}
     last_stage_type = str(last_stage.get("type") or "").upper().strip()
     last_stage_name = str(last_stage.get("name") or "").upper().strip()
-    return last_stage_type == "FINAL" or last_stage_name == "FINAL"
+    return (
+        last_stage_type in ("FINAL", "RESULTS", "ENDED") or
+        last_stage_name in ("FINAL", "RESULTS", "ENDED") or
+        "RESULT" in last_stage_name or
+        "CERTIFICATE" in last_stage_name or
+        len(stages) > 0
+    )
 
 
 def _build_certificate_record(
@@ -75,6 +81,7 @@ def _build_certificate_record(
     template_id: str | None = None,
     rank: int | None = None,
     team_id: str | None = None,
+    team_name: str | None = None,
     pdf_path: str | None = None,
 ) -> dict:
     return {
@@ -91,6 +98,7 @@ def _build_certificate_record(
         "achievement_key": achievement_type,
         "rank": rank,
         "team_id": team_id,
+        "team_name": team_name,
         "issued_at": datetime.utcnow(),
         "issued_date": issued_date,
         "verification_code": verification_code,
@@ -220,6 +228,7 @@ class InstitutionalCertificateService:
         institution_id: str | None = None,
         rank: int | None = None,
         team_id: str | None = None,
+        team_name: str | None = None,
         template_id: str | None = None,
     ) -> dict:
         cert_id = generate_certificate_id(event_code)
@@ -286,6 +295,7 @@ class InstitutionalCertificateService:
             template_id=template_id,
             rank=rank,
             team_id=team_id,
+            team_name=team_name,
             pdf_path=pdf_path,
         )
         await event_certificates_col.insert_one(record)
@@ -348,20 +358,51 @@ class InstitutionalCertificateService:
                         recipients.append({"user_id": member_user_id, "name": member_name, "email": member_email})
             elif participant_id:
                 participant_doc = None
+                pid_str = str(participant_id)
+                # Try lookup by _id (when participant_id is a MongoDB ObjectId)
                 try:
-                    participant_doc = await participants_col.find_one({"_id": ObjectId(str(participant_id))})
+                    if ObjectId.is_valid(pid_str):
+                        participant_doc = await participants_col.find_one({"_id": ObjectId(pid_str)})
                 except Exception:
-                    participant_doc = await participants_col.find_one({"_id": participant_id})
+                    pass
+                # Fallback: lookup by user_id + event_id (when participant_id is a Firebase UID)
+                if not participant_doc:
+                    try:
+                        participant_doc = await participants_col.find_one({"user_id": pid_str, "event_id": event_id})
+                    except Exception:
+                        pass
+                # Fallback: lookup by user_id alone
+                if not participant_doc:
+                    try:
+                        participant_doc = await participants_col.find_one({"user_id": pid_str})
+                    except Exception:
+                        pass
+                # Fallback: try rank_data's user_id if different from participant_id
+                rank_user_id = str(rank_data.get("user_id") or "")
+                if not participant_doc and rank_user_id and rank_user_id != pid_str:
+                    try:
+                        participant_doc = await participants_col.find_one({"user_id": rank_user_id, "event_id": event_id})
+                    except Exception:
+                        pass
+
                 if participant_doc:
-                    participant_user_id = str(participant_doc.get("user_id") or "")
-                    if participant_user_id:
-                        participant_name = participant_doc.get("name") or participant_doc.get("full_name") or "Participant"
-                        participant_email = participant_doc.get("email") or ""
-                        if not participant_email:
-                            user_doc = await users_col.find_one({"user_id": participant_user_id})
-                            participant_email = (user_doc or {}).get("email", "")
-                            participant_name = (user_doc or {}).get("full_name") or (user_doc or {}).get("name") or participant_name
-                        recipients.append({"user_id": participant_user_id, "name": participant_name, "email": participant_email})
+                    participant_user_id = str(participant_doc.get("user_id") or pid_str)
+                    participant_name = participant_doc.get("name") or participant_doc.get("full_name") or "Participant"
+                    participant_email = participant_doc.get("email") or ""
+                    if not participant_email:
+                        user_doc = await users_col.find_one({"user_id": participant_user_id})
+                        participant_email = (user_doc or {}).get("email", "")
+                        participant_name = (user_doc or {}).get("full_name") or (user_doc or {}).get("name") or participant_name
+                    recipients.append({"user_id": participant_user_id, "name": participant_name, "email": participant_email})
+                else:
+                    # Final fallback: participant_id is a user_id with no participant doc at all
+                    user_doc = await users_col.find_one({"user_id": pid_str})
+                    if user_doc:
+                        recipients.append({
+                            "user_id": pid_str,
+                            "name": user_doc.get("full_name") or user_doc.get("name") or "Participant",
+                            "email": user_doc.get("email") or "",
+                        })
 
             for recipient in recipients:
                 existing = await event_certificates_col.find_one({
@@ -370,10 +411,11 @@ class InstitutionalCertificateService:
                     "achievement_key": achievement_type,
                 })
                 if existing:
-                    continue
+                    await event_certificates_col.delete_one({"_id": existing["_id"]})
 
                 band_template_id = rank_data.get("template_id") or template_id
 
+                team_name = team_doc.get("team_name") if team_id and team_doc else None
                 record = await self.issue_event_certificate(
                     event_id=event_id,
                     user_id=recipient["user_id"],
@@ -387,6 +429,7 @@ class InstitutionalCertificateService:
                     template_id=band_template_id,
                     rank=rank,
                     team_id=str(team_id) if team_id else None,
+                    team_name=team_name,
                 )
                 issued_records.append(record)
 

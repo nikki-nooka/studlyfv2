@@ -3,23 +3,13 @@ from bson import ObjectId
 from db import scores_col, submissions_col, submission_data_col, leaderboard_col, events_col
 
 class LeaderboardService:
-    async def calculate_event_leaderboard(self, event_id: str):
+    async def calculate_event_leaderboard(self, event_id: str, max_entries: int = 5000):
         """
         Dynamically calculates rankings by aggregating judge scores.
         Handles both individual and team participation across submission types.
         """
-        # 1. Get all submissions for the event from both collections
-        submissions = await submissions_col.find({"event_id": event_id}).to_list(None)
-        stage_submissions = await submission_data_col.find({"event_id": event_id}).to_list(None)
-        
-        # Combine submissions (ensure we don't have duplicates if id overlaps)
-        all_submissions = submissions + stage_submissions
-        if not all_submissions:
-            return []
-
         # Local imports to avoid circular reference
         from integration_routes import collect_event_id_variants
-        from db import teams_col, participants_col, users_col
 
         event_id_variants = await collect_event_id_variants(event_id)
         event_id_in = list(event_id_variants)
@@ -30,8 +20,25 @@ class LeaderboardService:
                 except Exception:
                     pass
 
-        # Batch query all scores for the event up front
-        scores_list = await scores_col.find({"event_id": {"$in": event_id_in}}).to_list(None)
+        # 1. Get submissions for the event from both collections (with limits to prevent OOM)
+        submissions = await submissions_col.find(
+            {"event_id": {"$in": event_id_in}},
+            {"_id": 1, "team_id": 1, "user_id": 1, "participant_id": 1, "team_name": 1, "project_name": 1, "project_title": 1}
+        ).to_list(length=max_entries)
+        stage_submissions = await submission_data_col.find(
+            {"event_id": {"$in": event_id_in}},
+            {"_id": 1, "team_id": 1, "user_id": 1, "participant_id": 1, "team_name": 1, "data.project_name": 1, "data.project_title": 1}
+        ).to_list(length=max_entries)
+        
+        # Combine submissions (ensure we don't have duplicates if id overlaps)
+        all_submissions = submissions + stage_submissions
+        if not all_submissions:
+            return []
+
+        from db import teams_col, participants_col, users_col
+
+        # Batch query all scores for the event up front (limit to prevent OOM)
+        scores_list = await scores_col.find({"event_id": {"$in": event_id_in}}).to_list(length=100000)
         
         # Build maps for O(1) in-memory lookups
         scores_by_sub = {}
@@ -52,8 +59,8 @@ class LeaderboardService:
                 except Exception:
                     pass
 
-        # Batch fetch all teams for the event
-        teams_list = await teams_col.find({"event_id": {"$in": event_id_in}}).to_list(None)
+        # Batch fetch all teams for the event (limit to prevent OOM)
+        teams_list = await teams_col.find({"event_id": {"$in": event_id_in}}).to_list(length=max_entries)
         teams_map = {}
         for team in teams_list:
             teams_map[str(team["_id"])] = team
@@ -95,7 +102,7 @@ class LeaderboardService:
         participants_list = []
         if part_query:
             try:
-                participants_list = await participants_col.find(part_query).to_list(None)
+                participants_list = await participants_col.find(part_query, {"_id": 1, "user_id": 1, "event_id": 1, "full_name": 1, "college_name": 1, "institution_name": 1}).to_list(length=max_entries)
             except Exception:
                 pass
         
@@ -106,7 +113,7 @@ class LeaderboardService:
         users_list = []
         if user_ids:
             try:
-                users_list = await users_col.find({"user_id": {"$in": list(user_ids)}}).to_list(None)
+                users_list = await users_col.find({"user_id": {"$in": list(user_ids)}}).to_list(length=max_entries)
             except Exception:
                 pass
         users_map = {str(u["user_id"]): u for u in users_list}
@@ -196,15 +203,15 @@ class LeaderboardService:
                         team_name = team.get("team_name") or team.get("name") or ""
                     leader_user_id = team.get("team_leader_id") or team.get("leader_id")
             
-            if not team_name:
-                team_name = "Solo Participant"
-
             if sub.get("participant_id"):
                 p = participants_by_id.get(str(sub["participant_id"]))
                 recipient_name = p.get("full_name", "Participant") if p else "Participant"
             elif sub.get("user_id"): # Fallback for stage submissions
                 u = users_map.get(str(sub["user_id"]))
                 recipient_name = u.get("full_name", "Participant") if u else "Participant"
+
+            if not team_name or team_name == "Solo Participant":
+                team_name = recipient_name or "Solo Participant"
             
             if not leader_user_id:
                 leader_user_id = sub.get("user_id") or sub.get("participant_id")
@@ -229,6 +236,7 @@ class LeaderboardService:
                 "event_id": event_id,
                 "team_id": sub.get("team_id"),
                 "participant_id": sub.get("participant_id") or sub.get("user_id"),
+                "user_id": sub.get("user_id"),
                 "participation_type": "TEAM" if sub.get("team_id") else "INDIVIDUAL",
                 "team_name": team_name,
                 "recipient_name": recipient_name,
@@ -249,9 +257,20 @@ class LeaderboardService:
             entry["rank"] = idx + 1
 
         # 6. Atomic Sync: Clear old and insert new
-        await leaderboard_col.delete_many({"event_id": event_id})
+        await leaderboard_col.delete_many({"event_id": {"$in": event_id_in}})
         if rankings_data:
             await leaderboard_col.insert_many(rankings_data)
+            for entry in rankings_data:
+                if "_id" in entry:
+                    entry["_id"] = str(entry["_id"])
+                if "event_id" in entry:
+                    entry["event_id"] = str(entry["event_id"])
+                if "team_id" in entry and entry["team_id"] is not None:
+                    entry["team_id"] = str(entry["team_id"])
+                if "participant_id" in entry and entry["participant_id"] is not None:
+                    entry["participant_id"] = str(entry["participant_id"])
+                if "user_id" in entry and entry["user_id"] is not None:
+                    entry["user_id"] = str(entry["user_id"])
 
         return rankings_data
 

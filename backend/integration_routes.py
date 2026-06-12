@@ -1331,16 +1331,23 @@ async def get_qualified_bundle(
                 pass
 
     stage_filter = str(stage_id).strip() if stage_id else ""
-    sub_projection = {"_id": 1, "team_id": 1, "user_id": 1, "submittedBy": 1, "total_score": 1, "score": 1, "status": 1, "assigned_judges": 1}
-    raw_subs = await submissions_col.find({"event_id": {"$in": event_id_in}}, sub_projection).to_list(length=5000)
-    score_query: dict = {"event_id": {"$in": event_id_in}}
+    
+    # [FIX] Apply stage filtering to all raw data fetches
+    sub_query = {"event_id": {"$in": event_id_in}}
+    score_query = {"event_id": {"$in": event_id_in}}
+    sd_query = {"event_id": {"$in": event_id_in}}
+    
     if stage_filter:
+        sub_query["stage_id"] = stage_filter
         score_query["stage_id"] = stage_filter
+        sd_query["stage_id"] = stage_filter
+
+    sub_projection = {"_id": 1, "team_id": 1, "user_id": 1, "submittedBy": 1, "total_score": 1, "score": 1, "status": 1, "assigned_judges": 1, "stage_id": 1}
+    raw_subs = await submissions_col.find(sub_query, sub_projection).to_list(length=5000)
+    
     score_projection = {"submission_id": 1, "judge_email": 1, "judge_id": 1, "judge": 1, "judge_name": 1, "name": 1, "feedback": 1, "comments": 1, "comment": 1, "remarks": 1, "team_id": 1, "user_id": 1, "scores": 1, "criteria_scores": 1, "total_score": 1, "verified": 1}
     raw_scores = await scores_col.find(score_query, score_projection).to_list(length=5000)
-    sd_query: dict = {"event_id": {"$in": event_id_in}}
-    if stage_filter:
-        sd_query["stage_id"] = stage_filter
+    
     sd_projection = {"_id": 1, "team_id": 1, "user_id": 1, "submittedBy": 1, "stage_id": 1, "notified_at": 1, "domain": 1, "data": 1, "total_score": 1, "evaluation_score": 1, "assigned_judges": 1, "feedback": 1, "comments": 1, "comment": 1, "recommendation": 1, "team_name": 1, "teamName": 1, "user_name": 1, "full_name": 1, "email": 1, "user_email": 1}
     raw_sd = await submission_data_col.find(sd_query, sd_projection).to_list(length=5000)
 
@@ -2262,30 +2269,60 @@ async def assign_judges_to_submission_route(
 @router.get("/events/public")
 async def get_public_events():
     """PUBLIC: Retrieves live events for student registration."""
+    from datetime import datetime, timezone
+    
+    now = datetime.now(timezone.utc)
+    
+    # Query for "Live" status, then filter by date in memory (or add complexity to query)
     cursor = events_col.find({"status": "Live"})
     events_list = []
+    
     async for event in cursor:
+        # Determine the effective deadline
+        deadline = event.get("registration_deadline") or event.get("registrationDeadline") or event.get("end_date") or event.get("endDate")
+        
+        # If deadline exists, check it
+        if deadline:
+            try:
+                deadline_dt = datetime.fromisoformat(str(deadline).replace("Z", "+00:00"))
+                if deadline_dt < now:
+                    continue # Skip expired events
+            except:
+                pass # If date parsing fails, keep the event to be safe
+                
         event["_id"] = str(event["_id"])
         events_list.append(event)
+        
     return events_list
 
 @router.post("/leaderboard/{event_id}/refresh")
-async def refresh_leaderboard(event_id: str):
+async def refresh_leaderboard(event_id: str, user: dict = Depends(get_auth_user)):
     """Triggers dynamic recalculation of rankings based on latest scores."""
+    await assert_institution_owns_event(event_id, user)
     return await leaderboard_service.calculate_event_leaderboard(event_id)
 
 @router.get("/leaderboard/{event_id}")
-async def fetch_leaderboard(event_id: str):
+async def fetch_leaderboard(event_id: str, user: dict = Depends(get_auth_user)):
     """Retrieves live event standings based on dynamic judge scoring."""
     if event_id == "active_event":
         # Resolve to latest event
         event = await events_col.find_one({"status": "Live"}, sort=[("created_at", -1)])
         if not event: event = await events_col.find_one({}, sort=[("created_at", -1)])
         if event: event_id = str(event["_id"])
+    
+    # Check authorization to view leaderboard
+    await assert_institution_owns_event(event_id, user)
 
-    rankings = await leaderboard_col.find({"event_id": event_id}).sort("rank", 1).to_list(None)
+    # Robustly fetch all variants of the event_id to ensure we get correct leaderboard data
+    event_id_variants = await collect_event_id_variants(event_id)
+    
+    rankings = await leaderboard_col.find({"event_id": {"$in": event_id_variants}}).sort("rank", 1).to_list(length=2000)
+    if not rankings:
+        from services.leaderboard_service import leaderboard_service
+        rankings = await leaderboard_service.calculate_event_leaderboard(event_id)
+
     for r in rankings: r["_id"] = str(r["_id"])
-    return rankings
+    return rankings[:2000]
 
 @router.get("/results/{event_id}")
 async def fetch_event_results(event_id: str):
@@ -2294,7 +2331,7 @@ async def fetch_event_results(event_id: str):
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    rankings = await leaderboard_col.find({"event_id": event_id}).sort("rank", 1).to_list(None)
+    rankings = await leaderboard_col.find({"event_id": event_id}).sort("rank", 1).to_list(length=2000)
     for r in rankings:
         r["_id"] = str(r["_id"])
 
@@ -2376,7 +2413,7 @@ async def export_leaderboard_pdf(event_id: str):
 
     # 1. Fetch Data
     event = await events_col.find_one({"_id": ObjectId(event_id)})
-    rankings = await leaderboard_col.find({"event_id": event_id}).sort("rank", 1).to_list(None)
+    rankings = await leaderboard_col.find({"event_id": event_id}).sort("rank", 1).to_list(length=2000)
     
     # 2. Create PDF Buffer
     buffer = BytesIO()
@@ -2546,12 +2583,24 @@ async def issue_ranked_certificates(
             band_template_id = band.get("template_id") or template_id
 
             band_rows = final_rankings
-            if isinstance(band_min, (int, float)):
-                band_rows = [row for row in band_rows if float(row.get("total_score") or 0) >= float(band_min)]
-            if isinstance(band_max, (int, float)):
-                band_rows = [row for row in band_rows if float(row.get("total_score") or 0) <= float(band_max)]
-            if isinstance(band_limit, int) and band_limit > 0:
-                band_rows = band_rows[:band_limit]
+            try:
+                b_min = float(band_min) if band_min is not None and str(band_min).strip() != '' else None
+                if b_min is not None:
+                    band_rows = [row for row in band_rows if float(row.get("total_score") or 0) >= b_min]
+            except (ValueError, TypeError):
+                pass
+            try:
+                b_max = float(band_max) if band_max is not None and str(band_max).strip() != '' else None
+                if b_max is not None:
+                    band_rows = [row for row in band_rows if float(row.get("total_score") or 0) <= b_max]
+            except (ValueError, TypeError):
+                pass
+            try:
+                b_limit = int(float(band_limit)) if band_limit is not None and str(band_limit).strip() != '' else None
+                if b_limit is not None and b_limit > 0:
+                    band_rows = band_rows[:b_limit]
+            except (ValueError, TypeError):
+                pass
 
             for row in band_rows:
                 team_id = row.get("team_id")
@@ -2564,10 +2613,14 @@ async def issue_ranked_certificates(
                 row_copy["achievement_type"] = achievement_type
                 row_copy["award_label"] = band_label
                 row_copy["_issued_from_band"] = band_label
-                if isinstance(band_min, (int, float)):
-                    row_copy["min_score"] = band_min
-                if isinstance(band_max, (int, float)):
-                    row_copy["max_score"] = band_max
+                try:
+                    row_copy["min_score"] = float(band_min) if band_min is not None and str(band_min).strip() != '' else None
+                except (ValueError, TypeError):
+                    pass
+                try:
+                    row_copy["max_score"] = float(band_max) if band_max is not None and str(band_max).strip() != '' else None
+                except (ValueError, TypeError):
+                    pass
                 result = await certificate_service.issue_ranked_event_certificates(
                     event_id,
                     [row_copy],
@@ -2576,10 +2629,18 @@ async def issue_ranked_certificates(
                 )
                 issued_certificates.extend(result)
     else:
-        if isinstance(limit, int) and limit > 0:
-            final_rankings = final_rankings[:limit]
-        elif isinstance(min_score, (int, float)):
-            final_rankings = [row for row in final_rankings if float(row.get("total_score") or 0) >= float(min_score)]
+        try:
+            top_n = int(float(limit)) if limit is not None and str(limit).strip() != '' else None
+            if top_n is not None and top_n > 0:
+                final_rankings = final_rankings[:top_n]
+        except (ValueError, TypeError):
+            pass
+        try:
+            ms = float(min_score) if min_score is not None and str(min_score).strip() != '' else None
+            if ms is not None:
+                final_rankings = [row for row in final_rankings if float(row.get("total_score") or 0) >= ms]
+        except (ValueError, TypeError):
+            pass
 
         issued_certificates = await certificate_service.issue_ranked_event_certificates(
             event_id,
@@ -2660,6 +2721,8 @@ async def list_institution_certificates(institution_id: str, user: dict = Depend
             "category": cert.get("category") or cert.get("achievement_type") or "Participation",
             "event_id": cert.get("event_id"),
             "verification_url": cert.get("verification_url"),
+            "team_name": cert.get("team_name"),
+            "team_id": cert.get("team_id"),
         })
 
     event_ids = []
@@ -2681,6 +2744,8 @@ async def list_institution_certificates(institution_id: str, user: dict = Depend
                 "category": cert.get("achievement_type") or cert.get("category") or "Participation",
                 "event_id": cert.get("event_id"),
                 "verification_url": cert.get("verification_url"),
+                "team_name": cert.get("team_name"),
+                "team_id": cert.get("team_id"),
             })
 
     if not results:
@@ -4293,6 +4358,10 @@ async def update_event_details(event_id: str, update_data: dict, user: dict = De
             opp_update["logo_url"] = update_data["logo_url"]
         if update_data.get("banner_url"):
             opp_update["banner_url"] = update_data["banner_url"]
+        if update_data.get("eventStartDate") or update_data.get("startDate") or update_data.get("start_date"):
+            opp_update["eventStartDate"] = update_data.get("eventStartDate") or update_data.get("startDate") or update_data.get("start_date")
+        if update_data.get("eventEndDate") or update_data.get("endDate") or update_data.get("end_date"):
+            opp_update["eventEndDate"] = update_data.get("eventEndDate") or update_data.get("endDate") or update_data.get("end_date")
             
         if opp_update:
             await opportunities_col.update_many({"event_link_id": str(event_id)}, {"$set": opp_update})
@@ -6085,6 +6154,8 @@ async def create_pro_event(request: Request, user: dict = Depends(get_auth_user)
             "skills": event_data.get("skills", ""),
             "location": _location,
             "deadline": event_data.get("registrationDeadline", datetime.now(timezone.utc)),
+            "eventStartDate": event_data.get("eventStartDate") or event_data.get("startDate") or event_data.get("start_date") or "",
+            "eventEndDate": event_data.get("eventEndDate") or event_data.get("endDate") or event_data.get("end_date") or "",
             "applicantsCount": 0,
             "createdAt": datetime.utcnow(),
             "createdBy": str(iid),
@@ -6337,6 +6408,8 @@ async def update_pro_event(event_id: str, request: Request, user: dict = Depends
                 "skills": updated_event.get("skills", ""),
                 "location": _location,
                 "deadline": updated_event.get("registrationDeadline", datetime.now(timezone.utc)),
+                "eventStartDate": updated_event.get("eventStartDate") or updated_event.get("startDate") or updated_event.get("start_date") or "",
+                "eventEndDate": updated_event.get("eventEndDate") or updated_event.get("endDate") or updated_event.get("end_date") or "",
                 "registrationFields": reg_fields,
                 "logo_url": updated_event.get("logo_url", ""),
                 "banner_url": updated_event.get("banner_url", ""),

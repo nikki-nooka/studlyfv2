@@ -24,143 +24,11 @@ import asyncio
 from services.email_service import send_notification_email, get_registration_template, get_announcement_template
 from datetime import datetime, timezone
 import secrets
-from contextlib import asynccontextmanager
+ 
 
 from fastapi.staticfiles import StaticFiles
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Try connecting to MongoDB with a short timeout so server starts regardless
-    db_connected = False
-    try:
-        await asyncio.wait_for(db.connect(), timeout=5)
-        db_connected = True
-    except Exception:
-        logger.warning("MongoDB not available — running without database")
-
-    # Spawn background stage email queue worker
-    try:
-        from services.email_queue_service import start_email_queue_worker
-        asyncio.create_task(start_email_queue_worker())
-        logger.info("Background Stage Email Queue Worker spawned successfully")
-    except Exception as e:
-        logger.error(f"Failed to start background stage email queue worker: {e}")
-
-    logger.info("Application startup completed successfully")
-
-    if db_connected:
-        # DB diagnostics dump
-        try:
-            from db import events_col, opportunities_col
-            events_cursor = events_col.find({})
-            events = await events_cursor.to_list(length=100)
-            opps_cursor = opportunities_col.find({})
-            opps = await opps_cursor.to_list(length=100)
-
-            diag_path = os.path.join(os.path.dirname(__file__), "db_diagnostics.txt")
-            with open(diag_path, "w", encoding="utf-8") as f:
-                f.write(f"=== DB DIAGNOSTICS ===\n")
-                f.write(f"Timestamp: {datetime.now().isoformat()}\n\n")
-                f.write(f"--- EVENTS ({len(events)}) ---\n")
-                for e in events:
-                    f.write(f"ID: {e.get('_id')}\n")
-                    f.write(f"Title: {e.get('title')}\n")
-                    f.write(f"Logo URL: {e.get('logo_url')}\n")
-                    f.write(f"Banner URL: {e.get('banner_url')}\n")
-                    f.write(f"Status: {e.get('status')}\n")
-                    f.write("-" * 20 + "\n")
-
-                f.write(f"\n--- OPPORTUNITIES ({len(opps)}) ---\n")
-                for o in opps:
-                    f.write(f"ID: {o.get('_id')}\n")
-                    f.write(f"Title: {o.get('title')}\n")
-                    f.write(f"Logo URL: {o.get('logo_url')}\n")
-                    f.write(f"Banner URL: {o.get('banner_url')}\n")
-                    f.write(f"Event Link ID: {o.get('event_link_id')}\n")
-                    f.write("-" * 20 + "\n")
-            logger.info(f"DB diagnostics written to {diag_path}")
-        except Exception as e:
-            logger.error(f"Failed to write DB diagnostics: {e}")
-
-        # Ensure career assessment templates exist (seed defaults if empty)
-        try:
-            from db import career_assessment_templates_col
-            count = await career_assessment_templates_col.count_documents({})
-            if count == 0:
-                default_templates = [
-                    {"step": 1, "title": "Problem Space", "question": "Which engineering context excites you most?", "options": [
-                        {"label": "Distributed Systems", "value": "distributed"},
-                        {"label": "Data Orchestration", "value": "data"},
-                        {"label": "User Interaction", "value": "frontend"},
-                        {"label": "ML Lifecycle", "value": "ml"}
-                    ]},
-                    {"step": 2, "title": "Mental Model", "question": "How do you approach problem-solving?", "options": [
-                        {"label": "First Principles", "value": "first_principles"},
-                        {"label": "Pattern Recognition", "value": "patterns"},
-                        {"label": "Iterative Experimentation", "value": "iterative"},
-                        {"label": "Design Thinking", "value": "design"}
-                    ]},
-                    {"step": 3, "title": "Tool Preference", "question": "What defines your ideal development loop?", "options": [
-                        {"label": "Go / Rust / Kafka / k8s", "value": "infra"},
-                        {"label": "Python / SQL / Spark", "value": "data"},
-                        {"label": "TypeScript / React", "value": "frontend"},
-                        {"label": "Python / PyTorch / LangChain", "value": "ai"}
-                    ]}
-                ]
-                await career_assessment_templates_col.insert_many(default_templates)
-                logger.info("Seeded default career assessment templates")
-        except Exception as e:
-            logger.warning(f"Could not seed career assessment templates: {e}")
-
-    # Start background scheduler for reminders (non-fatal)
-    try:
-        from apscheduler.schedulers.asyncio import AsyncIOScheduler
-        from services.reminder_service import reminder_service
-
-        scheduler = AsyncIOScheduler()
-        scheduler.add_job(reminder_service.send_judge_reminders, 'interval', hours=12)
-        scheduler.add_job(reminder_service.send_participant_reminders, 'interval', hours=6)
-        scheduler.add_job(reminder_service.send_24h_participant_reminders, 'interval', hours=2)
-        scheduler.add_job(reminder_service.send_1h_participant_reminders, 'interval', minutes=30)
-        scheduler.start()
-        logger.info("Background reminder scheduler started")
-    except ImportError as e:
-        logger.warning(f"Scheduler not available - {e}")
-        logger.info("Application running without background reminders")
-
-    # Launch certificate background worker
-    try:
-        from services.institutional_certificate_service import process_certificate_jobs
-        asyncio.create_task(process_certificate_jobs())
-        logger.info("Certificate generation background worker started")
-    except Exception as e:
-        logger.warning(f"Could not start certificate worker: {e}")
-
-    # Mount artifacts/certs as static for PDF downloads
-    try:
-        certs_dir = os.path.join(os.path.dirname(__file__), "artifacts", "certs")
-        os.makedirs(certs_dir, exist_ok=True)
-        app.mount("/certificates", StaticFiles(directory=certs_dir), name="certificates")
-        logger.info(f"Mounted certificates directory at {certs_dir}")
-    except Exception as e:
-        logger.warning(f"Could not mount certificates directory: {e}")
-    # Mount uploads directory for temporary images
-    try:
-        uploads_dir = os.path.join(os.path.dirname(__file__), "uploads")
-        os.makedirs(uploads_dir, exist_ok=True)
-        app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
-        logger.info(f"Mounted uploads directory at {uploads_dir}")
-    except Exception as e:
-        logger.warning(f"Could not mount uploads directory: {e}")
-
-    yield
-
-    if db_connected:
-        await db.disconnect()
-    from services.redis_pubsub import close as close_redis
-    await close_redis()
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -180,6 +48,8 @@ if sentry_dsn:
 
 from routes.skill_assessment_controller import router as skill_assessment_router
 app.include_router(skill_assessment_router)
+# Touch file to trigger uvicorn reload when env changes during local dev
+# reload trigger
 
 # Jinja2 templates environment (templates are placed in backend/templates)
 templates_env = Environment(loader=FileSystemLoader('templates'))
@@ -215,7 +85,7 @@ logger = logging.getLogger("main_service")
 
 # Configure CORS - Restricted to specific domains for security
 # Load allowed origins from environment or use defaults
-frontend_url = os.getenv("FRONTEND_URL", "")
+frontend_url = os.getenv("FRONTEND_URL", "https://studlyf-v2.vercel.app")
 backend_url = os.getenv("RENDER_EXTERNAL_URL", "")
 additional_origins = [origin.strip() for origin in os.getenv("ADDITIONAL_CORS_ORIGINS", "").split(",") if origin.strip()]
 
@@ -238,7 +108,7 @@ if os.getenv("ENVIRONMENT", "development").lower() == "development":
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:4173",
-        "http://127.0.0.1:4173",
+        "http://localhost:4173",
         "http://localhost:8000"
     ])
 
@@ -247,7 +117,7 @@ origins = [origin for origin in origins if origin]
 # Remove duplicates
 origins = list(set(origins))
 
-origin_regex = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+):(3000|3001|3002|3003|5173|4173|8000)$"
+origin_regex = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+):(3000|3001|3002|3003|5173|4173|8000)$|^https://[a-zA-Z0-9-]+\.vercel\.app$"
 
 app.add_middleware(
     CORSMiddleware,
@@ -319,6 +189,98 @@ async def rate_limit_middleware(request: Request, call_next):
         pass  # Fail open if rate limiter errors
     return await call_next(request)
 
+
+@app.on_event("startup")
+async def startup_event():
+    """Handle startup tasks including database connection and scheduler."""
+    # Attempt database connection; allow failures to propagate so the
+    # process fails fast when no real MongoDB is available.
+    await db.connect()
+    
+    # Spawn background stage email queue worker
+    try:
+        from services.email_queue_service import start_email_queue_worker
+        asyncio.create_task(start_email_queue_worker())
+        logger.info("Background Stage Email Queue Worker spawned successfully")
+    except Exception as e:
+        logger.error(f"Failed to start background stage email queue worker: {e}")
+
+    logger.info("Application startup completed successfully")
+
+    # DB diagnostics dump
+    try:
+        from db import events_col, opportunities_col
+        events_cursor = events_col.find({})
+        events = await events_cursor.to_list(length=100)
+        opps_cursor = opportunities_col.find({})
+        opps = await opps_cursor.to_list(length=100)
+        
+        diag_path = os.path.join(os.path.dirname(__file__), "db_diagnostics.txt")
+        with open(diag_path, "w", encoding="utf-8") as f:
+            f.write(f"=== DB DIAGNOSTICS ===\n")
+            f.write(f"Timestamp: {datetime.now().isoformat()}\n\n")
+            f.write(f"--- EVENTS ({len(events)}) ---\n")
+            for e in events:
+                f.write(f"ID: {e.get('_id')}\n")
+                f.write(f"Title: {e.get('title')}\n")
+                f.write(f"Logo URL: {e.get('logo_url')}\n")
+                f.write(f"Banner URL: {e.get('banner_url')}\n")
+                f.write(f"Status: {e.get('status')}\n")
+                f.write("-" * 20 + "\n")
+                
+            f.write(f"\n--- OPPORTUNITIES ({len(opps)}) ---\n")
+            for o in opps:
+                f.write(f"ID: {o.get('_id')}\n")
+                f.write(f"Title: {o.get('title')}\n")
+                f.write(f"Logo URL: {o.get('logo_url')}\n")
+                f.write(f"Banner URL: {o.get('banner_url')}\n")
+                f.write(f"Event Link ID: {o.get('event_link_id')}\n")
+                f.write("-" * 20 + "\n")
+        logger.info(f"DB diagnostics written to {diag_path}")
+    except Exception as e:
+        logger.error(f"Failed to write DB diagnostics: {e}")
+
+    # Start background scheduler for reminders (non-fatal)
+    try:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        from services.reminder_service import reminder_service
+
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(reminder_service.send_judge_reminders, 'interval', hours=12)
+        scheduler.add_job(reminder_service.send_participant_reminders, 'interval', hours=6)
+        scheduler.add_job(reminder_service.send_24h_participant_reminders, 'interval', hours=2)
+        scheduler.add_job(reminder_service.send_1h_participant_reminders, 'interval', minutes=30)
+        scheduler.start()
+        logger.info("Background reminder scheduler started")
+    except ImportError as e:
+        logger.warning(f"Scheduler not available - {e}")
+        logger.info("Application running without background reminders")
+
+    # Launch certificate background worker
+    try:
+        from services.institutional_certificate_service import process_certificate_jobs
+        asyncio.create_task(process_certificate_jobs())
+        logger.info("Certificate generation background worker started")
+    except Exception as e:
+        logger.warning(f"Could not start certificate worker: {e}")
+
+    # Mount artifacts/certs as static for PDF downloads
+    try:
+        from fastapi.staticfiles import StaticFiles
+        certs_dir = os.path.join(os.path.dirname(__file__), "artifacts", "certs")
+        os.makedirs(certs_dir, exist_ok=True)
+        app.mount("/certificates", StaticFiles(directory=certs_dir), name="certificates")
+        logger.info(f"Mounted certificates directory at {certs_dir}")
+    except Exception as e:
+        logger.warning(f"Could not mount certificates directory: {e}")
+    # Mount uploads directory for temporary images
+    try:
+        uploads_dir = os.path.join(os.path.dirname(__file__), "uploads")
+        os.makedirs(uploads_dir, exist_ok=True)
+        app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+        logger.info(f"Mounted uploads directory at {uploads_dir}")
+    except Exception as e:
+        logger.warning(f"Could not mount uploads directory: {e}")
 
 @app.get("/")
 async def root():
@@ -655,7 +617,7 @@ async def upload_temp_image(request: Request, file: UploadFile = File(...), publ
 from models import Institution, Event, Participant, Team, Submission, Judge, Score, Notification, LeaderboardEntry, Certificate
 from services.email_service import send_notification_email, get_registration_template, get_email_verification_template
 from auth_utils import get_password_hash, verify_password, create_access_token, decode_access_token
-
+# from routes import upgrade_routes
 import integration_routes
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -855,15 +817,56 @@ def fix_progress(prog, default_status="locked"):
 
 from routes import submission_routes, judge_routes, event_routes, dashboard_routes, opportunity_routes, team_routes, hackathon_judging_routes, stage_endpoints
 from routes import auth
-from routes import evaluation_criteria_routes, quiz_visibility_routes, notification_routes, evaluation_routes, team_formation_routes, stage_sync_routes, direct_sync_routes, hackathon_submission_routes
+from routes import evaluation_criteria_routes, quiz_visibility_routes, notification_routes, evaluation_routes, team_formation_routes, stage_sync_routes, test_sync_routes, direct_sync_routes, hackathon_submission_routes
 from routes import stage_navigation_routes, team_join_request_routes, hackathon_public_routes
 from routes import student_features_routes
-from routes import event_certificate_routes, registration_flow_routes, achievement_registry_routes
+from routes import event_certificate_routes, registration_flow_routes
 
 import hackathon_integration_routes
 import participant_card_routes
 from rate_limiter import rate_limit, check_rate_limit
 
+
+@app.on_event("startup")
+async def startup_db_client():
+    from db import db
+    await db.connect()
+    # Ensure career assessment templates exist (seed defaults if empty)
+    try:
+        from db import career_assessment_templates_col
+        count = await career_assessment_templates_col.count_documents({})
+        if count == 0:
+            default_templates = [
+                {"step": 1, "title": "Problem Space", "question": "Which engineering context excites you most?", "options": [
+                    {"label": "Distributed Systems", "value": "distributed"},
+                    {"label": "Data Orchestration", "value": "data"},
+                    {"label": "User Interaction", "value": "frontend"},
+                    {"label": "ML Lifecycle", "value": "ml"}
+                ]},
+                {"step": 2, "title": "Mental Model", "question": "How do you approach problem-solving?", "options": [
+                    {"label": "First Principles", "value": "first_principles"},
+                    {"label": "Pattern Recognition", "value": "patterns"},
+                    {"label": "Iterative Experimentation", "value": "iterative"},
+                    {"label": "Design Thinking", "value": "design"}
+                ]},
+                {"step": 3, "title": "Tool Preference", "question": "What defines your ideal development loop?", "options": [
+                    {"label": "Go / Rust / Kafka / k8s", "value": "infra"},
+                    {"label": "Python / SQL / Spark", "value": "data"},
+                    {"label": "TypeScript / React", "value": "frontend"},
+                    {"label": "Python / PyTorch / LangChain", "value": "ai"}
+                ]}
+            ]
+            await career_assessment_templates_col.insert_many(default_templates)
+            logger.info("Seeded default career assessment templates")
+    except Exception as e:
+        logger.warning(f"Could not seed career assessment templates: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    from db import db
+    await db.disconnect()
+    from services.redis_pubsub import close as close_redis
+    await close_redis()
 
 # --- Activate Rate Limiting ---
 app.state.limiter = limiter
@@ -873,6 +876,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # app.include_router(upgrade_routes.router)
 app.include_router(submission_routes.router)
 app.include_router(judge_routes.router)
+app.include_router(judge_routes.portal_router)
 app.include_router(event_routes.router)
 app.include_router(dashboard_routes.router)
 app.include_router(integration_routes.router, prefix="/api/v1/institution")
@@ -884,6 +888,7 @@ app.include_router(quiz_visibility_routes.router)
 app.include_router(notification_routes.router)
 app.include_router(team_formation_routes.router)
 app.include_router(stage_sync_routes.router)
+app.include_router(test_sync_routes.router)
 app.include_router(direct_sync_routes.router)
 app.include_router(hackathon_judging_routes.router)
 app.include_router(hackathon_submission_routes.router)
@@ -894,10 +899,11 @@ app.include_router(hackathon_integration_routes.router)
 app.include_router(hackathon_public_routes.router)
 app.include_router(participant_card_routes.router)
 app.include_router(event_certificate_routes.router)
-app.include_router(achievement_registry_routes.router)
 app.include_router(event_certificate_routes.verification_router)
 app.include_router(registration_flow_routes.router)
 app.include_router(stage_endpoints.router)
+from routes import company_simulator
+app.include_router(company_simulator.router, prefix="/api/company-simulator")
 
 
 
@@ -1626,6 +1632,46 @@ async def update_progress(data: dict):
     return {"status": "updated", "requirements_met": False, "new_badges": nb}
 
     return {"status": "updated"}
+
+
+@app.get("/api/company-prep/progress")
+async def get_company_prep_progress(user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+    doc = await progress_col.find_one({"user_id": user_id, "course_id": "company-prep"})
+    if not doc:
+        return {"solved_questions": [], "saved_questions": [], "streaks": 0, "updated_at": None}
+    return {
+        "solved_questions": doc.get("solved_questions") or [],
+        "saved_questions": doc.get("saved_questions") or [],
+        "streaks": int(doc.get("streaks") or 0),
+        "updated_at": doc.get("updated_at"),
+    }
+
+
+@app.post("/api/company-prep/progress")
+async def update_company_prep_progress(data: dict):
+    user_id = data.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+    update_doc = {
+        "user_id": user_id,
+        "course_id": "company-prep",
+        "updated_at": datetime.utcnow().isoformat(),
+    }
+    if "solved_questions" in data:
+        update_doc["solved_questions"] = data.get("solved_questions") or []
+    if "saved_questions" in data:
+        update_doc["saved_questions"] = data.get("saved_questions") or []
+    if "streaks" in data:
+        update_doc["streaks"] = int(data.get("streaks") or 0)
+    await progress_col.update_one(
+        {"user_id": user_id, "course_id": "company-prep"},
+        {"$set": update_doc},
+        upsert=True,
+    )
+    return {"status": "updated", "updated_at": update_doc["updated_at"]}
+
 
 @app.post("/api/quiz/submit")
 async def submit_quiz(data: dict):
@@ -5528,10 +5574,183 @@ class CareerOnboardingRequest(BaseModel):
     interests: List[str]
     role: str = ""
 
+class CareerAnalysisRequest(BaseModel):
+    subject: str
+    skills: List[str]
+    interests: List[str]
+    role: str = ""
+    projects: str = ""
+    clubs: str = ""
+    ambitions: str = ""
+    work_preferences: str = ""
+    selected_tasks: Optional[List[str]] = None
+
+class CareerExplanationRequest(BaseModel):
+    career_path: str
+    subject: str
+    skills: List[str]
+    interests: List[str]
+    role: str = ""
+    projects: str = ""
+    clubs: str = ""
+    ambitions: str = ""
+    work_preferences: str = ""
+    skill_vector: Optional[Dict[str, float]] = None
+
+@app.post("/api/career/analyze")
+async def analyze_career(req: CareerAnalysisRequest):
+    try:
+        from services.skill_extractor import extract_skills_and_inferences
+        from services.role_matcher import match_user_to_roles
+        
+        profile_dict = req.dict()
+        skill_vector, inferences = extract_skills_and_inferences(profile_dict)
+        matched_roles = match_user_to_roles(skill_vector, profile_dict, limit=8)
+        
+        return {
+            "skill_vector": skill_vector,
+            "inferences": inferences,
+            "roles": matched_roles
+        }
+    except Exception as e:
+        logger.error(f"Error in /api/career/analyze: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/career/explain")
+async def explain_career(req: CareerExplanationRequest):
+    try:
+        from services.career_taxonomy import ROLE_DATABASE
+        role_name = req.career_path
+        
+        # Look up defaults in the taxonomy database
+        role_info = ROLE_DATABASE.get(role_name, {})
+        
+        fallback_desc = role_info.get("description", f"A {role_name} designs, develops, and implements high-impact systems aligned with industrial scale and performance optimization.")
+        typical_degree = role_info.get("typical_degree", "Bachelor's degree")
+        salary = role_info.get("salary", {"entry": "$70,000", "mid": "$115,000", "senior": "$160,000+"})
+        avg_salary = salary.get("mid", "$115,000")
+        
+        # Build prompt for personalized explanation
+        prompt = f"""
+        You are an elite Career Mentor and Pathways Architect.
+        Analyze the student's profile:
+        - Academic Background / Subject: {req.subject}
+        - Explicit Skills: {', '.join(req.skills)}
+        - Interests: {', '.join(req.interests)}
+        - Current/Previous Role: {req.role}
+        - Projects: {req.projects}
+        - Clubs/Activities: {req.clubs}
+        - Ambitions: {req.ambitions}
+        - Work Preferences: {req.work_preferences}
+        
+        Target career path: '{role_name}'
+        
+        Generate a JSON object containing EXACTLY these fields (no markdown formatting outside of JSON, no surrounding code block except raw JSON):
+        {{
+          "identity_statement": "An inspiring, highly detailed, and professional 3-sentence career identity statement tailored for this student in the context of their target career path (about 80-120 words). Summarize their competencies and future potential.",
+          "sweet_spot_explanation": "A deeply personalized, inspiring explanation of how their specific background in '{req.subject}' and their experiences perfectly position them for a '{role_name}' (2-3 sentences).",
+          "day_in_the_life": [
+            "Write exactly 5 highly-tailored, professional, and actionable daily tasks (1 sentence each) that a professional in this path performs.",
+            "...", "...", "...", "..."
+          ],
+          "requirements": [
+            "Write exactly 3 core technical or experiential requirements/prerequisites (1 sentence each) to succeed in this path.",
+            "...", "..."
+          ]
+        }}
+        """
+        
+        identity_statement = ""
+        sweet_spot_explanation = ""
+        day_in_the_life = []
+        requirements = []
+        
+        try:
+            chat_completion = career_client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama-3.3-70b-versatile",
+                response_format={"type": "json_object"}
+            )
+            content = chat_completion.choices[0].message.content or "{}"
+            res = json.loads(content)
+            
+            identity_statement = res.get("identity_statement", "")
+            sweet_spot_explanation = res.get("sweet_spot_explanation", "")
+            day_in_the_life = res.get("day_in_the_life", [])
+            requirements = res.get("requirements", [])
+        except Exception as e:
+            logger.warning(f"Groq explanation failed or timed out: {e}. Using deterministic fallback.")
+            
+        # If any of the generated fields are empty, populate with sensible defaults
+        if not identity_statement:
+            fallback_subject = req.subject if req.subject else req.role
+            skills_str = ", ".join(req.skills[:3]) if req.skills else "domain skills"
+            identity_statement = f"As a driven professional with a background in {fallback_subject}, I am actively building expertise in {skills_str}. My career journey is defined by a commitment to mastering key domain strategies and implementing scalable, high-impact solutions that drive innovation."
+            
+        if not sweet_spot_explanation:
+            sweet_spot_explanation = f"Your background in {req.subject} and skills in {', '.join(req.skills[:2]) if req.skills else 'core competencies'} provide an exceptional launching pad. The analytical logic and design fundamentals you possess perfectly overlap with the core demands of a {role_name}."
+            
+        if not day_in_the_life or len(day_in_the_life) < 5:
+            day_in_the_life = [
+                f"Analyze target requirements and design robust system architectures for {role_name} protocols.",
+                "Write high-quality, scalable code and scripts to automate core subsystem workflows.",
+                "Integrate specialized toolsets, hardware controllers, and database solutions at scale.",
+                "Perform rigorous testing, diagnostic debugging, and performance profiling on current deployments.",
+                "Collaborate with multidisciplinary engineering squads to align on strategic product delivery."
+            ]
+            
+        if not requirements or len(requirements) < 3:
+            requirements = [
+                f"Proficiency in core engineering, scripting, and system design tools relevant to {role_name}.",
+                "Strong analytical logic, mathematical reasoning, and problem-solving fundamentals.",
+                "Familiarity with industry-grade software design lifecycles, database structures, or automation systems."
+            ]
+            
+        return {
+            "identity_statement": identity_statement,
+            "description": fallback_desc,
+            "avg_salary": avg_salary,
+            "typical_degree": typical_degree,
+            "salary": salary,
+            "sweet_spot_explanation": sweet_spot_explanation,
+            "day_in_the_life": day_in_the_life,
+            "requirements": requirements
+        }
+    except Exception as e:
+        logger.error(f"Error in /api/career/explain: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/career/path-details")
+async def get_career_path_details(req: dict):
+    # Wrapper that maps old request payload structure to /api/career/explain
+    career_path = req.get("career_path", "Professional Role")
+    subject = req.get("subject", "general background")
+    skills = req.get("skills", [])
+    interests = req.get("interests", [])
+    role = req.get("role", "student")
+    projects = req.get("projects", "")
+    clubs = req.get("clubs", "")
+    ambitions = req.get("ambitions", "")
+    work_preferences = req.get("work_preferences", "")
+    
+    explain_req = CareerExplanationRequest(
+        career_path=career_path,
+        subject=subject,
+        skills=skills,
+        interests=interests,
+        role=role,
+        projects=projects,
+        clubs=clubs,
+        ambitions=ambitions,
+        work_preferences=work_preferences
+    )
+    return await explain_career(explain_req)
+
 @app.post("/api/career/identity")
 async def get_career_identity(req: CareerOnboardingRequest):
+    # Old identity wrapper
     role_info = f"Current/Previous Role: {req.role}. " if req.role else ""
-    prompt = f"Analyze this profile: {role_info}Field/Subject/Industry: {req.subject}. Skills: {', '.join(req.skills)}. Interests: {req.interests}. Create a highly detailed, inspiring, and professional career identity statement in a paragraph of 3-4 sentences (about 80-120 words). Summarize their strengths, key competencies, and future potential. Start with a strong statement of their role and potential."
+    prompt = f"Analyze this profile: {role_info}Field/Subject/Industry: {req.subject}. Skills: {', '.join(req.skills)}. Interests: {req.interests}. Create a highly detailed, inspiring, and professional career identity statement in a paragraph of 3-4 sentences (about 80-120 words). Summarize their strengths, key competencies, and future potential."
     try:
         chat_completion = career_client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
@@ -5546,34 +5765,63 @@ async def get_career_identity(req: CareerOnboardingRequest):
 
 @app.post("/api/career/explore-paths")
 async def explore_career_paths(req: CareerOnboardingRequest):
-    role_info = f"Current/Previous Role: {req.role}. " if req.role else ""
-    prompt = f"""
-    You are a Senior Global Career Architect at an elite technology consultancy.
-    Your task is to analyze the student's profile ({role_info}Subject: {req.subject}, Skills: {req.skills}, Interests: {req.interests}) 
-    and generate exactly 20 HIGHLY ACCURATE, industry-standard professional career paths.
+    # Old explore-paths wrapper
+    from services.skill_extractor import extract_skills_and_inferences
+    from services.role_matcher import match_user_to_roles
+    import math
     
-    CRITICAL ACCURACY GUIDELINES:
-    1. The job titles MUST be 100% correct, professional, and current.
-    2. Provide specialized expert roles (e.g., 'Cloud Infrastructure Architect' instead of just 'Cloud Engineer').
-    3. Return ONLY a JSON object with key 'paths'. 
-    Each path MUST have: 
-    - name: industry-standard title
-    - group: category (Cloud, AI, Web, Cyber, Data, etc.)
-    - pos: {{'x': int, 'y': int}} (Spread them across a wide NEAT GRID. x: -550 to 550, y: -450 to 450. min 180px from center.)
-    - color: a unique vibrant hex code for the node glow.
-    - image: a high-quality professional Unsplash URL specifically representing this exact career role.
-    """
-    try:
-        chat_completion = career_client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
-            response_format={"type": "json_object"}
-        )
-        content = chat_completion.choices[0].message.content or "{}"
-        res = json.loads(content)
-        return {"paths": res.get("paths", [])}
-    except Exception as e:
-        return {"paths": []}
+    profile_dict = req.dict()
+    skill_vector, _ = extract_skills_and_inferences(profile_dict)
+    matched_roles = match_user_to_roles(skill_vector, profile_dict, limit=20)
+    
+    paths = []
+    for i, r in enumerate(matched_roles):
+        angle = (i / len(matched_roles)) * 2 * math.pi
+        radius = 250 + (i % 2) * 100
+        x = int(radius * math.cos(angle))
+        y = int(radius * math.sin(angle))
+        
+        role_name = r["name"]
+        group = "Tech"
+        if "Data" in role_name or "Scientist" in role_name or "Analyst" in role_name:
+            group = "Data"
+        elif "Cloud" in role_name or "DevOps" in role_name or "SRE" in role_name:
+            group = "Cloud"
+        elif "Design" in role_name or "UX" in role_name or "UI" in role_name:
+            group = "Design"
+        elif "Product" in role_name or "Manager" in role_name or "Agile" in role_name:
+            group = "Product"
+        elif "Security" in role_name or "Cyber" in role_name:
+            group = "Security"
+        elif "Engineer" in role_name or "Developer" in role_name:
+            group = "Software"
+            
+        colors = {
+            "Software": "#3B82F6",
+            "Data": "#10B981",
+            "Cloud": "#8B5CF6",
+            "Design": "#EC4899",
+            "Product": "#F59E0B",
+            "Security": "#EF4444",
+            "Tech": "#6B7280"
+        }
+        color = colors.get(group, "#3B82F6")
+        
+        image_url = f"https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=150"
+        
+        paths.append({
+            "name": role_name,
+            "group": group,
+            "pos": {"x": x, "y": y},
+            "color": color,
+            "image": image_url,
+            "match_percentage": r["match_percentage"],
+            "matched_strengths": [s["display_name"] for s in r["matched_strengths"][:3]],
+            "skill_gaps": [g["display_name"] for g in r["skill_gaps"][:3]],
+            "why_matched": r["why_matched"]
+        })
+        
+    return {"paths": paths}
 
 @app.post("/api/career/roadmap")
 async def generate_career_roadmap(req: dict):
@@ -5582,6 +5830,34 @@ async def generate_career_roadmap(req: dict):
         path_name = path_data.get("name", "Career")
     else:
         path_name = req.get("career_path", req.get("path_name", "Career"))
+        
+    from services.career_taxonomy import ROLE_DATABASE
+    if path_name in ROLE_DATABASE:
+        taxonomy_roadmap = ROLE_DATABASE[path_name].get("roadmap", [])
+        if taxonomy_roadmap:
+            # Process and fill missing fields (details, project)
+            processed_roadmap = []
+            for phase in taxonomy_roadmap:
+                title = phase.get("title", "")
+                stack = phase.get("stack", "")
+                tasks = phase.get("tasks", [])
+                
+                # Default details and project if not in taxonomy
+                details = phase.get("details", f"Establish a solid foundation in {title} concepts and apply them using {stack}.")
+                project = phase.get("project", f"{title} Implementation Project")
+                
+                processed_roadmap.append({
+                    "month": phase.get("month"),
+                    "title": title,
+                    "details": details,
+                    "tasks": tasks,
+                    "stack": stack,
+                    "concepts": phase.get("concepts", ""),
+                    "project": project
+                })
+            return {"roadmap": processed_roadmap}
+            
+    # Fallback to LLM if the career path is not in our taxonomy database
     prompt = f"""
     You are a Senior Professional Blueprint Architect. 
     Your task is to generate a 100% accurate, high-fidelity 6-month roadmap for the career path: '{path_name}'.
@@ -5613,77 +5889,6 @@ async def generate_career_roadmap(req: dict):
         return {"roadmap": res.get("roadmap", [])}
     except Exception as e:
         return {"roadmap": []}
-
-@app.post("/api/career/path-details")
-async def get_career_path_details(req: dict):
-    path_name = req.get("career_path", "Professional Role")
-    subject = req.get("subject", "general background")
-    skills = req.get("skills", [])
-    role = req.get("role", "student")
-    interests = req.get("interests", [])
-    
-    prompt = f"""
-    You are a Senior Career Pathways Strategist.
-    Analyze the alignment between the user's profile:
-    - Current/Previous Role: {role}
-    - Academic/Background Field: {subject}
-    - Active Selected Skills: {', '.join(skills)}
-    - Personal Interests: {', '.join(interests)}
-    
-    And the target career path: '{path_name}'.
-    
-    Generate detailed, high-fidelity career pathway details.
-    Your response MUST be a single, well-formed JSON object containing exactly these fields:
-    - 'description': a customized, highly engaging 2-3 sentence overview of this target role and why it is a powerful destination.
-    - 'avg_salary': an industry-standard average yearly salary string (e.g., '$118,000' or '$125,000') suitable for this path.
-    - 'typical_degree': the typical educational qualification required (e.g., 'Bachelor\\'s degree', 'Master\\'s degree').
-    - 'sweet_spot_explanation': a deeply personalized, beautiful, and inspiring explanation of overlap (2-3 sentences). Explicitly state how their specific background in '{subject}' combined with their active skills like {', '.join(skills[:3])} provides a powerful 'sweet spot' foundation for transitioning or excelling in this path.
-    - 'day_in_the_life': an array of exactly 5 highly-tailored, professional, and actionable daily tasks (1 sentence each) that a professional in this path performs on a day-to-day basis.
-    - 'requirements': an array of exactly 3 core technical, logical, or experiential requirements/prerequisites (1 sentence each) to successfully transition into and excel as a '{path_name}'.
-    """
-    try:
-        chat_completion = career_client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
-            response_format={"type": "json_object"}
-        )
-        content = chat_completion.choices[0].message.content or "{}"
-        res = json.loads(content)
-        return {
-            "description": res.get("description", ""),
-            "avg_salary": res.get("avg_salary", "$115,000"),
-            "typical_degree": res.get("typical_degree", "Bachelor's degree"),
-            "sweet_spot_explanation": res.get("sweet_spot_explanation", ""),
-            "day_in_the_life": res.get("day_in_the_life", []),
-            "requirements": res.get("requirements", [
-                "Proficiency in core engineering, scripting, and system design tools.",
-                "Strong analytical logic, mathematical reasoning, and problem-solving fundamentals.",
-                "Familiarity with industry-grade software design lifecycles or automation systems."
-            ])
-        }
-    except Exception as e:
-        fallback_desc = f"A {path_name} designs, develops, and implements high-impact systems aligned with industrial scale and performance optimization."
-        fallback_sweet = f"Your background in {subject} and skills in {', '.join(skills[:2]) if skills else 'core competencies'} provide an exceptional launching pad. The mathematical logic and design fundamentals you possess perfectly overlap with the core demands of a {path_name}."
-        fallback_day = [
-            f"Analyze target requirements and design robust system architectures for {path_name} protocols.",
-            "Write high-quality, scalable code and scripts to automate core subsystem workflows.",
-            "Integrate specialized toolsets, hardware controllers, and database solutions at scale.",
-            "Perform rigorous testing, diagnostic debugging, and performance profiling on current deployments.",
-            "Collaborate with multidisciplinary engineering squads to align on strategic product delivery."
-        ]
-        fallback_reqs = [
-            f"Proficiency in core engineering, scripting, and system design tools relevant to {path_name}.",
-            f"Strong analytical logic, mathematical reasoning, and problem-solving fundamentals.",
-            f"Familiarity with industry-grade software design lifecycles, database structures, or automation systems."
-        ]
-        return {
-            "description": fallback_desc,
-            "avg_salary": "$118,000",
-            "typical_degree": "Bachelor's degree",
-            "sweet_spot_explanation": fallback_sweet,
-            "day_in_the_life": fallback_day,
-            "requirements": fallback_reqs
-        }
 
 
 class InsightRequest(BaseModel):
@@ -6348,13 +6553,7 @@ async def signup(user_data: UserSignup, request: Request):
     """
     # Ensure unique email and consistent casing
     email_clean = user_data.email.strip().lower()
-    
-    # Use optimized, indexed lookup with collation
-    existing_user = await users_col.find_one(
-        {"email": email_clean},
-        collation={"locale": "en", "strength": 2}
-    )
-    
+    existing_user = await users_col.find_one({"email": email_clean})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
@@ -6517,24 +6716,16 @@ async def login(credentials: UserLogin, request: Request):
     if not password_clean:
         raise HTTPException(status_code=400, detail="Password is required")
     
-    # Use an optimized, indexed lookup with collation
+    # Use an optimized, indexable case-insensitive search
     try:
-        user = await users_col.find_one(
-            {"email": email_clean},
-            collation={"locale": "en", "strength": 2}
-        )
-        
-        if not user or not bool(user.get("email_verified")):
-            # Fallback for old records without email_verified or case-insensitive index
-            # This handles users who may not have been indexed correctly yet
-            matching_users = await users_col.find({"email": {"$regex": f"^{re.escape(email_clean)}$", "$options": "i"}}).to_list(length=10)
-            user = None
-            if matching_users:
-                verified_users = [u for u in matching_users if bool(u.get("email_verified"))]
-                user = verified_users[0] if verified_users else matching_users[0]
+        matching_users = await users_col.find({"email": {"$regex": f"^{re.escape(email_clean)}$", "$options": "i"}}).to_list(length=10)
+        user = None
+        if matching_users:
+            verified_users = [u for u in matching_users if bool(u.get("email_verified"))]
+            user = verified_users[0] if verified_users else matching_users[0]
         
         if not user:
-            logger.warning(f"Login attempt with non-existent or unverified email: {email_clean}")
+            logger.warning(f"Login attempt with non-existent email: {email_clean}")
             raise HTTPException(status_code=401, detail="Invalid email or password")
     except HTTPException:
         raise
@@ -6669,7 +6860,25 @@ async def resend_verification(data: dict = Body(...)):
 @app.get("/api/auth/me")
 async def get_me(user_payload: dict = Depends(get_current_user)):
     """Returns the current user profile from the token."""
-    user = await users_col.find_one({"user_id": user_payload["user_id"]})
+    uid = user_payload.get("user_id", "")
+    role = user_payload.get("role", "")
+
+    # If the token says judge, look them up in judges_col (no users_col account)
+    if role == "judge":
+        from bson import ObjectId
+        judge = await judges_col.find_one({"_id": ObjectId(uid)})
+        if not judge:
+            raise HTTPException(status_code=404, detail="Judge not found")
+        return {
+            "email": judge.get("email", ""),
+            "full_name": judge.get("name", judge.get("full_name", "")),
+            "role": "judge",
+            "user_id": uid,
+            "institution_id": judge.get("institution_id"),
+        }
+
+    # Regular user lookup
+    user = await users_col.find_one({"user_id": uid})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # Fallback to learner_profiles.userType if profile_type not set on users_col
@@ -7487,7 +7696,6 @@ async def enroll_course(req: EnrollRequest, current_user: dict = Depends(get_cur
             }))
             
         return {"status": "success", "message": "Enrolled successfully"}
-
 
 if __name__ == "__main__":
     import uvicorn

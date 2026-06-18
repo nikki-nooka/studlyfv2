@@ -202,6 +202,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     const [availableJudges, setAvailableJudges] = useState<any[]>([]);
     const [isJudgeInviteOpen, setIsJudgeInviteOpen] = useState(false);
     const [isInvitingJudge, setIsInvitingJudge] = useState(false);
+    const [isAssigning, setIsAssigning] = useState(false);
     const [selectedSubmissions, setSelectedSubmissions] = useState<string[]>([]);
     const [isBulkMode, setIsBulkMode] = useState(false);
     const [refreshCounter, setRefreshCounter] = useState(0);
@@ -615,6 +616,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     const [evaluatingSubmission, setEvaluatingSubmission] = useState<any>(null);
     const [evaluationScores, setEvaluationScores] = useState<Record<string, number>>({});
     const [evaluationComment, setEvaluationComment] = useState('');
+    const [submittingEval, setSubmittingEval] = useState(false);
     const [selectedBundleItems, setSelectedBundleItems] = useState<string[]>([]);
     const [selectedBundleForEmail, setSelectedBundleForEmail] = useState<any[]>([]);
     const [bundleLoading, setBundleLoading] = useState(false);
@@ -858,10 +860,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                         rejected: data.submissions.filter((s: any) => String(s.status).toLowerCase() === 'rejected'),
                         pending: data.submissions.filter((s: any) => String(s.status).toLowerCase() === 'pending'),
                         summary: {
-                            shortlisted: data.counts['Shortlisted'] || 0,
-                            waitlisted: data.counts['Waitlisted'] || 0,
-                            rejected: data.counts['Rejected'] || 0,
-                            pending: data.counts['Pending'] || 0,
+                            shortlisted: data.counts['shortlisted'] || 0,
+                            waitlisted: data.counts['waitlisted'] || 0,
+                            rejected: data.counts['rejected'] || 0,
+                            pending: data.counts['pending'] || 0,
                         }
                     });
                 } else {
@@ -1026,20 +1028,29 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 return true;
             });
         }
-        return Array.isArray(bundleData[bundleTab]) ? bundleData[bundleTab] : [];
+        // Handle pending tab - check lowercase key
+        const tabKey = bundleData[bundleTab] ? bundleTab : bundleTab.toLowerCase();
+        return Array.isArray(bundleData[tabKey]) ? bundleData[tabKey] : [];
     };
 
     const handleSaveThresholds = async () => {
         if (!eventId) return;
         setSavingThresholds(true);
         try {
+            const currentStageId = submissionSubTab === 'projects'
+                ? (selectedProjectStageId || undefined)
+                : submissionSubTab === 'assessments'
+                    ? (selectedSubTabQuizStageId || undefined)
+                    : undefined;
+            
             const payload = {
                 criteria: criteria,
                 evaluation_thresholds: {
                     shortlist_min: shortlistThreshold,
                     waitlist_min: waitlistThreshold,
                     reject_below: rejectThreshold
-                }
+                },
+                stage_id: currentStageId // Added stage_id
             };
             const res = await fetch(`${API_BASE_URL}/api/v1/institution/events/${eventId}/criteria`, {
                 method: 'POST',
@@ -1711,7 +1722,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
     const handleAssignJudge = async (judgeId: string, judgeEmail: string) => {
         const isBulk = selectedSubmissions.length > 0 && judgeAssignmentModal.submissionId === 'bulk';
-
+        setIsAssigning(true);
         try {
             const targetIds = isBulk ? selectedSubmissions : [String(judgeAssignmentModal.submissionId || '')].filter(Boolean);
             const hackathonIdSet = new Set((hackathonSubmissions || []).map((s: any) => String(s?._id || s?.id || s?.submissionId)));
@@ -1752,12 +1763,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 setIsBulkMode(false);
                 // Refresh submissions
                 setRefreshCounter(prev => prev + 1);
-                const currentStageId = submissionSubTab === 'projects'
-                    ? (selectedProjectStageId || undefined)
-                    : submissionSubTab === 'assessments'
-                        ? (selectedSubTabQuizStageId || undefined)
-                        : undefined;
-                fetchBundle(currentStageId);
             } else {
                 const error = await res.json();
                 alert(error.detail || 'Failed to assign judge');
@@ -1765,6 +1770,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         } catch (error) {
             try { console.error('Error assigning judge:', error instanceof Error ? error.message : String(error)); } catch (_) { }
             alert('Network error while assigning judge');
+        } finally {
+            setIsAssigning(false);
         }
     };
 
@@ -1810,7 +1817,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     };
 
     const handleEvaluateSubmission = async () => {
-        if (!evaluatingSubmission || !user) return;
+        if (!evaluatingSubmission || !user || submittingEval) return;
+        setSubmittingEval(true);
         try {
             const hackathonIdSet = new Set((hackathonSubmissions || []).map((s: any) => String(s?._id || s?.id || s?.submissionId)));
             const isHackathon = hackathonIdSet.has(String(evaluatingSubmission._id));
@@ -1847,6 +1855,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         } catch (err) {
             try { console.error("Evaluation error:", err instanceof Error ? err.message : String(err)); } catch (_) { }
             alert("Network error while submitting evaluation");
+        } finally {
+            setSubmittingEval(false);
         }
     };
 
@@ -1856,6 +1866,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
             alert("Please select at least one submission");
             return;
         }
+        setIsAssigning(true);
         try {
             const hackathonIdSet = new Set((hackathonSubmissions || []).map((s: any) => String(s?._id || s?.id || s?.submissionId)));
             const isHackathon = targetIds.every((id: string) => hackathonIdSet.has(String(id)));
@@ -1882,6 +1893,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         } catch (err) {
             try { console.error("Bulk assign error:", err instanceof Error ? err.message : String(err)); } catch (_) { }
             alert("Network error while assigning judge");
+        } finally {
+            setIsAssigning(false);
         }
     };
 
@@ -2723,7 +2736,22 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                     <td className="px-10 py-8 text-center">
                                                         <div className="flex flex-col items-center whitespace-nowrap">
                                                             <span className="text-xl font-black text-purple-600">{(sub.totalScore || 0).toFixed(1)}</span>
-                                                            <span className="text-[9px] font-black text-slate-400 uppercase">Avg Pts</span>
+                                                            {(() => {
+                                                                const fbCount = Array.isArray(sub.judges_feedback) ? sub.judges_feedback.length : 0;
+                                                                const label = fbCount > 1 ? 'Avg Pts' : 'Score';
+                                                                return (
+                                                                    <span className="text-[9px] font-black text-slate-400 uppercase">{label}</span>
+                                                                );
+                                                            })()}
+                                                            {Array.isArray(sub.judges_feedback) && sub.judges_feedback.length > 0 && (
+                                                                <div className="mt-1 flex flex-col gap-0.5">
+                                                                    {sub.judges_feedback.map((fb: any, fbi: number) => (
+                                                                        <span key={fbi} className="text-[8px] font-bold text-slate-500">
+                                                                            {fb.judge_name || 'Judge'}: {typeof fb.score === 'number' ? fb.score.toFixed(1) : fb.score}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                     <td className="px-10 py-8 text-right">
@@ -2796,50 +2824,47 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                             Score Thresholds & Auto-Classification
                                         </h4>
                                         <p className="text-slate-400 font-bold text-xs max-w-xl leading-relaxed">
-                                            Set score boundary percentages. Submissions will automatically be classified into Shortlisted, Waitlisted, or Rejected based on their average judge scores.
+                                            Set score boundary values. Submissions will automatically be classified into Shortlisted, Waitlisted, or Rejected based on their average judge scores.
                                         </p>
                                     </div>
                                     
                                     <div className="flex flex-wrap items-end gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Shortlist Min %</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Shortlist Min</label>
                                             <div className="relative">
                                                 <input
                                                     type="number"
-                                                    min={0} max={100}
+                                                    min={0}
                                                     value={shortlistThreshold}
                                                     onChange={(e) => setShortlistThreshold(Number(e.target.value) || 0)}
                                                     className="w-28 px-4 py-3 bg-slate-800/80 border border-slate-700/60 rounded-xl font-bold text-white outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-center text-sm"
                                                 />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">%</span>
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Waitlist Min %</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Waitlist Min</label>
                                             <div className="relative">
                                                 <input
                                                     type="number"
-                                                    min={0} max={100}
+                                                    min={0}
                                                     value={waitlistThreshold}
                                                     onChange={(e) => setWaitlistThreshold(Number(e.target.value) || 0)}
                                                     className="w-28 px-4 py-3 bg-slate-800/80 border border-slate-700/60 rounded-xl font-bold text-white outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-center text-sm"
                                                 />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">%</span>
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Reject Below %</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Reject Below</label>
                                             <div className="relative">
                                                 <input
                                                     type="number"
-                                                    min={0} max={100}
+                                                    min={0}
                                                     value={rejectThreshold}
                                                     onChange={(e) => setRejectThreshold(Number(e.target.value) || 0)}
                                                     className="w-28 px-4 py-3 bg-slate-800/80 border border-slate-700/60 rounded-xl font-bold text-white outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-center text-sm"
                                                 />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">%</span>
                                             </div>
                                         </div>
 
@@ -3008,8 +3033,24 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                             {item.score ? item.score.toFixed(1) : '0.0'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-10 py-8 max-w-[200px] text-center">
-                                                        {item.recommendation ? (
+                                                    <td className="px-10 py-8 max-w-[260px] align-top">
+                                                        {Array.isArray(item.judges_feedback) && item.judges_feedback.length > 0 ? (
+                                                            <div className="flex flex-col gap-2">
+                                                                {item.judges_feedback.map((fb: any, fbi: number) => (
+                                                                    <div key={fbi} className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-left">
+                                                                        <div className="flex items-center justify-between mb-1">
+                                                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{fb.judge_name || fb.judge_email || 'Judge'}</span>
+                                                                            <span className="text-xs font-bold text-purple-600">{fb.score?.toFixed(1)}</span>
+                                                                        </div>
+                                                                        {fb.feedback ? (
+                                                                            <p className="text-[10px] font-medium text-slate-700 line-clamp-3 leading-relaxed">{fb.feedback}</p>
+                                                                        ) : (
+                                                                            <p className="text-[9px] font-medium text-slate-400 italic">No feedback provided</p>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : item.recommendation ? (
                                                             <button
                                                                 onClick={() => setPreviewRecommendation({ title: item.team_name || item.display_name, text: item.recommendation })}
                                                                 className="text-[11px] font-bold text-slate-600 hover:text-purple-600 underline decoration-dashed underline-offset-4 text-left w-full line-clamp-2"
@@ -5655,9 +5696,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => handleAssignJudge(judge._id, judge.email)}
-                                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                                                    disabled={isAssigning}
+                                                    className={`px-4 py-2 ${isAssigning ? 'bg-slate-400' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded-lg text-sm font-medium transition-colors`}
                                                 >
-                                                    Assign
+                                                    {isAssigning ? 'Assigning...' : 'Assign'}
                                                 </button>
                                                 {judgeAssignmentModal.submissionId !== 'bulk' && (
                                                     <button
@@ -6053,9 +6095,17 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                 </button>
                                 <button
                                     onClick={handleEvaluateSubmission}
-                                    className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-purple-600 transition-all shadow-xl shadow-black/10"
+                                    disabled={submittingEval}
+                                    className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-purple-600 transition-all shadow-xl shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
-                                    Submit Evaluation
+                                    {submittingEval ? (
+                                        <>
+                                            <Loader2 size={14} className="animate-spin" />
+                                            Submitting...
+                                        </>
+                                    ) : (
+                                        'Submit Evaluation'
+                                    )}
                                 </button>
                             </div>
                         </motion.div>

@@ -12,21 +12,15 @@ import multiprocessing
 bind = f"0.0.0.0:{os.getenv('PORT', '8000')}"
 backlog = 2048
 
-# Worker processes - Forced to 1 for Render Free Tier (512MB limit)
-workers = 1
+# Worker processes
+workers = int(os.getenv("GUNICORN_WORKERS", multiprocessing.cpu_count() * 2 + 1))
 worker_class = "uvicorn.workers.UvicornWorker"
-threads = 2
-
-# Memory optimization parameters
-worker_connections = 500
-max_requests = 1000
-max_requests_jitter = 50
+worker_connections = 1000
+max_requests = 10000
+max_requests_jitter = 2000
 timeout = 120
-graceful_timeout = 15
-keep_alive = 2
-
-# Garbage collection and memory management
-preload_app = False  # Set to False to lower initial memory footprint
+graceful_timeout = 30
+keep_alive = 5
 
 # Logging
 loglevel = os.getenv("LOG_LEVEL", "info").lower()

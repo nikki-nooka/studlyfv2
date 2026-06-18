@@ -169,9 +169,7 @@ class LeaderboardService:
             if not scores:
                 avg_score = 0
             else:
-                # Calculate average score across all criteria and judges
-                total_points = 0
-                total_criteria = 0
+                # Calculate average for each individual criterion across all judges
                 criteria_sums = {}
                 criteria_counts = {}
                 
@@ -183,20 +181,23 @@ class LeaderboardService:
                                 val = float(v)
                                 criteria_sums[k] = criteria_sums.get(k, 0.0) + val
                                 criteria_counts[k] = criteria_counts.get(k, 0) + 1
-                                total_points += val
-                                total_criteria += 1
                             except (TypeError, ValueError):
                                 pass
                     else:
-                        total_points += float(s.get("total_score") or s.get("score") or 0)
-                        total_criteria += 1
+                        # Fallback for old flat scores: Treat as a single "Total" criterion
+                        val = float(s.get("total_score") or s.get("score") or 0)
+                        criteria_sums["Total"] = criteria_sums.get("Total", 0.0) + val
+                        criteria_counts["Total"] = criteria_counts.get("Total", 0) + 1
                 
-                avg_score = round(total_points / total_criteria, 2) if total_criteria > 0 else 0
-                
-                # Calculate average for each criterion
+                # Sum the averages of all criteria to get the TOTAL score
+                avg_score = 0
                 for k in criteria_sums:
                     if criteria_counts[k] > 0:
-                        criteria_averages[k] = round(criteria_sums[k] / criteria_counts[k], 2)
+                        crit_avg = round(criteria_sums[k] / criteria_counts[k], 2)
+                        criteria_averages[k] = crit_avg
+                        avg_score += crit_avg
+                
+                avg_score = round(avg_score, 2)
 
             # Fetch names and college for integration (fully optimized using in-memory maps)
             team_name = sub.get("team_name") or sub.get("teamName") or ""
@@ -264,10 +265,22 @@ class LeaderboardService:
         for idx, entry in enumerate(rankings_data):
             entry["rank"] = idx + 1
 
-        # 6. Atomic Sync: Clear old and insert new
-        await leaderboard_col.delete_many({"event_id": {"$in": event_id_in}})
+        # 6. Atomic Sync: Clear old and insert new using a transaction
+        delete_query = {"event_id": {"$in": event_id_in}}
+        try:
+            client = leaderboard_col.database.client
+            async with await client.start_session() as session:
+                async with session.start_transaction():
+                    await leaderboard_col.delete_many(delete_query, session=session)
+                    if rankings_data:
+                        await leaderboard_col.insert_many(rankings_data, session=session)
+        except Exception:
+            # Fallback: non-atomic update (standalone MongoDB)
+            await leaderboard_col.delete_many(delete_query)
+            if rankings_data:
+                await leaderboard_col.insert_many(rankings_data)
+
         if rankings_data:
-            await leaderboard_col.insert_many(rankings_data)
             for entry in rankings_data:
                 if "_id" in entry:
                     entry["_id"] = str(entry["_id"])

@@ -27,8 +27,24 @@ import secrets
  
 
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("perf_logger")
+
+class PerformanceMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = (time.time() - start_time) * 1000
+        logger.info(f"[PERF] {process_time:.2f}ms - {request.method} {request.url.path}")
+        return response
 
 app = FastAPI()
+app.add_middleware(PerformanceMiddleware)
+
 os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -83,52 +99,44 @@ def _super_admin_email_set() -> set:
 # Setup logging
 from notification_helpers import notify_institution
 import logging
-logging.basicConfig(level=logging.CRITICAL)
-logging.disable(logging.CRITICAL)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("main_service")
 
-# ── CORS Configuration ──────────────────────────────────────────────────────
-# Primary production origins (Hostinger + Render)
-PRODUCTION_ORIGINS = [
-    "https://www.studlyf.in",   # Primary Hostinger domain (www)
-    "https://studlyf.in",       # Apex / non-www variant
-]
+# Configure CORS - Restricted to specific domains for security
+# Load allowed origins from environment or use defaults
+frontend_url = os.getenv("FRONTEND_URL", "https://studlyf-v2.vercel.app")
+backend_url = os.getenv("RENDER_EXTERNAL_URL", "")
+additional_origins = [origin.strip() for origin in os.getenv("ADDITIONAL_CORS_ORIGINS", "").split(",") if origin.strip()]
 
-# The Render backend URL is set automatically by Render at deploy time.
-# Set RENDER_EXTERNAL_URL in Render's environment variables panel.
-render_backend_url = os.getenv("RENDER_EXTERNAL_URL", "").rstrip("/")
+origins = list(set([
+    frontend_url,
+    backend_url
+] + additional_origins))
 
-# Allow extra origins via env var (comma-separated) for future use
-additional_origins = [
-    o.strip() for o in os.getenv("ADDITIONAL_CORS_ORIGINS", "").split(",") if o.strip()
-]
-
-origins: list[str] = list(set(
-    PRODUCTION_ORIGINS
-    + ([render_backend_url] if render_backend_url else [])
-    + additional_origins
-))
-
-# Development: also allow localhost ports
-if os.getenv("ENVIRONMENT", "development").lower() != "production":
+# Add localhost origins for development
+if os.getenv("ENVIRONMENT", "development").lower() == "development":
     origins.extend([
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
+        "http://localhost:3003",
+        "http://127.0.0.1:3003",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:4173",
-        "http://localhost:8000",
+        "http://localhost:4173",
+        "http://localhost:8000"
     ])
 
-# Final deduplication & remove empty strings
-origins = list({o for o in origins if o})
+origins = [origin for origin in origins if origin]
 
-# Regex whitelist: localhost dev ports  +  *.studlyf.in  +  *.onrender.com
-origin_regex = (
-    r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
-    r"|^https://([a-zA-Z0-9-]+\.)?studlyf\.in$"
-    r"|^https://[a-zA-Z0-9-]+\.onrender\.com$"
-)
+# Remove duplicates
+origins = list(set(origins))
+
+origin_regex = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+):(3000|3001|3002|3003|5173|4173|8000)$|^https://[a-zA-Z0-9-]+\.vercel\.app$"
 
 app.add_middleware(
     CORSMiddleware,
@@ -226,7 +234,7 @@ async def startup_event():
         opps_cursor = opportunities_col.find({})
         opps = await opps_cursor.to_list(length=100)
         
-        diag_path = os.path.join(os.path.dirname(__file__), "db_diagnostics.txt")
+        diag_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "db_diagnostics.txt")
         with open(diag_path, "w", encoding="utf-8") as f:
             f.write(f"=== DB DIAGNOSTICS ===\n")
             f.write(f"Timestamp: {datetime.now().isoformat()}\n\n")
@@ -345,34 +353,7 @@ async def debug_database():
 reset_tokens = {} # email: {token, expiry}
 
 # --- SECURITY DEPENDENCIES (RBAC) ---
-async def get_current_user(authorization: Optional[str] = Header(None)):
-    """
-    Validates the JWT token from the Authorization header.
-    """
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing or invalid token")
-    
-    token = authorization.split(" ")[1]
-    from auth_utils import decode_access_token
-    payload = decode_access_token(token)
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
-    # Ensure required fields are present
-    if not payload.get("user_id"):
-        raise HTTPException(status_code=401, detail="Invalid token payload")
-    
-    return payload
-
-def require_role(allowed_roles: List[str]):
-    """
-    Restricts access to specific roles.
-    """
-    async def role_checker(user: dict = Depends(get_current_user)):
-        if user.get("role") not in allowed_roles:
-            raise HTTPException(status_code=403, detail="Permission denied")
-        return user
-    return role_checker
+from routes.auth import get_current_user, require_role
 
 # --- ADMIN SECURITY MIDDLEWARE ---
 async def admin_required(x_admin_email: str = Header(None)):
@@ -839,6 +820,7 @@ from routes import evaluation_criteria_routes, quiz_visibility_routes, notificat
 from routes import stage_navigation_routes, team_join_request_routes, hackathon_public_routes
 from routes import student_features_routes
 from routes import event_certificate_routes, registration_flow_routes
+from routes import achievement_registry_routes
 
 import hackathon_integration_routes
 import participant_card_routes
@@ -917,6 +899,7 @@ app.include_router(hackathon_public_routes.router)
 app.include_router(participant_card_routes.router)
 app.include_router(event_certificate_routes.router)
 app.include_router(event_certificate_routes.verification_router)
+app.include_router(achievement_registry_routes.router)
 app.include_router(registration_flow_routes.router)
 app.include_router(stage_endpoints.router)
 from routes import company_simulator

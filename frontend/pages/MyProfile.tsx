@@ -14,7 +14,6 @@ import {
 import AvatarImage from '../components/AvatarImage';
 
 const MyProfile: React.FC = () => {
-  const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('basic');
   const [isSaving, setIsSaving] = useState(false);

@@ -327,7 +327,7 @@ const InstitutionDashboard: React.FC = () => {
                     onNavigateToSettings={() => handleTabChange('settings')}
                 />
                 
-                <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-6">
+                <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-14">
                     <div className="max-w-[1400px] mx-auto py-6">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -342,6 +342,7 @@ const InstitutionDashboard: React.FC = () => {
                         </AnimatePresence>
                     </div>
                 </main>
+                <Footer />
             </div>
 
             <PostSelectionModal 

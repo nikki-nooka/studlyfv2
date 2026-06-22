@@ -51,6 +51,13 @@ const InstitutionDashboard: React.FC = () => {
         const path = location.pathname;
         const searchParams = new URLSearchParams(location.search);
         const eventIdFromUrl = searchParams.get('eventId');
+        const postFromUrl = searchParams.get('post');
+
+        if (postFromUrl === 'true') {
+            setIsSelectionModalOpen(true);
+            navigate(path, { replace: true });
+            return;
+        }
 
         if (eventIdFromUrl) {
             setSelectedEventId(eventIdFromUrl);

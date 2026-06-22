@@ -158,7 +158,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, transparent = f
                          type="email"
                          name="email"
                          autoComplete="email"
-                         placeholder={selectedRole === 'institution' ? "admin@institution.edu" : "shiva@gmail.com"}
+                         placeholder={selectedRole === 'institution' ? "admin@institution.com" : "shiva@gmail.com"}
                          className={inputClasses}
                          value={email}
                          onChange={(e) => setEmail(e.target.value)}

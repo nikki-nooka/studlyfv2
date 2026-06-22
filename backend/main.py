@@ -6557,15 +6557,6 @@ async def signup(user_data: UserSignup, request: Request):
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # Restrict Institution Emails to professional domains (COMMENTED OUT FOR TESTING)
-    if user_data.role == "institution":
-        personal_domains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com", "aol.com"]
-        domain = user_data.email.split("@")[-1].lower()
-        # if domain in personal_domains:
-        #     raise HTTPException(
-        #         status_code=400, 
-        #         detail="Institutions must register with an official organization email (e.g., @college.edu or @company.com). Personal Gmail/Yahoo accounts are not permitted for this role."
-        #     )
     
     if len(user_data.password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters long")

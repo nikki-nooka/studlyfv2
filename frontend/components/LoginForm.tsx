@@ -68,10 +68,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, transparent = f
                 }
 
                 // Default redirect based on role
-                if (data.user.role === 'super_admin' || data.user.role === 'admin') navigate('/admin');
-                else if (data.user.role === 'institution') navigate('/institution-dashboard');
-                else if (data.user.role === 'judge') navigate('/judge-portal');
-                else navigate('/dashboard');
+            if (data.user.role === 'super_admin' || data.user.role === 'admin') navigate('/admin');
+            else if (data.user.role === 'institution') navigate('/institution-dashboard?post=true');
+            else if (data.user.role === 'judge') navigate('/judge-portal');
+            else navigate('/dashboard');
             } else {
                 const detail = data.detail || 'Login failed. Please check your credentials.';
                 setError(detail);

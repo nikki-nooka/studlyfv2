@@ -240,10 +240,11 @@ async def get_portal(event_id: str, user: dict = Depends(get_current_user)):
     }
     problems = await list_problems(event_id, None, None, "all", user)
     selection = await my_selection(event_id, user)
+    config_with_sponsors = {**config, "sponsors": event.get("sponsors", [])}
     return {
         "event": _serialize(event),
         "participant": participant,
-        "config": config,
+        "config": config_with_sponsors,
         "stats": stats,
         "problems": problems["problems"],
         "mySelection": selection,

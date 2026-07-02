@@ -544,3 +544,53 @@ async def get_my_hackathon_submission(event_id: str, current_user: dict = Depend
         return {"hasSubmitted": False}
     
     return {"hasSubmitted": True, "submission": fix_id(submission)}
+
+@router.post("/submissions/bulk-notify-judges")
+async def bulk_notify_judges(
+    submission_ids: List[str] = Body(..., embed=True),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send bulk notifications to judges assigned to the provided submissions.
+    """
+    if current_user.get("role") not in ["super_admin", "institution"]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    try:
+        from services.email_queue_service import enqueue_email
+    except ImportError:
+        enqueue_email = None
+
+    if not enqueue_email:
+        raise HTTPException(status_code=500, detail="Email service unavailable")
+
+    try:
+        from bson import ObjectId
+        obj_ids = [ObjectId(sid) for sid in submission_ids if ObjectId.is_valid(sid)]
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid submission IDs")
+
+    cursor = hackathon_submissions_col.find({"_id": {"$in": obj_ids}})
+    
+    judge_emails = set()
+    async for sub in cursor:
+        assigned = sub.get("assigned_judge_emails", [])
+        if isinstance(assigned, list):
+            for e in assigned:
+                if e:
+                    judge_emails.add(str(e).strip().lower())
+                    
+    if not judge_emails:
+        return {"status": "success", "message": "No judges assigned to the selected submissions."}
+        
+    for email in judge_emails:
+        subject = "New Submissions to Evaluate"
+        body = "Hello,\n\nYou have new submissions waiting for your evaluation. Please log in to your dashboard to review them.\n\nBest,\nStudLyf Team"
+        await enqueue_email(
+            recipient=email,
+            subject=subject,
+            body=body,
+            priority=10
+        )
+        
+    return {"status": "success", "message": f"Successfully queued notifications to {len(judge_emails)} judges."}

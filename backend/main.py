@@ -6635,7 +6635,7 @@ async def signup(user_data: UserSignup, request: Request):
     await users_col.insert_one({**user_doc, "email_verified": False})
 
     verification_token = secrets.token_urlsafe(32)
-    verification_expiry = int(time() + 86400)
+    verification_expiry = int(time.time() + 86400)
     try:
         await db.email_verifications.insert_one({
             "token": verification_token,

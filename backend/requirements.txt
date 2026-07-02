@@ -93,3 +93,5 @@ isort
 ipython
 razorpay
 jinja2
+scikit-learn
+numpy

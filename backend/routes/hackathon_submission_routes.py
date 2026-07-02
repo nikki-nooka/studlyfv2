@@ -163,6 +163,35 @@ async def create_hackathon_submission(submission: HackathonSubmission, current_u
                     {"$set": {"team_id": str(team_doc["_id"])}}
                 )
 
+        # ML Plagiarism Detection
+        try:
+            from services.ml_service import ml_service
+            
+            # Fetch existing submissions for this event to compare
+            existing_cursor = hackathon_submissions_col.find(
+                {"$or": [{"eventId": target_event_id}, {"hackathonId": target_event_id}]},
+                {"solution": 1, "problemStatement": 1, "_id": 1}
+            )
+            existing_subs = await existing_cursor.to_list(length=1000)
+            
+            # Prepare data format for ML service
+            previous_submissions = [
+                {"_id": str(sub["_id"]), "code": f"{sub.get('problemStatement', '')} {sub.get('solution', '')}"}
+                for sub in existing_subs
+            ]
+            
+            new_code = f"{submission.problemStatement} {submission.solution}"
+            
+            is_plagiarized, sim_score, matched_id = await ml_service.detect_plagiarism(new_code, previous_submissions)
+            
+            submission_dict["plagiarism_flag"] = is_plagiarized
+            submission_dict["plagiarism_score"] = float(sim_score)
+            if is_plagiarized:
+                submission_dict["matched_submission_id"] = matched_id
+                
+        except Exception as ml_err:
+            print(f"ML Plagiarism Check Failed: {ml_err}")
+
         # 3. Insert the actual submission
         result = await hackathon_submissions_col.insert_one(submission_dict)
         submission_dict["_id"] = str(result.inserted_id)

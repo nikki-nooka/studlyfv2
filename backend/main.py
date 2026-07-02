@@ -7031,7 +7031,7 @@ async def recalculate_institution_stats(inst_id: str):
         total_events = await events_col.count_documents({"institution_id": inst_id})
         
         # Get all event IDs for this institution
-        inst_events = await events_col.find({"institution_id": inst_id}, {"_id": 1}).to_list(None)
+        inst_events = await events_col.find({"institution_id": inst_id}, {"_id": 1}).to_list(length=1000)
         event_ids = [str(e["_id"]) for e in inst_events]
         
         total_participants = await participants_col.count_documents({"event_id": {"$in": event_ids}})
@@ -7086,7 +7086,7 @@ async def finalize_event_results(event_id: str, current_user: dict = Depends(get
     from bson import ObjectId
     try:
         # 1. Get all submissions for this event
-        subs = await submissions_col.find({"event_id": event_id}).sort("average_score", -1).to_list(None)
+        subs = await submissions_col.find({"event_id": event_id}).sort("average_score", -1).to_list(length=1000)
         
         # 2. Generate/Update Leaderboard Entries
         rank = 1
@@ -7123,20 +7123,20 @@ async def get_demographics(inst_id: str):
     """
     try:
         # Get all participants for this institution
-        inst_events = await events_col.find({"institution_id": inst_id}, {"_id": 1}).to_list(None)
+        inst_events = await events_col.find({"institution_id": inst_id}, {"_id": 1}).to_list(length=1000)
         event_ids = [str(e["_id"]) for e in inst_events]
         
         pipeline = [
             {"$match": {"event_id": {"$in": event_ids}}},
             {"$group": {"_id": "$department", "count": {"$sum": 1}}}
         ]
-        dept_stats = await participants_col.aggregate(pipeline).to_list(None)
+        dept_stats = await participants_col.aggregate(pipeline).to_list(length=1000)
         
         city_pipeline = [
             {"$match": {"event_id": {"$in": event_ids}}},
             {"$group": {"_id": "$college_name", "count": {"$sum": 1}}}
         ]
-        college_stats = await participants_col.aggregate(city_pipeline).to_list(None)
+        college_stats = await participants_col.aggregate(city_pipeline).to_list(length=1000)
         
         return {"departments": dept_stats, "colleges": college_stats}
     except Exception as e:
@@ -7148,7 +7148,7 @@ async def get_activity_heatmap(inst_id: str):
     ACTIVITY HEATMAP: Returns registration counts grouped by hour.
     """
     try:
-        inst_events = await events_col.find({"institution_id": inst_id}, {"_id": 1}).to_list(None)
+        inst_events = await events_col.find({"institution_id": inst_id}, {"_id": 1}).to_list(length=1000)
         event_ids = [str(e["_id"]) for e in inst_events]
         
         pipeline = [
@@ -7157,7 +7157,7 @@ async def get_activity_heatmap(inst_id: str):
             {"$group": {"_id": "$hour", "count": {"$sum": 1}}},
             {"$sort": {"_id": 1}}
         ]
-        activity = await participants_col.aggregate(pipeline).to_list(None)
+        activity = await participants_col.aggregate(pipeline).to_list(length=1000)
         return activity
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -7325,7 +7325,7 @@ async def get_judge_submissions_view(event_id: str, current_user: dict = Depends
         is_blind = event.get("is_blind_judging", False) if event else False
 
         # 2. Get submissions
-        subs = await submissions_col.find({"event_id": event_id}).to_list(None)
+        subs = await submissions_col.find({"event_id": event_id}).to_list(length=1000)
         judge_email = (current_user.get("email") or "").strip().lower()
         filtered = []
         for s in subs:
@@ -7498,7 +7498,7 @@ async def register_for_event(event_id: str, participant: Participant):
                 admins = await users_col.find({
                     "institution_id": str(inst_id),
                     "role": {"$in": ["admin", "institution", "super_admin"]}
-                }).to_list(length=None)
+                }).to_list(length=1000)
                 dashboard_link = f"{os.getenv('FRONTEND_URL', 'https://studlyf.in')}/#/institution-dashboard"
                 for admin in admins:
                     admin_email = (admin.get("email") or "").strip()
@@ -7601,7 +7601,7 @@ async def notify_event_participants(event_id: str, message: str, current_user: d
             raise HTTPException(status_code=404, detail="Event not found")
 
         # 2. Find all participants
-        participants = await participants_col.find({"event_id": event_id}).to_list(None)
+        participants = await participants_col.find({"event_id": event_id}).to_list(length=1000)
         if not participants:
             return {"status": "success", "message": "No participants to notify."}
 

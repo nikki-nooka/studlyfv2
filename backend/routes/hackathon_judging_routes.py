@@ -321,7 +321,7 @@ async def get_leaderboard(opportunity_id: str):
         
         # Attach rubric breakdown for the matrix
         # Pre-fetch scores for this submission
-        all_sub_scores = await submission_scores_col.find({"submission_id": str(doc["_id"])}).to_list(length=None)
+        all_sub_scores = await submission_scores_col.find({"submission_id": str(doc["_id"])}).to_list(length=1000)
         
         # Batch fetch all required rubrics for this submission
         rubric_ids = [ObjectId(s["rubric_id"]) for s in all_sub_scores if s.get("rubric_id")]

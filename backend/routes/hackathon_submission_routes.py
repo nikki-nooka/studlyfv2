@@ -233,7 +233,7 @@ async def get_event_submissions(
     else:
         cursor = cursor.sort("createdAt", -1)
         
-    submissions = await cursor.to_list(length=None)
+    submissions = await cursor.to_list(length=1000)
     return [fix_id(s) for s in submissions]
 
 @router.get("/institution/{institution_id}/submissions")
@@ -249,13 +249,13 @@ async def get_institution_hackathon_submissions(institution_id: str):
     except:
         pass
 
-    events = await events_col.find({"institution_id": {"$in": inst_variants}}).to_list(length=None)
+    events = await events_col.find({"institution_id": {"$in": inst_variants}}).to_list(length=1000)
     opps = await opportunities_col.find({
         "$or": [
             {"institution_id": {"$in": inst_variants}},
             {"createdBy": {"$in": inst_variants}}
         ]
-    }).to_list(length=None)
+    }).to_list(length=1000)
 
     event_ids = [str(e["_id"]) for e in events]
     event_ids.extend([str(o["_id"]) for o in opps])
@@ -274,7 +274,7 @@ async def get_institution_hackathon_submissions(institution_id: str):
     }
 
     cursor = hackathon_submissions_col.find(query).sort("createdAt", -1)
-    submissions = await cursor.to_list(length=None)
+    submissions = await cursor.to_list(length=1000)
     return [fix_id(s) for s in submissions]
 
 @router.get("/submissions/{submission_id}")
@@ -442,7 +442,7 @@ async def get_hackathon_leaderboard(event_id: str, include_all: bool = Query(Fal
         [("totalScore", -1), ("updatedAt", -1), ("createdAt", -1)]
     )
 
-    submissions = await cursor.to_list(length=None)
+    submissions = await cursor.to_list(length=1000)
     leaderboard = []
     for i, s in enumerate(submissions):
         entry = fix_id(s)
@@ -475,7 +475,7 @@ async def get_hackathon_stats(event_id: str):
         except:
             pass
     
-    submissions = await hackathon_submissions_col.find({"hackathonId": {"$in": hack_ids}}).to_list(length=None)
+    submissions = await hackathon_submissions_col.find({"hackathonId": {"$in": hack_ids}}).to_list(length=1000)
     
     unique_users = set()
     for s in submissions:

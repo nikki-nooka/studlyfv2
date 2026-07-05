@@ -170,7 +170,7 @@ const LearnerDashboard: React.FC = () => {
                 {[
                   { label: "Profile Strength", value: `${dashboardStats?.profile_strength || 88}%`, color: "#7C3AED", icon: "✨" },
                   { label: "Course Progress", value: `${dashboardStats?.course_progress || 64}%`, color: "#0052CC", icon: "📚" },
-                  { label: "Skill Assessments", value: `${dashboardStats?.skill_assessments || 12}`, color: "#059669", icon: "🎯" },
+                  { label: "Certificates Claimed", value: `${dashboardStats?.certificates || 0}`, color: "#059669", icon: "🎓" },
                   { label: "Global Rank", value: `#${dashboardStats?.global_rank || 42}`, color: "#D97706", icon: "🏆" }
                 ].map((stat, i) => (
                   <div key={i} className="bg-white border border-gray-100 rounded-[2rem] p-8 hover:border-[#7C3AED]/30 transition-all shadow-sm group">

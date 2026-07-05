@@ -90,7 +90,7 @@ const RoadmapPage: React.FC = () => {
 
   // Handlers
   const handleBack = () => {
-    navigate('/skill-assessment');
+    navigate('/dashboard');
     setIsPanelOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -122,7 +122,7 @@ const RoadmapPage: React.FC = () => {
             onClick={handleBack}
             className="w-full py-4 bg-[#6C2BFF] text-white rounded-xl font-bold shadow-md hover:bg-[#5B21D6] transition-colors cursor-pointer border-none"
           >
-            Back to Skill Assessment
+            Back to Dashboard
           </button>
         </div>
       </div>

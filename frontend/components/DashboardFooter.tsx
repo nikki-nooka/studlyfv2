@@ -53,7 +53,6 @@ const DashboardFooter: React.FC<DashboardFooterProps> = ({ variant = 'student' }
         col3: [
             { name: 'Portfolio', to: '/job-prep/portfolio' },
             { name: 'Resume', to: '/job-prep/resume-builder' },
-            { name: 'Skills Assignment', to: '/learn/assessment-intro' },
             { name: 'Interviews', to: '/job-prep/mock-interview' },
             { name: 'Project', to: '/job-prep/projects' },
         ],

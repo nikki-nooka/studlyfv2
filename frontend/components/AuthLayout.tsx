@@ -27,7 +27,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             </span>
         </>
     ),
-    subtitle = 'Access your dashboard, skill assessments, and career tools.',
+    subtitle = 'Access your dashboard and career tools.',
     tags = ['Verified Skills', 'Career Growth', 'Elite Talent'],
     creatureVariant = 'purple',
     wideForm = false,

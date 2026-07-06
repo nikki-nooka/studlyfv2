@@ -96,11 +96,8 @@ const JobPrepDropdown = ({ onItemClick }: { onItemClick: () => void }) => (
         </div>
       </div>
     </BentoCard>
-    <BentoCard onClick={onItemClick} to="/learn/assessment-intro" title="Skill Assessment" desc="Find your strengths with clinical scoring." className="md:col-span-2 h-[88px]">
-      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=400" className="absolute bottom-0 right-0 w-1/4 h-full object-cover opacity-80 group-hover:opacity-100 transition-all" alt="Assessment" />
-    </BentoCard>
-    <BentoCard onClick={onItemClick} to="/job-prep/mock-interview" title="Mock tests & interviews" desc="Practice clinical logic defense." className="h-[88px]" />
-    <BentoCard onClick={onItemClick} to="/job-prep/projects" title="Build A Project" desc="Build and scale industry-standard projects with elite engineering teams." className="h-[88px]" />
+    <BentoCard onClick={onItemClick} to="/job-prep/mock-interview" title="Mock tests & interviews" desc="Practice clinical logic defense." className="md:col-span-2 h-[88px]" />
+    <BentoCard onClick={onItemClick} to="/job-prep/projects" title="Build A Project" desc="Build and scale industry-standard projects with elite engineering teams." className="md:col-span-2 h-[88px]" />
   </div>
 );
 
@@ -407,9 +404,6 @@ const Navigation: React.FC = () => {
                         <>
                           <BentoCard onClick={() => setActiveMobileOverlay(null)} to="/job-prep/portfolio" title="Build Portfolio" desc="Showcase evidence." className="min-h-[140px] bg-white/5 border-white/10" />
                           <BentoCard onClick={() => setActiveMobileOverlay(null)} to="/job-prep/resume-builder" title="Resume Builder" desc="Create instant resumes." className="min-h-[140px] bg-white/5 border-white/10" />
-                          <BentoCard onClick={() => setActiveMobileOverlay(null)} to="/learn/assessment-intro" title="Skill Assessment" desc="Find your strengths with clinical scoring." className="min-h-[140px] bg-white/5 border-white/10">
-                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=400" className="absolute bottom-0 right-0 w-1/4 h-full object-cover opacity-20" alt="Assessment" />
-                          </BentoCard>
                           <BentoCard onClick={() => setActiveMobileOverlay(null)} to="/job-prep/mock-interview" title="Mock tests & interviews" desc="Practice clinical logic defense." className="min-h-[140px] bg-white/5 border-white/10" />
                           <BentoCard onClick={() => setActiveMobileOverlay(null)} to="/job-prep/projects" title="Build A Project" desc="Build and scale industry-standard projects." className="min-h-[140px] bg-white/5 border-white/10" />
                         </>

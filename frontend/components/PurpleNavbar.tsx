@@ -90,14 +90,8 @@ const JobPrepDropdown = ({ onItemClick }: { onItemClick: () => void }) => (
                 </div>
             </div>
         </BentoCard>
-        <BentoCard onClick={onItemClick} to="/learn/assessment-intro" title="Skill Assessment" desc="Find your strengths with clinical scoring." className="md:col-span-2 h-[120px] bg-white overflow-hidden">
-            <div className="absolute top-0 right-0 w-1/3 h-full">
-                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=400" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110" alt="Assessment" />
-                <div className="absolute inset-0 bg-gradient-to-r from-white via-white/20 to-transparent"></div>
-            </div>
-        </BentoCard>
-        <BentoCard onClick={onItemClick} to="/job-prep/mock-interview" title="Mock tests & interviews" desc="Practice clinical logic defense." className="md:col-span-1 h-[120px] bg-white" />
-        <BentoCard onClick={onItemClick} to="/job-prep/projects" title="Build A Project" desc="Scale industry projects." className="md:col-span-1 h-[120px] bg-white" />
+        <BentoCard onClick={onItemClick} to="/job-prep/mock-interview" title="Mock tests & interviews" desc="Practice clinical logic defense." className="md:col-span-2 h-[120px] bg-white" />
+        <BentoCard onClick={onItemClick} to="/job-prep/projects" title="Build A Project" desc="Scale industry projects." className="md:col-span-2 h-[120px] bg-white" />
     </div>
 );
 

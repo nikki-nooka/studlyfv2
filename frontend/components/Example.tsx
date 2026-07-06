@@ -38,21 +38,6 @@ const Example = () => {
       objectPosPhone: 'object-left-top'
     },
     {
-      id: 'skill-assessments',
-      title: 'Skill Assessment Modules',
-      badge: 'Evaluation',
-      cta: 'Take Assessment',
-      route: '/learn/assessment-intro',
-      image: '/images/b2.svg',
-      color: 'amber',
-      gradient: 'from-amber-500 to-orange-500',
-      badgeBg: 'bg-amber-50 text-amber-600 border-amber-100',
-      btnBg: 'bg-amber-50 text-amber-600 hover:bg-amber-100',
-      shadowHover: 'hover:shadow-[0_30px_60px_-15px_rgba(245,158,11,0.25)]',
-      phoneAlign: 'left-[10%]',
-      objectPosPhone: 'object-left-top'
-    },
-    {
       id: 'ai-tools',
       title: 'AI Tools Ecosystem',
       badge: 'AI Productivity',

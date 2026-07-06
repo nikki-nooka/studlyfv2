@@ -98,7 +98,7 @@ const About: React.FC = () => {
             <h2 className="text-4xl sm:text-5xl font-bold text-[#111827] mb-12 uppercase tracking-tighter">Ready to join the standard?</h2>
             <p className="text-[#6B7280] text-xl mb-16 max-w-xl mx-auto font-medium leading-relaxed">Connect your capability to real opportunities. Build skills. Create a career.</p>
             <button
-              onClick={() => navigate('/learn/assessment')}
+              onClick={() => navigate('/dashboard')}
               className="px-16 py-8 bg-[#7C3AED] text-white font-bold text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-3xl shadow-[#7C3AED]/20 hover:scale-[1.02] transition-transform"
             >
               Join Our Platform

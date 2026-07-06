@@ -31,7 +31,7 @@ const FinalCTA: React.FC = () => {
               viewport={{ once: true }}
               className="inline-block border border-white/20 px-6 py-2 sm:px-8 sm:py-3 rounded-xl mb-8 sm:mb-12 backdrop-blur-md"
             >
-              <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.6em] text-[#7C3AED] font-bold uppercase">Ready for Assessment?</span>
+              <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.6em] text-[#7C3AED] font-bold uppercase">Ready to join?</span>
             </motion.div>
 
             <h2 className="font-poppins text-5xl sm:text-7xl lg:text-[9rem] italic text-white mb-8 sm:mb-12 tracking-tight">
@@ -44,13 +44,13 @@ const FinalCTA: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8">
               <button
-                onClick={() => navigate('/learn/assessment')}
+                onClick={() => navigate('/dashboard')}
                 className="glow-btn glow-btn-purple px-10 py-5 sm:px-16 sm:py-8 rounded-2xl text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase"
               >
                 <span className="glow-orb glow-orb-1" />
                 <span className="glow-orb glow-orb-2" />
                 <span className="glow-orb glow-orb-3" />
-                <span className="glow-label">Start Assessment</span>
+                <span className="glow-label">Get Started</span>
               </button>
               <motion.button
                 onClick={() => navigate('/about')}

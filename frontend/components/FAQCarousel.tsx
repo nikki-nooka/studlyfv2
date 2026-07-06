@@ -42,7 +42,7 @@ const faqData = [
     answer: "Yes. Students gain access to skill-based certifications, portfolio-building experiences, placement preparation, and industry-aligned opportunities to improve career outcomes.",
     image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=400",
     objectFit: "object-cover",
-    route: "/learn/assessment-intro"
+    route: "/opportunities"
   }
 ];
 

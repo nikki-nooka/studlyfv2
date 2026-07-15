@@ -169,6 +169,7 @@ const PostJobModal: React.FC<PostJobModalProps> = ({ isOpen, onClose, institutio
 
             const response = await fetch(`${API_BASE_URL}/api/opportunities`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 
                     'Content-Type': 'application/json',
                     ...authHeaders() 

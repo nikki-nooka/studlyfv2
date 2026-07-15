@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from html import escape
 from dotenv import load_dotenv
+from typing import Optional
 
 # Load env from root - Force override to ensure .env updates are picked up without restart
 root_env = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
@@ -290,8 +291,8 @@ def get_team_invite_template(
     team_name: str,
     event_name: str,
     invite_code: str,
-    current_team_size: int | None = None,
-    max_team_size: int | None = None,
+    current_team_size: Optional[int] = None,
+    max_team_size: Optional[int] = None,
     organization_name: str = "Studlyf",
 ):
     frontend_url = os.getenv("FRONTEND_URL", "https://studlyf.in")

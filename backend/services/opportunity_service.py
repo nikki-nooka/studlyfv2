@@ -435,6 +435,20 @@ async def get_all_opportunities(filters: dict = None) -> List[dict]:
                 query["type"] = filters["type"]
             if filters.get("institution_id"):
                 query["createdBy"] = filters["institution_id"]
+            if filters.get("category"):
+                query["category"] = filters["category"]
+            if filters.get("tags"):
+                # split by comma and match any
+                tags = [t.strip() for t in filters["tags"].split(",") if t.strip()]
+                if tags:
+                    query["tags"] = {"$in": tags}
+            if filters.get("search"):
+                search_val = filters["search"]
+                query["$or"] = [
+                    {"title": {"$regex": search_val, "$options": "i"}},
+                    {"organization": {"$regex": search_val, "$options": "i"}},
+                    {"category": {"$regex": search_val, "$options": "i"}},
+                ]
 
         # Use projection to exclude massive fields for list view
         projection = {

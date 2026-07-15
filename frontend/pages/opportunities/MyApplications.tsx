@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL, authHeaders } from '../../apiConfig';
 import { useAuth } from '../../AuthContext';
-import { ChevronLeft, Bell, ExternalLink, Loader2, CheckCircle2, UsersRound } from 'lucide-react';
+import { ChevronLeft, Bell, ExternalLink, Loader2, CheckCircle2, UsersRound, Bookmark } from 'lucide-react';
+import OpportunityCard from '../../components/opportunities/OpportunityCard';
 
 type ApplicationRow = {
     _id: string;
@@ -20,8 +21,37 @@ const MyApplications: React.FC = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [applications, setApplications] = useState<ApplicationRow[]>([]);
+    const [savedOpps, setSavedOpps] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<NotifRow[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'applications' | 'saved'>('applications');
+
+    const fetchAll = async () => {
+        try {
+            const [appRes, notifRes, savedRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/opportunities/me/applications`, { headers: { ...authHeaders() } }),
+                fetch(`${API_BASE_URL}/api/opportunities/me/notifications?limit=30`, { headers: { ...authHeaders() } }),
+                fetch(`${API_BASE_URL}/api/opportunities/user/saved`, { headers: { ...authHeaders() } })
+            ]);
+            
+            if (appRes.ok) {
+                const data = await appRes.json();
+                setApplications(Array.isArray(data) ? data : []);
+            }
+            if (notifRes.ok) {
+                const n = await notifRes.json();
+                setNotifications(Array.isArray(n) ? n : []);
+            }
+            if (savedRes.ok) {
+                const data = await savedRes.json();
+                setSavedOpps(Array.isArray(data) ? data : []);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (authLoading) return;
@@ -29,42 +59,11 @@ const MyApplications: React.FC = () => {
             navigate('/login', { replace: true });
             return;
         }
-        let cancelled = false;
-        (async () => {
-            setLoading(true);
-            try {
-                console.log('DEBUG: Fetching applications from:', `${API_BASE_URL}/api/opportunities/me/applications`);
-            const [appRes, notifRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/api/opportunities/me/applications`, { headers: { ...authHeaders() } }),
-                    fetch(`${API_BASE_URL}/api/opportunities/me/notifications?limit=30`, { headers: { ...authHeaders() } }),
-                ]);
-                if (cancelled) return;
-                if (appRes.ok) {
-                    const data = await appRes.json();
-                    console.log('DEBUG: Applications data received:', data);
-                    setApplications(Array.isArray(data) ? data : []);
-                } else {
-                    console.log('DEBUG: Failed to fetch applications, status:', appRes.status);
-                    setApplications([]);
-                }
-                if (notifRes.ok) {
-                    const n = await notifRes.json();
-                    setNotifications(Array.isArray(n) ? n : []);
-                } else {
-                    setNotifications([]);
-                }
-            } catch {
-                if (!cancelled) {
-                    setApplications([]);
-                    setNotifications([]);
-                }
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
+        fetchAll();
+        
+        const handleSaveUpdate = () => fetchAll();
+        window.addEventListener('saved-opportunities-update', handleSaveUpdate);
+        return () => window.removeEventListener('saved-opportunities-update', handleSaveUpdate);
     }, [authLoading, user?.user_id, navigate]);
 
     const statusLabel = (s: string | undefined) => {
@@ -133,9 +132,9 @@ const MyApplications: React.FC = () => {
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">My <span className="text-[#7C3AED]">applications</span></h1>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">My <span className="text-[#7C3AED]">dashboard</span></h1>
                         <p className="text-sm text-slate-500 mt-2">
-                            You have {applications.length} active applications. Track status, navigate to listings, and keep your next action clear.
+                            Manage your active applications and saved opportunities.
                         </p>
                     </div>
                 </div>
@@ -171,67 +170,118 @@ const MyApplications: React.FC = () => {
                     </section>
                 ) : null}
 
-                <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-                    {applications.length === 0 ? (
-                        <div className="p-16 text-center text-slate-400 font-bold">
-                            You have not applied to any opportunities yet.{' '}
-                            <Link to="/opportunities" className="text-purple-600 hover:underline">
-                                Browse listings
-                            </Link>
-                            .
-                        </div>
-                    ) : (
-                        <ul className="divide-y divide-slate-100">
-                            {applications.map((a) => {
-                                const st = statusLabel(a.status);
-                                const oid = a.opportunity_id;
-                                const canTeams = Boolean(a.event_id);
-                                return (
-                                    <li key={a._id} className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 hover:bg-slate-50/80 transition-colors">
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-black text-slate-900 text-lg truncate">
-                                                {a.opportunity_title || 'Opportunity'}
-                                            </p>
-                                            <p className="text-sm text-slate-500 font-medium mt-1">
-                                                {a.institution_name ? `${a.institution_name}` : 'Host institution'}
-                                            </p>
-                                            <p className="text-[11px] uppercase tracking-[0.24em] font-black text-slate-400 mt-2">
-                                                {applicationKind(a)} · {formatTimestamp(a.applied_at)}
-                                            </p>
-                                        </div>
-                                        <span
-                                            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${st.cls}`}
-                                        >
-                                            {st.text === 'Shortlisted' ? <CheckCircle2 size={14} /> : null}
-                                            {st.text}
-                                        </span>
-                                        {canTeams ? (
-                                            <Link
-                                                to={`/events/${a.event_id}`}
-                                                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-50 text-purple-700 border border-purple-100 text-xs font-black uppercase tracking-widest hover:bg-purple-100 transition-colors shrink-0"
-                                                title="Open team & submissions hub"
+                {/* Tabs */}
+                <div className="flex items-center gap-4 mb-6 border-b border-slate-200">
+                    <button 
+                        onClick={() => setActiveTab('applications')}
+                        className={`pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-colors ${
+                            activeTab === 'applications' 
+                            ? 'border-b-2 border-purple-600 text-purple-600' 
+                            : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                    >
+                        Applications ({applications.length})
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('saved')}
+                        className={`pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-colors ${
+                            activeTab === 'saved' 
+                            ? 'border-b-2 border-purple-600 text-purple-600' 
+                            : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                    >
+                        Saved ({savedOpps.length})
+                    </button>
+                </div>
+
+                {activeTab === 'applications' && (
+                    <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                        {applications.length === 0 ? (
+                            <div className="p-16 text-center text-slate-400 font-bold">
+                                You have not applied to any opportunities yet.{' '}
+                                <Link to="/opportunities" className="text-purple-600 hover:underline">
+                                    Browse listings
+                                </Link>
+                                .
+                            </div>
+                        ) : (
+                            <ul className="divide-y divide-slate-100">
+                                {applications.map((a) => {
+                                    const st = statusLabel(a.status);
+                                    const oid = a.opportunity_id;
+                                    const canTeams = Boolean(a.event_id);
+                                    return (
+                                        <li key={a._id} className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 hover:bg-slate-50/80 transition-colors">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-black text-slate-900 text-lg truncate">
+                                                    {a.opportunity_title || 'Opportunity'}
+                                                </p>
+                                                <p className="text-sm text-slate-500 font-medium mt-1">
+                                                    {a.institution_name ? `${a.institution_name}` : 'Host institution'}
+                                                </p>
+                                                <p className="text-[11px] uppercase tracking-[0.24em] font-black text-slate-400 mt-2">
+                                                    {applicationKind(a)} · {formatTimestamp(a.applied_at)}
+                                                </p>
+                                            </div>
+                                            <span
+                                                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${st.cls}`}
                                             >
-                                                Team hub <UsersRound size={14} />
-                                            </Link>
-                                        ) : null}
-                                        {oid ? (
-                                            <Link
-                                                to={`/opportunities/${oid}`}
-                                                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#7C3AED] text-white text-xs font-black uppercase tracking-widest hover:bg-[#5B21B6] transition-colors shrink-0"
-                                            >
-                                                View listing <ExternalLink size={14} />
-                                            </Link>
-                                        ) : null}
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    )}
-                </section>
+                                                {st.text === 'Shortlisted' ? <CheckCircle2 size={14} /> : null}
+                                                {st.text}
+                                            </span>
+                                            {canTeams ? (
+                                                <Link
+                                                    to={`/events/${a.event_id}`}
+                                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-50 text-purple-700 border border-purple-100 text-xs font-black uppercase tracking-widest hover:bg-purple-100 transition-colors shrink-0"
+                                                    title="Open team & submissions hub"
+                                                >
+                                                    Team hub <UsersRound size={14} />
+                                                </Link>
+                                            ) : null}
+                                            {oid ? (
+                                                <Link
+                                                    to={`/opportunities/${oid}`}
+                                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#7C3AED] text-white text-xs font-black uppercase tracking-widest hover:bg-[#5B21B6] transition-colors shrink-0"
+                                                >
+                                                    View listing <ExternalLink size={14} />
+                                                </Link>
+                                            ) : null}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                    </section>
+                )}
+
+                {activeTab === 'saved' && (
+                    <section className="bg-transparent">
+                        {savedOpps.length === 0 ? (
+                            <div className="p-16 text-center text-slate-400 font-bold bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+                                You haven't saved any opportunities yet.{' '}
+                                <Link to="/opportunities" className="text-purple-600 hover:underline">
+                                    Browse listings
+                                </Link>
+                                .
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {savedOpps.map((opp) => (
+                                    <div key={opp._id} className="w-full max-w-[320px] mx-auto">
+                                        <OpportunityCard 
+                                            opportunity={opp} 
+                                            isApplied={applications.some(a => a.opportunity_id === opp._id)}
+                                            isSavedInitial={true}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                )}
             </div>
         </div>
     );
 };
 
 export default MyApplications;
-

@@ -44,13 +44,14 @@ export const FRONTEND_URL =
 
 /** Merge with fetch headers so institution / learner JWT routes work after server hardening. */
 export function authHeaders(): Record<string, string> {
-    const t = localStorage.getItem('auth_token');
+    // Check localStorage first (normal mode), then sessionStorage (incognito / private mode fallback)
+    const t = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
 /** Get raw JWT token for use in query parameters (file download URLs etc). */
 export function getAuthToken(): string {
-    return localStorage.getItem('auth_token') || '';
+    return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || '';
 }
 
 // SECURITY FIX: Removed all console.log and console.warn statements

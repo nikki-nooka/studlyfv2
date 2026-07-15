@@ -9,7 +9,7 @@ import json
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile, Body, Depends, Query, Response, BackgroundTasks
-from auth_institution import get_auth_user, get_auth_user_optional, assert_institution_scope, assert_institution_owns_event
+from auth_institution import get_auth_user, get_auth_user_optional, assert_institution_scope, assert_institution_owns_event, _is_admin
 
 # Simple In-Memory Cache
 _cache = {}
@@ -758,7 +758,7 @@ async def get_all_events(institution_id: str, user: dict = Depends(get_auth_user
     Registration counts combine `participants` and portal applications on the linked opportunity.
     """
     assert_institution_scope(institution_id, user)
-    from db import opportunity_applications_col
+    from db import opportunity_applications_col, saved_opportunities_col
 
     events_list = []
     event_ids = set()
@@ -772,9 +772,14 @@ async def get_all_events(institution_id: str, user: dict = Depends(get_auth_user
         booth = await participants_col.count_documents({"event_id": eid})
         linked = await opportunities_col.find_one({"event_link_id": eid})
         portal = 0
+        saves = 0
         if linked:
             portal = await opportunity_applications_col.count_documents({"opportunity_id": str(linked["_id"])})
+            saves = await saved_opportunities_col.count_documents({"opportunity_id": str(linked["_id"])})
         event["participant_count"] = booth + portal
+        event["views"] = event.get("views", 0)
+        event["clicks"] = event.get("clicks", 0)
+        event["saves"] = saves
         events_list.append(event)
 
     o_cursor = opportunities_col.find({
@@ -789,6 +794,9 @@ async def get_all_events(institution_id: str, user: dict = Depends(get_auth_user
         opp["_id"] = opp_id
         opp["organisation"] = opp.get("organisation") or opp.get("organization") or ""
         opp["participant_count"] = await opportunity_applications_col.count_documents({"opportunity_id": opp_id})
+        opp["saves"] = await saved_opportunities_col.count_documents({"opportunity_id": opp_id})
+        opp["views"] = opp.get("views", 0)
+        opp["clicks"] = opp.get("clicks", 0)
         opp["status"] = opp.get("status", "Active").upper()
         opp["category"] = opp.get("type", "Opportunity")
         events_list.append(opp)
@@ -6674,6 +6682,7 @@ async def create_pro_event(request: Request, user: dict = Depends(get_auth_user)
                 deadline_value=event_data.get("registrationDeadline"),
                 deadline_label="registration window",
                 start_date_value=event_data.get("registrationStartDate"),
+                ignore_limits=_is_admin(user.get("role"))
             )
         except ValueError as ve:
             raise HTTPException(status_code=400, detail=str(ve))
@@ -6948,6 +6957,7 @@ async def update_pro_event(event_id: str, request: Request, user: dict = Depends
                     deadline_value=event_data.get("registrationDeadline") or (existing_event or {}).get("registrationDeadline"),
                     deadline_label="registration window",
                     start_date_value=event_data.get("registrationStartDate") or (existing_event or {}).get("registrationStartDate"),
+                    ignore_limits=_is_admin(user.get("role"))
                 )
             except ValueError as ve:
                 raise HTTPException(status_code=400, detail=str(ve))

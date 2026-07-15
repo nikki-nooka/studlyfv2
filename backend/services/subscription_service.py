@@ -52,7 +52,7 @@ PLAN_RULES: Dict[str, Dict[str, Any]] = {
     "basic": {
         "name": "Basic Plan",
         "max_active_listings": 2,
-        "max_registration_days": 7,
+        "max_registration_days": None,
         "max_app_views": 30,
         "max_interview_credits": 10,
         "max_assessment_credits": 0,
@@ -136,8 +136,12 @@ async def validate_new_listing_against_plan(
     deadline_value: Any = None,
     deadline_label: str = "deadline",
     start_date_value: Any = None,
+    ignore_limits: bool = False,
 ) -> Dict[str, Any]:
     rules = await get_current_plan_rules(institution_id)
+
+    if ignore_limits:
+        return rules
 
     max_active = rules.get("max_active_listings")
     if max_active is not None:

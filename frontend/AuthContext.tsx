@@ -118,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const login = (token: string, userData: User) => {
         localStorage.setItem('auth_token', token);
+        sessionStorage.setItem('auth_token', token); // fallback for incognito/private mode
         if (userData && userData.user_id) {
             userData.uid = userData.user_id;
         }

@@ -510,12 +510,13 @@ class Opportunity(BaseModel):
     description: str
     location: Optional[str] = None
     deadline: datetime
+    external_apply_link: Optional[str] = None
     applicantsCount: int = 0
     average_rating: float = 0.0
     total_reviews: int = 0
     createdAt: datetime = Field(default_factory=datetime.utcnow)
     createdBy: str  # institutionId
-    status: str = "active"  # active / closed
+    status: str = "pending_approval"  # pending_approval / active / rejected / closed
 
 class OpportunityApplication(BaseModel):
     id: Optional[str] = Field(None, alias="_id")

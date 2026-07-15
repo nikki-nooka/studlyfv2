@@ -5,7 +5,7 @@ from datetime import datetime
 import asyncio
 import os
 
-from auth_institution import get_auth_user, get_auth_user_optional
+from auth_institution import get_auth_user, get_auth_user_optional, _is_admin
 from services.opportunity_service import (
     create_opportunity,
     get_all_opportunities,
@@ -16,7 +16,7 @@ from services.opportunity_service import (
 )
 from services.subscription_service import validate_new_listing_against_plan
 from db import notifications_col
-from db import quizzes_col, events_col, participants_col, opportunities_col, opportunity_applications_col, opportunity_reviews_col
+from db import quizzes_col, events_col, participants_col, opportunities_col, opportunity_applications_col, opportunity_reviews_col, saved_opportunities_col
 from services.email_service import send_notification_email
 
 router = APIRouter(prefix="/api/opportunities", tags=["Opportunities"])
@@ -61,6 +61,7 @@ async def post_opportunity(data: dict = Body(...), user: dict = Depends(get_auth
                         deadline_value=data.get("deadline"),
                         deadline_label="application deadline",
                         start_date_value=data.get("startDate"),
+                        ignore_limits=_is_admin(role)
                     )
                 except ValueError as ve:
                     raise HTTPException(status_code=400, detail=str(ve))
@@ -73,13 +74,19 @@ async def post_opportunity(data: dict = Body(...), user: dict = Depends(get_auth
 @router.get("/")
 async def list_opportunities(
     type: Optional[str] = Query(None),
-    institution_id: Optional[str] = Query(None)
+    institution_id: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    tags: Optional[str] = Query(None)
 ):
     """API to list opportunities with optional filters."""
     try:
         filters = {}
         if type: filters["type"] = type
         if institution_id: filters["institution_id"] = institution_id
+        if search: filters["search"] = search
+        if category: filters["category"] = category
+        if tags: filters["tags"] = tags
         return await get_all_opportunities(filters)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -128,6 +135,90 @@ async def mark_my_notification_read(notification_id: str, user: dict = Depends(g
         return {"status": "ok"}
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid notification id")
+
+
+@router.post("/{opportunity_id}/save")
+async def save_opportunity(opportunity_id: str, user: dict = Depends(get_auth_user)):
+    """Save/bookmark an opportunity for the learner."""
+    try:
+        await saved_opportunities_col.update_one(
+            {"user_id": user["user_id"], "opportunity_id": opportunity_id},
+            {"$set": {"saved_at": datetime.utcnow()}},
+            upsert=True
+        )
+        return {"status": "ok", "saved": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/{opportunity_id}/save")
+async def unsave_opportunity(opportunity_id: str, user: dict = Depends(get_auth_user)):
+    """Remove a saved opportunity."""
+    try:
+        await saved_opportunities_col.delete_one({"user_id": user["user_id"], "opportunity_id": opportunity_id})
+        return {"status": "ok", "saved": False}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/user/saved")
+async def get_saved_opportunities(user: dict = Depends(get_auth_user)):
+    """Get all saved opportunities for a learner."""
+    try:
+        cursor = saved_opportunities_col.find({"user_id": user["user_id"]}).sort("saved_at", -1)
+        saved_list = await cursor.to_list(length=100)
+        opp_ids = [ObjectId(item["opportunity_id"]) for item in saved_list if ObjectId.is_valid(item["opportunity_id"])]
+        
+        # Fetch actual opportunities
+        opps_cursor = opportunities_col.find({"_id": {"$in": opp_ids}})
+        opportunities = []
+        async for doc in opps_cursor:
+            doc["_id"] = str(doc["_id"])
+            opportunities.append(doc)
+            
+        return opportunities
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/admin/pending")
+async def get_pending_opportunities(user: dict = Depends(get_auth_user)):
+    """Fetch pending opportunities for admin approval."""
+    role = str(user.get("role") or "").lower()
+    if role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    try:
+        cursor = opportunities_col.find({"status": "pending_approval"}).sort("createdAt", -1)
+        items = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            items.append(doc)
+        return items
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.patch("/admin/{opportunity_id}/status")
+async def update_opportunity_status(
+    opportunity_id: str, 
+    payload: dict = Body(...), 
+    user: dict = Depends(get_auth_user)
+):
+    """Update opportunity status (active, rejected)."""
+    role = str(user.get("role") or "").lower()
+    if role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    status = payload.get("status")
+    if status not in ("active", "rejected", "pending_approval", "closed"):
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    try:
+        res = await opportunities_col.update_one(
+            {"_id": ObjectId(opportunity_id)},
+            {"$set": {"status": status}}
+        )
+        if res.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Opportunity not found")
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/user/{user_id}/applications")

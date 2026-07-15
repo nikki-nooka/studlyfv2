@@ -183,6 +183,7 @@ const PostInternshipModal: React.FC<PostInternshipModalProps> = ({ isOpen, onClo
 
             const response = await fetch(`${API_BASE_URL}/api/opportunities`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 
                     'Content-Type': 'application/json',
                     ...authHeaders() 

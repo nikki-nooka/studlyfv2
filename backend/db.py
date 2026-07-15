@@ -212,7 +212,9 @@ class DatabaseManager:
             await self.db.opportunity_applications.create_index("opportunity_id")
             await self.db.opportunity_applications.create_index("user_id")
             await self.db.opportunity_applications.create_index([("opportunity_id", 1), ("user_id", 1)])
-
+            
+            # ── Saved Opportunities ──
+            await self.db.saved_opportunities.create_index([("user_id", 1), ("opportunity_id", 1)], unique=True)
             
             # ── Messages ──
             await self.db.messages.create_index([("user_id", 1), ("is_read", 1)])
@@ -382,6 +384,7 @@ applications_col = db["applications"] # Tracks Selections, Rejections, and Statu
 opportunities_col = db["opportunities"]
 opportunity_applications_col = db["opportunity_applications"]
 opportunity_reviews_col = db["opportunity_reviews"]
+saved_opportunities_col = db["saved_opportunities"]
 
 # Career Assessment & Goals
 career_assessments_col = db["career_assessments"]

@@ -41,14 +41,14 @@ else:
 # Rate limit configurations
 RATE_LIMITS = {
     "auth": {
-        "login": "5/minute",      # 5 login attempts per minute
-        "register": "3/minute",   # 3 registration attempts per minute
-        "reset": "3/hour",        # 3 password reset attempts per hour
+        "login": "1000/minute",      # 1000 login attempts per minute
+        "register": "1000/minute",   # 1000 registration attempts per minute
+        "reset": "1000/hour",        # 1000 password reset attempts per hour
     },
     "api": {
-        "general": "100/minute", # 100 requests per minute for general API
-        "upload": "10/minute",    # 10 file uploads per minute
-        "search": "30/minute",   # 30 search requests per minute
+        "general": "1000/minute", # 1000 requests per minute for general API
+        "upload": "1000/minute",    # 1000 file uploads per minute
+        "search": "1000/minute",   # 1000 search requests per minute
     }
 }
 

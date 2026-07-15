@@ -41,6 +41,7 @@ const navItems = [
     { name: 'SDL Projects', icon: Layers, path: '/admin/sdl-projects' },
     { name: 'Resumes', icon: FileText, path: '/admin/resumes' },
     { name: 'Mentors', icon: UserCheck, path: '/admin/mentors' },
+    { name: 'Opportunities', icon: Briefcase, path: '/admin/opportunities' },
     { name: 'Payments', icon: CreditCard, path: '/admin/payments' },
     { name: 'Advertisements', icon: Megaphone, path: '/admin/ads' },
     { name: 'Analytics', icon: BarChart3, path: '/admin/analytics' },

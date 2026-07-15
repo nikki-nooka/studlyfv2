@@ -1,8 +1,9 @@
-import React from 'react';
-import { Calendar, MapPin, Briefcase, ChevronRight, Building2, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, MapPin, Briefcase, ChevronRight, Building2, Globe, Bookmark, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { plainTextFromRichContent, formatOpportunityLocation, getOpportunityDeadline } from '../../utils/text';
+import { API_BASE_URL, authHeaders } from '../../apiConfig';
 
 interface OpportunityCardProps {
     opportunity: {
@@ -16,10 +17,34 @@ interface OpportunityCardProps {
         applicantsCount: number;
     };
     isApplied?: boolean;
+    isSavedInitial?: boolean;
 }
 
-const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, isApplied }) => {
+const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, isApplied, isSavedInitial = false }) => {
     const navigate = useNavigate();
+    const [isSaved, setIsSaved] = useState(isSavedInitial);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (isSaving) return;
+        setIsSaving(true);
+        try {
+            const method = isSaved ? 'DELETE' : 'POST';
+            const res = await fetch(`${API_BASE_URL}/api/opportunities/${opportunity._id}/save`, {
+                method,
+                headers: authHeaders()
+            });
+            if (res.ok) {
+                setIsSaved(!isSaved);
+                window.dispatchEvent(new CustomEvent('saved-opportunities-update'));
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const getTypeColor = (type: string) => {
         switch (type.toLowerCase()) {
@@ -33,6 +58,25 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, isApplie
 
     const locationText = formatOpportunityLocation(opportunity.location);
     const isRemote = locationText.toLowerCase().includes('remote') || locationText.toLowerCase().includes('online');
+
+    const handleShare = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const url = `${window.location.origin}/opportunities/${opportunity._id}`;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: opportunity.title,
+                    text: `Check out this opportunity: ${opportunity.title} at ${opportunity.organization}`,
+                    url: url
+                });
+            } catch (err) {
+                console.error("Error sharing:", err);
+            }
+        } else {
+            navigator.clipboard.writeText(url);
+            alert("Link copied to clipboard!");
+        }
+    };
 
     return (
         <motion.div 
@@ -49,11 +93,34 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, isApplie
                 
                 <div className="flex-1 flex flex-col relative z-10">
                     {/* Header Mobile Org */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200/60 shadow-inner flex items-center justify-center text-slate-400 group-hover:border-purple-200 group-hover:text-purple-500 group-hover:bg-purple-50 transition-all">
-                            <Building2 size={20} strokeWidth={1.5} />
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200/60 shadow-inner flex items-center justify-center text-slate-400 group-hover:border-purple-200 group-hover:text-purple-500 group-hover:bg-purple-50 transition-all">
+                                <Building2 size={20} strokeWidth={1.5} />
+                            </div>
+                            <span className="text-sm font-bold text-slate-500">{opportunity.organization}</span>
                         </div>
-                        <span className="text-sm font-bold text-slate-500">{opportunity.organization}</span>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={handleShare}
+                                className="p-2 rounded-full transition-all bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-blue-600"
+                                title="Share"
+                            >
+                                <Share2 size={18} />
+                            </button>
+                            <button 
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className={`p-2 rounded-full transition-all ${
+                                    isSaved 
+                                    ? 'bg-purple-100 text-purple-600' 
+                                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                }`}
+                                title={isSaved ? "Saved" : "Save Opportunity"}
+                            >
+                                <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Badges */}

@@ -6,7 +6,10 @@ import {
     ChevronDown,
     Globe,
     Edit2,
-    MoreVertical
+    MoreVertical,
+    Eye,
+    Bookmark,
+    MousePointerClick
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardCache } from '../../contexts/DashboardDataContext';
@@ -25,8 +28,11 @@ interface Event {
     visibility: 'Public' | 'Private';
     registrationStatus: 'Open' | 'Close';
     lastSaved: string;
-    organisation?: string;
+    organisation: string;
     category?: string;
+    saves: number;
+    views: number;
+    clicks: number;
 }
 
 interface OpportunitiesManagementProps {
@@ -178,6 +184,8 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                     if (rawStatus === 'live' || rawStatus === 'published' || rawStatus === 'active') displayStatus = 'Live';
                     else if (rawStatus === 'completed') displayStatus = 'Completed';
                     else if (rawStatus === 'upcoming') displayStatus = 'Upcoming';
+                    else if (rawStatus === 'pending_approval') displayStatus = 'Pending Approval';
+                    else if (rawStatus === 'rejected') displayStatus = 'Rejected';
 
                     // Dynamic relative time from updated_at or created_at
                     const lastUpdateTime = e.updated_at || e.updatedAt || e.created_at || e.createdAt;
@@ -244,7 +252,10 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                         visibility: e.visibility || 'Unknown',
                         registrationStatus: e.registration_status || 'Unknown',
                         lastSaved,
-                        category: rawCat
+                        category: rawCat,
+                        saves: e.saves || 0,
+                        views: e.views || 0,
+                        clicks: e.clicks || 0
                     };
                 });
                 
@@ -375,7 +386,7 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                                         <th className="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Start Date</th>
                                         <th className="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">End Date</th>
                                         <th className="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Candidate</th>
-                                        <th className="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Registrations</th>
+                                        <th className="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Analytics</th>
                                         <th className="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-24">Action</th>
                                     </tr>
                                 </thead>
@@ -403,8 +414,10 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                                                 </div>
                                             </td>
                                             <td className="px-6 py-8 text-center">
-                                                <span className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold w-fit ${
                                                     event.status === 'Live' ? 'bg-green-100 text-green-600 border border-green-200' :
+                                                    event.status === 'Pending Approval' ? 'bg-amber-100 text-amber-600 border border-amber-200' :
+                                                    event.status === 'Rejected' ? 'bg-red-100 text-red-600 border border-red-200' :
                                                     event.status === 'Draft' ? 'bg-slate-100 text-slate-600 border border-slate-200' :
                                                     'bg-blue-100 text-blue-600 border border-blue-200'
                                                 }`}>
@@ -430,7 +443,22 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                                                 </div>
                                             </td>
                                             <td className="px-6 py-8 text-center text-sm font-bold text-slate-400">{event.candidate}</td>
-                                            <td className="px-6 py-8 text-center text-sm font-black text-slate-700">{event.registrations}</td>
+                                            <td className="px-6 py-8">
+                                                <div className="flex flex-col items-center gap-1.5 justify-center">
+                                                    <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded" title="Views">
+                                                        <Eye size={12} className="text-slate-400" /> {event.views || 0}
+                                                    </span>
+                                                    <span className="flex items-center gap-1.5 text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded" title="Saves">
+                                                        <Bookmark size={12} className="text-purple-400" /> {event.saves || 0}
+                                                    </span>
+                                                    <span className="flex items-center gap-1.5 text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded" title="Clicks">
+                                                        <MousePointerClick size={12} className="text-blue-400" /> {event.clicks || 0}
+                                                    </span>
+                                                    <span className="flex items-center gap-1.5 text-[11px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded" title="Registrations">
+                                                        <Globe size={12} className="text-green-400" /> {event.registrations}
+                                                    </span>
+                                                </div>
+                                            </td>
                                             <td className="px-6 py-8">
                                                 <div className="flex items-center justify-center gap-2 relative">
                                                     <button 

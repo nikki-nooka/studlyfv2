@@ -720,6 +720,14 @@ const OpportunityDetails: React.FC = () => {
             navigate(`/auth?redirect=${encodeURIComponent(location.pathname)}`);
             return;
         }
+
+        const extLink = opportunity?.externalRegistrationLink || opportunity?.external_registration_link || opportunity?.external_apply_link;
+        if (extLink) {
+            window.open(extLink, '_blank', 'noopener,noreferrer');
+            // We could optionally trigger a "mark as applied" in the backend here
+            return;
+        }
+
         setShowRegistrationModal(true);
     };
 

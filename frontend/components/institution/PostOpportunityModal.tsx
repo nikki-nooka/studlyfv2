@@ -445,15 +445,46 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
             }
             setStep(step + 1);
         } else {
-            // Validate team size
-            if (formData.minTeamSize == null || formData.maxTeamSize == null) {
-                alert('Please set both minimum and maximum team size for team-based events');
+            // ─── PRE-SUBMIT FIELD VALIDATION ────────────────────────────────────────
+            const missingFields: string[] = [];
+
+            const descriptionContent = (editorRef.current?.innerHTML || formData.description || '').replace(/<[^>]*>/g, '').trim();
+
+            if (!formData.title?.trim())                         missingFields.push('Title (Opportunity Name)');
+            if (!formData.organisation?.trim() || formData.organisation === 'Loading...') missingFields.push('Organisation Name');
+            if (!formData.opportunityType?.trim())               missingFields.push('Opportunity Type');
+            if (!descriptionContent)                             missingFields.push('Description (cannot be empty)');
+            if (!formData.registrationDeadline)                  missingFields.push('Registration Deadline');
+            if (!formData.registrationStartDate)                 missingFields.push('Registration Start Date');
+
+            // Team size checks (only if participationType involves a team)
+            const needsTeamSize = formData.participationType === 'team' || formData.participationType === 'both';
+            if (needsTeamSize) {
+                if (formData.minTeamSize == null)                missingFields.push('Minimum Team Size');
+                if (formData.maxTeamSize == null)                missingFields.push('Maximum Team Size');
+                if (formData.minTeamSize != null && formData.maxTeamSize != null && Number(formData.minTeamSize) > Number(formData.maxTeamSize)) {
+                    missingFields.push('Team Size (Minimum cannot be greater than Maximum)');
+                }
+            }
+
+            if (!institutionId)                                  missingFields.push('Institution ID (not linked — please reload and try again)');
+
+            if (missingFields.length > 0) {
+                console.error(
+                    `%c[Studlyf] ❌ Opportunity submission blocked — ${missingFields.length} missing/invalid field(s):`,
+                    'color: #ff4d4d; font-weight: bold; font-size: 14px;'
+                );
+                missingFields.forEach((field, i) => {
+                    console.error(`  ${i + 1}. ❌ MISSING: "${field}"`);
+                });
+                alert(
+                    `Cannot submit — please fill in the following required fields:\n\n` +
+                    missingFields.map((f, i) => `${i + 1}. ${f}`).join('\n') +
+                    `\n\n(Check your browser console for details — press F12 → Console tab)`
+                );
                 return;
             }
-            if (Number(formData.minTeamSize) > Number(formData.maxTeamSize)) {
-                alert('Minimum team size cannot be greater than maximum team size');
-                return;
-            }
+            // ────────────────────────────────────────────────────────────────────────
 
             setLoading(true);
             try {
@@ -480,6 +511,21 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
                     }
                 }
                 
+                // Log the full payload being sent for debugging
+                console.group('%c[Studlyf] 📤 Submitting Opportunity Payload', 'color: #6C3BFF; font-weight: bold;');
+                console.log('institutionId:', institutionId);
+                console.log('title:', submitFormData.title);
+                console.log('organisation:', submitFormData.organisation);
+                console.log('opportunityType:', submitFormData.opportunityType);
+                console.log('registrationStartDate:', submitFormData.registrationStartDate);
+                console.log('registrationDeadline:', submitFormData.registrationDeadline);
+                console.log('eventStartDate:', submitFormData.eventStartDate);
+                console.log('eventEndDate:', submitFormData.eventEndDate);
+                console.log('participationType:', submitFormData.participationType);
+                console.log('minTeamSize:', submitFormData.minTeamSize, '| maxTeamSize:', submitFormData.maxTeamSize);
+                console.log('stages count:', (submitFormData.stages || []).length);
+                console.groupEnd();
+
                 // Append all regular fields (exclude description — appended live below)
                 Object.entries(submitFormData).forEach(([key, value]) => {
                     if (key !== 'festivalData' && key !== 'registrationFields' && key !== 'description') {
@@ -527,22 +573,61 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
                 const response = await fetch(url, {
                     method: method,
                     headers: { ...authHeaders() },
+                    credentials: 'include',
                     body: submitData
                 });
 
                 if (response.ok) {
+                    console.log('%c[Studlyf] ✅ Opportunity saved successfully!', 'color: #22c55e; font-weight: bold;');
                     alert(eventId ? "Opportunity Updated Successfully!" : "Opportunity Created Successfully!");
                     if (typeof window !== 'undefined') {
                         window.dispatchEvent(new CustomEvent('opportunity-list-refresh'));
                     }
                     onClose();
                 } else {
-                    const errorData = await response.json();
-                    alert(`Failed to save opportunity: ${errorData.detail || response.statusText || 'Unknown Error'}`);
+                    let errorData: any = {};
+                    try { errorData = await response.json(); } catch (_) { errorData = { detail: response.statusText }; }
+
+                    // ── Decode error message into human-readable form ──
+                    let humanError = 'Unknown error from server';
+
+                    if (typeof errorData.detail === 'string') {
+                        // Plain string error (e.g., "Missing or invalid token", "7-day limit")
+                        humanError = errorData.detail;
+                    } else if (Array.isArray(errorData.detail)) {
+                        // FastAPI 422 Unprocessable Entity — returns [{loc: [...], msg: '...', type: '...'}, ...]
+                        humanError = errorData.detail.map((err: any) => {
+                            const field = Array.isArray(err.loc)
+                                ? err.loc.filter((p: any) => p !== 'body').join(' → ')
+                                : String(err.loc || 'unknown field');
+                            return `Field "${field}": ${err.msg}`;
+                        }).join('\n');
+                    } else if (errorData.message) {
+                        humanError = errorData.message;
+                    }
+
+                    // Always log the full raw error to the console for debugging
+                    console.group('%c[Studlyf] ❌ Opportunity save FAILED', 'color: #ff4d4d; font-weight: bold; font-size: 14px;');
+                    console.error('HTTP Status:', response.status, response.statusText);
+                    console.error('Raw error response:', errorData);
+                    if (Array.isArray(errorData.detail)) {
+                        console.error('Validation errors breakdown:');
+                        errorData.detail.forEach((err: any, i: number) => {
+                            const field = Array.isArray(err.loc) ? err.loc.join('.') : err.loc;
+                            console.error(`  ${i + 1}. Field: "${field}" → ${err.msg} (type: ${err.type})`);
+                        });
+                    }
+                    console.groupEnd();
+
+                    alert(
+                        `❌ Failed to save opportunity (HTTP ${response.status}):\n\n${humanError}\n\n` +
+                        `👉 Open your browser console (F12 → Console tab) to see the full technical details.`
+                    );
                 }
             } catch (err) {
-                try { console.error("Submission failed", err instanceof Error ? err.message : String(err)); } catch (_) {}
-                alert("Network error: Failed to connect to the server.");
+                const msg = err instanceof Error ? err.message : String(err);
+                console.error('%c[Studlyf] ❌ Network/Submission error:', 'color: #ff4d4d; font-weight: bold;', msg);
+                alert(`❌ Network error: Could not reach the server.\n\nDetails: ${msg}\n\nMake sure your backend is running and try again.`);
             } finally {
                 setLoading(false);
             }
@@ -879,6 +964,20 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
                                                     placeholder="https://company.com"
                                                     className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-xl outline-none transition-all text-slate-900 font-medium"
                                                 />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-1">
+                                            <div>
+                                                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">External Registration Link (Optional)</label>
+                                                <input 
+                                                    type="url" 
+                                                    value={formData.externalRegistrationLink}
+                                                    onChange={(e) => setFormData({...formData, externalRegistrationLink: e.target.value})}
+                                                    placeholder="https://google.forms..."
+                                                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-xl outline-none transition-all text-slate-900 font-medium"
+                                                />
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">If provided, the "Apply Now" button will redirect users to this link.</p>
                                             </div>
                                         </div>
 

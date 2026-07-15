@@ -4,7 +4,7 @@ JWT helpers for institution-scoped routes. Hydrates institution_id from users co
 from typing import Optional
 import logging
 
-from fastapi import Depends, Header, HTTPException, Query
+from fastapi import Depends, Header, HTTPException, Query, Request
 from auth_utils import decode_access_token
 from bson import ObjectId
 from db import users_col, events_col, opportunities_col
@@ -13,11 +13,17 @@ logger = logging.getLogger("auth_institution")
 
 
 async def get_auth_user(
+    request: Request,
     authorization: Optional[str] = Header(None),
     token: Optional[str] = Query(None),
 ) -> dict:
     if authorization and authorization.startswith("Bearer "):
         token = authorization.split(" ")[1]
+    
+    # Fallback to HTTP-only cookie if header/query token is missing
+    if not token and request.cookies:
+        token = request.cookies.get("token") or request.cookies.get("auth_token")
+
     if not token:
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     payload = decode_access_token(token) or {}
@@ -119,10 +125,17 @@ async def assert_institution_owns_event(event_id: str, user: dict) -> dict:
     return ev
 
 
-async def get_auth_user_optional(authorization: Optional[str] = Header(None)) -> Optional[dict]:
-    if not authorization or not authorization.startswith("Bearer "):
+async def get_auth_user_optional(request: Request, authorization: Optional[str] = Header(None)) -> Optional[dict]:
+    token = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ")[1]
+        
+    if not token and request.cookies:
+        token = request.cookies.get("token") or request.cookies.get("auth_token")
+        
+    if not token:
         return None
-    token = authorization.split(" ")[1]
+        
     payload = decode_access_token(token) or {}
     if not payload.get("user_id"):
         return None

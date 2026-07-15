@@ -1,200 +1,402 @@
-# StudLyf v2 - AI-Powered Career Development Platform
+<div align="center">
 
-StudLyf is a futuristic, AI-driven platform designed to bridge the gap between learning and employment. It now also includes an institutional opportunity portal, eligibility-aware submissions, and a production-style subscription management flow alongside the mock interview system, technical assessment generation, and portfolio/resume builder.
+# 🎓 StudLyf v2
 
-## 🚀 Key Features
+### AI-Powered Career Development & Institutional Event Management Platform
 
-### 1. 🎙️ 3-Round Mock Interview System
-A comprehensive interview simulation powered by **Groq LLM (Llama 3.3 70B)** and the **Browser Web Speech API**.
-- **Round 1: Technical Interview (Text)** - 3 deep-dive technical questions tailored to your role.
-- **Round 2: Behavioural Interview (Text)** - 3 situational questions focusing on leadership and STAR methods.
-- **Round 3: HR Voice Interview (Voice)** - A hands-free voice round where the AI speaks and listens, simulating a real HR call.
-- **Automated Feedback**: Generates a detailed "Clinical Report" with Technical Readiness, Communication scores, and a learning roadmap.
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/Frontend-React%20+%20Vite-61DAFB?style=flat-square&logo=react)](https://vitejs.dev/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Deployment-Docker-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://www.python.org/)
 
-### 2. 📝 AI Assessment Generation
-Generates clinical-grade technical MCQ and task-based assessments based on specific company cultures (e.g., Google's DSA focus vs. Amazon's Leadership focus).
-
-### 3. 📄 Smart Resume & Portfolio Builder
-- **AI Summary**: Automatically generates impactful summaries.
-- **LaTeX PDFs**: Compiles professional-grade PDFs using local or cloud-based LaTeX engines.
-- **Glassmorphism Portfolios**: Generates futuristic, interactive web portfolios.
-
-## 🛠️ Tech Stack
-- **Frontend**: React, Vite, Tailwind CSS, Framer Motion.
-- **Backend**: FastAPI (Python), MongoDB (Motor).
-- **AI**: Groq Cloud (Llama 3.3 70B).
-- **Voice**: Web Speech API (Recognition + Synthesis).
-
-### 4. 🏫 Institution Dashboard System
-A comprehensive competition management platform for colleges and organizations.
-- **Self-Managed Auth (Gmail-Only)**: Fully migrated from Firebase/GitHub to a self-managed, MongoDB-backed authentication system using JWT.
-- **Secure Onboarding (OTP)**: Two-step institutional registration flow featuring a cryptographically secure OTP verification system (`secrets` generator) with professional email templates.
-- **Strong Password Protocol**: Enforced backend validation (minimum 8 characters) with frontend strength visualization.
-- **Backbone Infrastructure**: High-security backend with JWT, RBAC (Role-Based Access Control), and Audit Logging.
-- **Smart Management**: Automation for team formation, deadline enforcement, and blind judging.
-- **Real-time Analytics**: Live statistics, registration heatmaps, and demographic tracking.
-
-### 5. 🎯 Opportunity Portal, Eligibility & Applications
-The learner-facing opportunity portal is now tied to the institutional event lifecycle.
-- **Admin eligibility targeting**: Institutions can configure candidate type, eligible organizations/college restrictions, eligible genders, participation type, and min/max team size while creating or editing an opportunity.
-- **Server-side enforcement**: Eligibility is validated on the backend before applicants can register or submit portal applications.
-- **Submission controls**: Team-only, individual-only, and mixed participation rules are enforced during stage submission, including team-size checks.
-- **Submission mirroring**: Stage submissions are mirrored into the portal application pipeline so accepted entries appear in learner-facing "My applications" views.
-- **Deadline-aware editing**: Opportunity pages show whether submissions are editable until the deadline or locked after the deadline passes.
-- **Legacy backfill**: A migration helper seeds safe defaults for older opportunity records that predate the eligibility fields.
-
-### 6. 💳 Plans & Subscription Management
-The institutional plan flow now behaves like a production SaaS subscription workflow rather than a direct plan switch.
-- **Plan confirmation modal**: Clicking "Select Plan" opens a review step instead of immediately activating the plan.
-- **Pending plan state**: The backend stores a pending plan change until it is confirmed.
-- **Demo-mode billing**: Pricing is currently ₹0 for development/testing, but the UI still follows a checkout-style confirmation flow.
-- **Active plan status**: The dashboard shows the current plan, subscription status, expiry date, and days remaining.
-- **Expiry reminders**: The backend sends email and in-app notifications at 7, 3, and 1 day before expiry, plus when the plan expires.
-- **Plan refresh**: The settings page refetches plan and package status after selection so the UI stays in sync.
-
-### 7. ✉️ Communication & Event Email System
-Studlyf now includes a production-style notification layer for event and platform workflows.
-- **Direct email delivery**: `backend/services/email_service.py` supports SMTP and Resend-style delivery with retry handling and verified sender configuration.
-- **Event templates**: The backend includes reusable templates for registration confirmation, team invite, team join, shortlist, certificate, announcement, and participant-facing messages.
-- **Deadline reminders**: `backend/services/reminder_service.py` and `backend/services/communication_service.py` schedule reminder emails for judges and participants, including 24h and 1h event reminders.
-- **Background dispatch**: Event and notification flows queue email sends asynchronously instead of blocking request handlers.
-- **Organizer identity**: Messages are branded as Studlyf notifications sent on behalf of the institution or organizer.
-
-  - **Interactive Command Center & Onboarding**:
-    - **High-Fidelity Opportunities Management**: A sophisticated, data-driven table UI for managing competitions, hackathons, and scholarships with advanced filtering by visibility, registration status, and categories.
-    - **Premium Onboarding (Dashboard Tour)**: A guided tour featuring smooth animations, clear indicator arrows, and a premium dark-themed interface to onboard new institutional administrators.
-    - **Total Brand Synchronisation**: Deep integration of the Studlyf brand purple palette across all interactive elements, including custom card gradients and 3D icons.
-    - **Smart Deletion Workflow**: Robust CRUD capabilities with professional confirmation modals and automatic success toast notifications.
-
-### 8. 🏆 Leaderboard & Certification System (Fully Dynamic)
-- **Automated Aggregation Engine**: The leaderboard dynamically averages real-time judges' scores the moment an evaluation is finalized.
-- **Master Export Engine**: Bulk export capabilities for PDF and CSV, supporting specific event IDs or a "Master Institutional Standings" across all events.
-- **Live Rankings & Ticker**: A real-time finalist ticker and high-fidelity podium display that automatically updates without manual entry.
-- **QR-Verified Smart Certificates**: Automated PDF generation with unique, cryptographically verifiable IDs triggered instantly upon event finalization.
-- **Advanced Reporting Analytics**: Live registration timelines and departmental participation breakdowns with CSV/PDF export capabilities.
-- **Multi-Member Team Support**: Certificates are individually generated for every member of a winning team, intelligently adapting between "Ranked" and "Participation" modes based on the event type (Hackathon vs. Workshop).
-
-### 9. 🧑‍🤝‍🧑 Learner Team Hub (Production-ready)
-- **Team creation**: Registered learners can create a team for an event (leader auto-assigned).
-- **Invite codes**: Team leaders generate time-limited invite codes to share privately.
-- **Join by code**: Registered learners can join a team using an invite code (no public member lists).
-- **Enforced rules**: Min/max team size and “already in team / not registered” constraints are enforced server-side.
-
-### 10. 🧰 Maintenance Utilities
-- **Opportunity eligibility backfill**: `backend/scratch/backfill_opportunity_eligibility_defaults.py` fills missing eligibility fields on older opportunity documents.
-- **Expiry checks**: `POST /api/v1/institution/hackathon/check-expiring-plans` triggers the plan reminder sweep for institutions with active subscriptions.
+</div>
 
 ---
-## ⚠️ Known Issues & Limitations (For GitHub)
 
-### 1. Browser Speech API Dependencies
-- **Browser Compatibility**: The "HR Voice Round" relies on the native `webkitSpeechRecognition`. It is best supported in **Google Chrome** and **Microsoft Edge**. Users on Firefox or Safari may experience limited voice recognition capabilities.
-- **Microphone Permissions**: The browser must be granted persistent microphone access. In some environments, the "Auto-Listen" feature may be blocked by strict browser security policies unless the site is served over HTTPS.
+## 📖 Overview
 
-### 2. Database Configuration
-- **Local Connectivity**: The current backend is configured to look for MongoDB on `localhost:27017`. For production deployment, the `MONGO_URL` in `backend/db.py` needs to be updated to a cloud URI (like MongoDB Atlas).
+StudLyf is a full-stack, production-grade platform with two core pillars:
 
-### 3. PDF Generation (LaTeX)
-- **Environment Dependency**: The Resume Builder requires `pdflatex` or `WeasyPrint` dependencies to be installed on the host system. While cloud fallbacks exist, they are subject to external uptime.
+1. **Student Career Development** — AI-powered mock interviews, technical assessments, resume/portfolio builder, skill roadmaps, and job-prep tools.
+2. **Institutional Event Management** — End-to-end hackathon/competition lifecycle: post opportunities, manage registrations, run stages, assign judges, issue verifiable certificates, and track leaderboards.
 
-### 4. API Rate Limiting
-- **Groq Usage**: The platform uses high-token-count models (`llama-3.3-70b-versatile`). Users without a high-tier Groq API key may hit "Rate Limit" errors during peak usage or rapid-fire chat interactions.
+---
 
-### 5. Deployment Constraints
-- **CORS Headers**: The backend `main.py` contains some hardcoded origin URIs. These must be updated in `os.getenv("FRONTEND_URL")` before deploying to platforms like Vercel or Render.
+## 🗂️ Project Structure
+
+```
+studlyfv2/
+├── backend/                    # FastAPI Python backend
+│   ├── main.py                 # App entrypoint & route registration
+│   ├── integration_routes.py   # Institution dashboard APIs (/api/v1/institution/*)
+│   ├── routes/                 # Feature-specific route modules
+│   │   ├── opportunity_routes.py
+│   │   ├── event_routes.py
+│   │   ├── auth.py
+│   │   └── ...
+│   ├── services/               # Business logic layer
+│   │   ├── subscription_service.py
+│   │   ├── email_service.py
+│   │   ├── opportunity_service.py
+│   │   └── ...
+│   ├── auth_institution.py     # JWT auth helpers (cookie + Bearer)
+│   ├── db.py                   # MongoDB connection & collections
+│   ├── tests/                  # Automated test suite
+│   │   └── full_audit.py       # API audit script
+│   └── requirements.txt
+├── frontend/                   # React + Vite frontend
+│   ├── App.tsx                 # Route definitions
+│   ├── AuthContext.tsx         # Auth state management
+│   ├── apiConfig.ts            # API base URL + auth headers
+│   ├── pages/                  # Page components
+│   │   ├── opportunities/
+│   │   ├── events/
+│   │   ├── institution-dashboard/
+│   │   ├── admin/
+│   │   └── ...
+│   └── components/             # Reusable UI components
+│       └── institution/
+│           ├── PostOpportunityModal.tsx
+│           ├── PostJobModal.tsx
+│           └── PostInternshipModal.tsx
+├── docker-compose.yml          # Full stack Docker setup
+└── README.md
+```
+
+---
+
+## 🚀 Features
+
+### 1. 🎯 Opportunities & Job Portal
+- **Glassmorphic list page** with 7 advanced filters (type, location, status, participation, team size, payment, skills)
+- **Persistent filters** saved to `localStorage`
+- **Eligibility engine** — client-side and server-side filtering based on candidate type, college, gender
+- **Save/Bookmark** opportunities (synced to backend)
+- **Apply flow** — individual and team-based applications
+- **My Applications** dashboard with real-time status tracking
+- **Post Job (4-step wizard)** — institutions post jobs directly from their dashboard
+- **Post Opportunity (multi-step)** — hackathons, competitions, workshops, internships
+
+### 2. 🏆 Hackathon / Event Lifecycle
+- **Stage Builder** — define custom stages (Registration, Submission, Quiz, Evaluation)
+- **Team Formation** — invite codes, join by code, enforced min/max team size
+- **Participant Portal** — per-participant hub page with stage status
+- **Quiz Engine** — create and run live quizzes per stage
+- **Leaderboard** — real-time rankings from judge scores
+- **Results Page** — public results with rank display
+
+### 3. 🏫 Institution Dashboard (`/institution-dashboard`)
+| Section | Purpose |
+|---------|---------|
+| Events Management | Create, edit, manage all events/hackathons |
+| Opportunities Management | Post and track jobs/internships/competitions |
+| Participants | View, filter, export all registrations |
+| Teams | Manage team formation, merge, split |
+| Judges | Invite external judges, assign to submissions |
+| Certificates | Issue, customize, bulk-download certificates |
+| Leaderboard | Live rankings per event |
+| Reports | Export registration and submission data |
+| Announcements | Send announcements to all participants |
+| Settings | Institution profile, branding, subscription |
+
+### 4. 👑 Admin Panel (`/admin`)
+- Student Management, Course Management, Assessment Approval
+- Opportunities Approval (review before going live)
+- Analytics, Mentor Management, Company Management
+- Payment Management, Resume Management, Ads, Audit Logs
+
+### 5. 🎙️ AI-Powered Career Tools
+- **3-Round Mock Interview** (Text + Voice, powered by Groq Llama 3.3 70B)
+- **AI Technical Assessment Generator** (Company-style MCQ/coding)
+- **Resume Builder** with AI summary + PDF export
+- **Portfolio Builder** (glassmorphism style)
+- **Skill Assessment** with history tracking
+- **Career Roadmaps** (role-based)
+- **Group Discussion Simulator**
+- **Play-Learn-Earn** gamification module
+- **DSA Visualizer** (Stack, Queue, Linked List, BST, Hash Table — 3D)
+
+### 6. 🏅 Leaderboard & Certificate System
+- **Automated scoring aggregation** from judge evaluations
+- **QR-verified certificates** with cryptographic IDs
+- **Bulk PDF export** per event or institution-wide
+- **Multi-member team certificates** — auto-generated per team member
+- **Public certificate verification** at `/verify/:id`
+
+### 7. 🔐 Authentication System
+- Self-managed JWT auth (no Firebase dependency)
+- Login sets **both** `localStorage` token AND **HTTP-only cookie** — works in Incognito/private mode
+- Role-Based Access Control: `student`, `institution`, `admin`, `super_admin`, `judge`, `mentor`
+- Email verification on registration
+- Forgot/Reset password flow
+- Secure cookie fallback for all authenticated API calls
+
+### 8. 💳 Subscription & Plan Management
+- Plan tiers: Basic, Standard, Pro, Enterprise
+- Confirmation-first plan selection flow
+- Expiry reminders (7d, 3d, 1d, expired) via email + in-app
+- Plan limit enforcement per listing (bypassed for admin/institution roles)
+
+### 9. ✉️ Email & Notification System
+- SMTP + Resend-style delivery with retry
+- Templates: Registration, Team Invite, Shortlist, Certificate, Announcement
+- Background async dispatch (non-blocking)
+- In-app notification bell (institution dashboard)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite, TypeScript, Framer Motion |
+| Styling | Vanilla CSS, CSS Modules |
+| Backend | FastAPI (Python 3.11), Uvicorn |
+| Database | MongoDB (via Motor async driver) |
+| Auth | JWT (PyJWT), bcrypt, HTTP-only cookies |
+| AI/LLM | Groq Cloud (Llama 3.3 70B) |
+| Voice | Web Speech API |
+| PDF | WeasyPrint, ReportLab |
+| Cache | Redis |
+| Deployment | Docker + Docker Compose |
+| Email | SMTP / Resend |
+| Rate Limiting | SlowAPI |
 
 ---
 
 ## ⚙️ Setup Instructions
 
-1. **Environment**: Create a `.env` file in the root with:
-   ```env
-   GROQ_API_KEY=your_key_here
-   MONGO_URL=mongodb://localhost:27017/
-   JWT_SECRET_KEY=your_hex_key
-   JWT_ALGORITHM=HS256
-   ```
-2. **Backend**:
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   python main.py
-   ```
-3. **Frontend**:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+### Option A: Docker (Recommended)
 
----
-## 🧑‍🤝‍🧑 Teams & Invitations (Learner)
-
-### Learner Team Hub UI
-- Open **My applications** → click **Team hub** for a hackathon.
-- Route: `/events/:eventId`
-
-### API (JWT required)
-- **Get my team for an event**
-  - `GET /api/teams/me?event_id=<eventId>`
-- **Create team (secure)**
-  - `POST /api/teams/create-secure`
-  - Body: `{ "event_id": "<eventId>", "team_name": "My Team" }`
-- **Generate invite code (leader only)**
-  - `POST /api/teams/{team_id}/invites`
-  - Body: `{ "ttl_hours": 72 }`
-- **Join team by invite**
-  - `POST /api/teams/join-by-invite`
-  - Body: `{ "code": "<inviteCode>" }`
-
-### Notes
-- The legacy endpoints in `backend/main.py` (`/api/teams/create`, `/api/teams/{team_id}/join`) exist, but the UI uses the secure routes above.
-- Team features are intended for **team participation** listings; individual participation should not use teams.
-
----
-
-## 🏫 Institution Dashboard Setup
-
-### 1. 🔐 Security & Env Setup
-Add the following to your `.env` file for the self-managed auth system:
-```env
-SECRET_KEY=your_generated_hex_key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-DB_NAME=your_db_name
-```
-
-### 2. 🏗️ Database Initialization
-Run the mandatory index setup script to enforce system constraints (unique emails, user IDs):
 ```bash
-python backend/setup_indexes.py
+# 1. Clone the repo
+git clone https://github.com/studlyf-nirvaha/studlyfv2.git
+cd studlyfv2
+
+# 2. Create .env file (see below)
+cp backend/.env.production.example .env
+
+# 3. Start everything
+docker compose up --build -d
+
+# Backend:  http://localhost:8000
+# Frontend: http://localhost:3000
 ```
 
-### 3. Production institution & judging (no placeholder IDs)
-- **Institution scope**: Every institution admin JWT must include a real `institution_id` (stored on the user document). The dashboard and APIs use that value only—never `user_id` or a fake default—so listings, stats, and notifications stay tenant-scoped.
-- **Dashboard stats**: `GET /api/institution/dashboard/stats` requires a Bearer token and the token’s `institution_id` must match the `institution_id` query parameter.
-- **Legacy super-admin header**: Routes protected by `X-Admin-Email` allow only emails listed in **`SUPER_ADMIN_EMAILS`** (comma-separated). If unset, no header value is accepted—set this explicitly in production.
-- **Judge assignments**: Submissions may include `assigned_judge_emails`. When that list is non-empty, only judges whose **login email** matches an entry can list or score that submission via `GET /api/v1/institution/judge/my-assignments` and `POST /api/v1/institution/judge/score`. When the list is empty, behavior stays backward-compatible (any judge with a token may see submitted rows).
-- **Judge invitations**: `POST /api/v1/institution/judge/respond-invitation` with `{ "event_id", "accept" }` updates the event’s judge panel and creates an **in-app institution notification** (navbar bell) when a judge accepts or declines.
-- **Admin alerts**: Operations such as judge scoring and invitation responses call `notify_institution`, which stores rows served by `GET /api/v1/institution/notifications/{institution_id}` for the institution navbar.
+### Option B: Local Dev
 
-### 4. Learner Quiz + Visibility + Manual Coding Review
-- **Learner quiz page**: `frontend/pages/events/EventQuizPage.tsx` mounted at `GET /events/:eventId/quiz/:quizId`.
-- **Visibility lock**: `GET /api/opportunities/events/{event_id}/quizzes/{quiz_id}` enforces stage visibility (`Public`, `Private`, `Shortlisted Only`) before returning quiz payload.
-- **Learner submit**: `POST /api/opportunities/events/{event_id}/quizzes/{quiz_id}/submit` auto-scores `SINGLE_CHOICE` and marks `CODING` attempts as `coding_pending_review`.
-- **Institution manual coding workflow**:
-  - `GET /api/v1/institution/events/{event_id}/quizzes/{quiz_id}/coding-attempts`
-  - `POST /api/v1/institution/events/{event_id}/quizzes/{quiz_id}/coding-attempts/{participant_user_id}/evaluate`
-- **Institution UI**: The `Assessments` tab in `EventDetails.tsx` now includes a pending coding review list with evaluate actions.
+**Backend:**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate     # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-### 5. Subscription Workflow Notes
-- The current plan flow is intentionally demo-friendly: all plans are priced at ₹0 during development, but the UI still uses a confirmation-first pattern.
-- Plan selection creates a pending plan change, and activation happens only after explicit confirmation.
-- The plan dashboard shows current subscription state, expiry, days remaining, and pending plan changes when present.
-- The backend sends expiry reminders at 7, 3, and 1 day before expiration, plus an expired notice, and logs in-app notifications for the same events.
+# Set environment variables (see .env section below)
+uvicorn main:app --reload --port 8000
+```
 
-### 6. Authentication Hardening
-- Login now supports safe migration for legacy plaintext password rows: if legacy match succeeds, the password is immediately re-hashed and stored using the secure hash flow.
-- For institution users missing `institution_id`, login attempts automatic institution resolution and persists the resolved `institution_id` to prevent dashboard/notification scope issues.
-- Login now tolerates legacy email formatting in DB (case/whitespace) and normalizes successful accounts back to canonical lowercase email.
-- One-time user cleanup tool: `python backend/normalize_auth_users.py --dry-run` (preview) then `python backend/normalize_auth_users.py --apply` to normalize emails/passwords and report duplicate canonical emails.
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+# Runs on http://localhost:3000
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# Database
+MONGO_URL=mongodb://localhost:27017/studlyf_db
+
+# Auth
+JWT_SECRET_KEY=your_256bit_hex_secret_here
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+
+# AI
+GROQ_API_KEY=your_groq_api_key_here
+
+# Email (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your@email.com
+SMTP_PASS=your_app_password
+
+# App URLs
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:8000
+
+# Admin
+SUPER_ADMIN_EMAILS=admin@studlyf.com
+
+# Environment
+ENVIRONMENT=development
+```
+
+---
+
+## 🗺️ Route Map
+
+### Public Routes
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page |
+| `/login` | Login / Signup |
+| `/forgot-password` | Password reset flow |
+| `/about` | About page |
+| `/roadmaps` | Career roadmap explorer |
+| `/verify/:id` | Certificate verification |
+| `/evaluate/:token` | Judge evaluation page |
+
+### Student Routes (Login required)
+| Route | Description |
+|-------|-------------|
+| `/dashboard` | Student home |
+| `/opportunities` | Browse all opportunities |
+| `/opportunities/:id` | Opportunity details + apply |
+| `/opportunities/my-applications` | Track your applications |
+| `/events/:id` | Hackathon participant portal |
+| `/events/:id/quiz/:quizId` | Live quiz |
+| `/job-prep/resume-builder` | AI Resume Builder |
+| `/job-prep/portfolio` | Portfolio Builder |
+| `/job-prep/mock-interview` | AI Mock Interview |
+| `/job-prep/projects` | System Deconstruction Lab |
+| `/roadmap/:skillId` | Skill-specific roadmap |
+
+### Institution Routes (Institution role)
+| Route | Description |
+|-------|-------------|
+| `/institution-dashboard` | Main dashboard |
+| `/institution-dashboard/events` | Manage events/hackathons |
+| `/institution-dashboard/opportunities` | Manage posted opportunities |
+| `/institution-dashboard/participants` | View registrations |
+| `/institution-dashboard/certificates` | Issue certificates |
+| `/institution-dashboard/judges` | Manage judges |
+| `/institution-dashboard/leaderboard` | Live rankings |
+| `/institution-dashboard/settings` | Institution settings |
+
+### Admin Routes (Admin role)
+| Route | Description |
+|-------|-------------|
+| `/admin/dashboard` | Admin overview |
+| `/admin/students` | Student management |
+| `/admin/opportunities` | Approve opportunities |
+| `/admin/analytics` | Platform analytics |
+| `/admin/payments` | Payment management |
+
+---
+
+## 🔌 Key API Endpoints
+
+### Authentication
+```
+POST /api/auth/login              Login (returns JWT + sets cookie)
+POST /api/auth/register           Register new user
+POST /api/auth/forgot-password    Request reset link
+GET  /api/auth/me                 Get current user profile
+```
+
+### Opportunities
+```
+GET  /api/opportunities/          List all opportunities (public)
+GET  /api/opportunities/:id       Get single opportunity
+POST /api/opportunities/          Create opportunity (auth required)
+POST /api/opportunities/:id/apply Apply to opportunity
+POST /api/opportunities/:id/save  Save/bookmark opportunity
+```
+
+### Events / Hackathons
+```
+GET  /api/v1/events/              List all events
+GET  /api/v1/events/:id           Get event by ID
+POST /api/v1/institution/events/create-professional    Create event
+PATCH /api/v1/institution/events/:id/professional      Update event
+```
+
+### Institution Dashboard
+```
+GET  /api/v1/institution/events/:institution_id        List institution events
+GET  /api/v1/institution/participants/:event_id        Get participants
+GET  /api/v1/institution/certificates/:event_id        Get certificates
+POST /api/v1/institution/judge/respond-invitation      Accept/decline judge invite
+```
+
+### Teams
+```
+POST /api/teams/create-secure      Create a team
+POST /api/teams/:id/invites        Generate invite code
+POST /api/teams/join-by-invite     Join team by code
+GET  /api/teams/me?event_id=...    Get my team for an event
+```
+
+---
+
+## 🧪 Running the API Audit
+
+```bash
+cd backend
+source venv/bin/activate
+python tests/full_audit.py
+```
+
+Expected output:
+```
+✅ [PASS] Backend Root Reachable
+✅ [PASS] Login with bad creds -> 401
+✅ [PASS] List Opportunities (public)
+✅ [PASS] CORS headers on OPTIONS request
+✅ [PASS] Frontend (localhost:3000) reachable
+...
+Total Tests: 16 | PASSED: 12+ | FAILED: 0
+```
+
+---
+
+## 🐛 Recent Bug Fixes (July 2026)
+
+| Bug | Root Cause | Fix |
+|-----|-----------|-----|
+| "7-day registration window" error on all plans | `max_registration_days: 7` in Basic plan config | Set to `None` (no limit) |
+| "Missing or invalid token" on job/opportunity post | Token not sent in Incognito (localStorage empty) | Login now sets HTTP-only cookie; `authHeaders()` checks `sessionStorage` fallback |
+| Backend crash on startup | `Optional` not imported in `email_service.py` | Added `from typing import Optional` |
+| Admin plan limit bypass not working | `ignore_limits` not passed to validator | Fixed in `opportunity_routes.py` and `integration_routes.py` |
+| Vague "Failed to save" error popup | Generic `alert(errorData.detail)` | Full field-level pre-submit validator + decoded FastAPI 422 errors |
+| `PostJobModal` / `PostOpportunityModal` not sending auth | Missing `credentials: 'include'` on fetch | Added to all institution modals |
+
+---
+
+## ⚠️ Known Limitations
+
+- **Voice features**: Chrome/Edge only (uses `webkitSpeechRecognition`)
+- **PDF Generation**: Requires `WeasyPrint` or system-level `pdflatex`
+- **Groq Rate Limits**: High-token models may throttle on free tier keys
+- **CORS**: Hardcoded origins must be updated for non-localhost deployments
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m "feat: add my feature"`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is proprietary software owned by Studlyf Technologies Inc.
+
+---
+
+<div align="center">
+Made with ❤️ by the Studlyf Team · <a href="https://studlyf.in">studlyf.in</a>
+</div>

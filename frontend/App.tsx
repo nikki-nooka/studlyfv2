@@ -96,6 +96,7 @@ const AdminCourseManagement = lazy(() => import('./pages/admin/courses/CourseMan
 const AdminAssessmentManagement = lazy(() => import('./pages/admin/assessments/AssessmentManagement'));
 const AdminAnalytics = lazy(() => import('./pages/admin/analytics/Analytics'));
 const AdminSDLManagement = lazy(() => import('./pages/admin/sdl/SDLManagement'));
+const AdminOpportunitiesApproval = lazy(() => import('./pages/admin/opportunities/AdminOpportunitiesApproval'));
 const AdminProtectedRoute = lazy(() => import('./AdminProtectedRoute'));
 const AdsManagement = lazy(() => import('./pages/admin/ads/AdsManagement'));
 const AdminMentorManagement = lazy(() => import('./pages/admin/mentors/MentorManagement'));
@@ -527,6 +528,7 @@ const App: React.FC = () => {
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="mentors" element={<AdminMentorManagement />} />
               <Route path="companies" element={<AdminCompanyManagement />} />
+              <Route path="opportunities" element={<AdminOpportunitiesApproval />} />
               <Route path="payments" element={<AdminPaymentManagement />} />
               <Route path="resumes" element={<AdminResumeManagement />} />
               <Route path="ads" element={<AdsManagement />} />

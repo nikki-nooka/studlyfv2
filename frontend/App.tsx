@@ -109,6 +109,11 @@ const CommunityProjectDetail = lazy(() => import('./pages/community/ProjectDetai
 const CommunitySubmitProject = lazy(() => import('./pages/community/SubmitProject'));
 const CommunityTopBuilders = lazy(() => import('./pages/community/TopBuilders'));
 
+const SubmitCourseProject = lazy(() => import('./pages/courses/SubmitCourseProject'));
+const MyCourseProjects = lazy(() => import('./pages/courses/MyCourseProjects'));
+const CourseProjectsReview = lazy(() => import('./pages/courses/CourseProjectsReview'));
+const EvaluateProject = lazy(() => import('./pages/courses/EvaluateProject'));
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -480,6 +485,12 @@ const App: React.FC = () => {
             <Route path="/community/submit" element={<ProtectedRoute><CommunitySubmitProject /></ProtectedRoute>} />
             <Route path="/community/top-builders" element={<ProtectedRoute><CommunityTopBuilders /></ProtectedRoute>} />
             <Route path="/community/:postId" element={<ProtectedRoute><CommunityProjectDetail /></ProtectedRoute>} />
+
+            {/* Course Projects */}
+            <Route path="/courses/:courseId/submit-project" element={<ProtectedRoute><SubmitCourseProject /></ProtectedRoute>} />
+            <Route path="/courses/:courseId/my-projects" element={<ProtectedRoute><MyCourseProjects /></ProtectedRoute>} />
+            <Route path="/admin/course-projects" element={<ProtectedRoute><CourseProjectsReview /></ProtectedRoute>} />
+            <Route path="/admin/course-projects/:submissionId/evaluate" element={<ProtectedRoute><EvaluateProject /></ProtectedRoute>} />
 
             {/* Events */}
             <Route path="/events/:eventId" element={<ProtectedRoute><EventHub /></ProtectedRoute>} />

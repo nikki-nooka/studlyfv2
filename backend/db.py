@@ -457,3 +457,8 @@ community_posts_col = db["community_posts"]
 community_votes_col = db["community_votes"]
 community_comments_col = db["community_comments"]
 community_saves_col = db["community_saves"]
+
+# Course Projects (upload + evaluate)
+course_submissions_col = db["course_submissions"]
+course_evaluations_col = db["course_evaluations"]
+course_rubrics_col = db["course_rubrics"]

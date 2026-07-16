@@ -824,6 +824,7 @@ from routes import event_certificate_routes, registration_flow_routes
 from routes import achievement_registry_routes
 from routes import eligibility_rule_routes
 from routes import community_routes
+from routes import course_projects_routes
 
 import hackathon_integration_routes
 import participant_card_routes
@@ -911,6 +912,7 @@ app.include_router(stage_endpoints.router)
 from routes import company_simulator
 app.include_router(company_simulator.router, prefix="/api/company-simulator")
 app.include_router(community_routes.community_router)
+app.include_router(course_projects_routes.course_projects_router)
 
 
 

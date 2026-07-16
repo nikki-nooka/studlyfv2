@@ -55,7 +55,7 @@ const CompanyModules: React.FC = () => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   
   // Sidebar state
-  const [activeTab, setActiveTab] = useState<'companies' | 'dsa' | 'tech' | 'hr' | 'resume' | 'mock' | 'progress'>('companies');
+  const [activeTab, setActiveTab] = useState<'companies' | 'overview' | 'dsa' | 'tech' | 'hr' | 'resume' | 'mock' | 'progress'>('companies');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Filters & Search
@@ -829,7 +829,10 @@ const CompanyModules: React.FC = () => {
                   return (
                     <motion.div
                       key={comp.id}
-                      onClick={() => setSelectedCompany(comp)}
+                      onClick={() => {
+                        setSelectedCompany(comp);
+                        setActiveTab('overview');
+                      }}
                       whileHover={{ y: -8, scale: 1.02 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                       className="bg-white backdrop-blur-xl border border-gray-200 shadow-sm hover:border-purple-500/40 rounded-[2.5rem] p-8 relative overflow-hidden group cursor-pointer shadow-2xl transition-all"
@@ -915,9 +918,24 @@ const CompanyModules: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Required Skills Highlight */}
+                <div className="bg-purple-50/50 p-3.5 rounded-2xl border border-purple-100/50">
+                  <h4 className="text-[10px] font-black uppercase text-purple-800 tracking-wider mb-2 flex items-center gap-1">
+                    <Star className="w-3 h-3" /> Required Skills
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedCompany.hiringRoles.map((role, idx) => (
+                      <span key={idx} className="px-2 py-1 bg-white border border-purple-200 text-purple-700 rounded-md text-[9px] font-bold">
+                        {role}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Navigation items */}
                 <div className="space-y-1.5">
                   {[
+                    { id: 'overview', label: 'Company Overview', icon: Info },
                     { id: 'dsa', label: 'DSA Matrix', icon: Terminal },
                     { id: 'tech', label: 'Tech Round', icon: Cpu },
                     { id: 'hr', label: 'HR Round', icon: Briefcase },
@@ -980,6 +998,133 @@ const CompanyModules: React.FC = () => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
                   >
+
+                    {/* ====================================================
+                        TAB: OVERVIEW
+                        ==================================================== */}
+                    {activeTab === 'overview' && (
+                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <header className="flex items-center gap-5">
+                          <div className="w-16 h-16 rounded-2xl bg-white border border-gray-200 shadow-lg flex items-center justify-center p-3 flex-shrink-0">
+                            <img src={selectedCompany.logo} alt={selectedCompany.name} className="max-w-full max-h-full object-contain" onError={(e) => { const t = e.currentTarget; const domain = selectedCompany.id + '.com'; t.onerror = null; t.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`; }} />
+                          </div>
+                          <div>
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-slate-800 mb-1">{selectedCompany.name} Overview</h2>
+                            <p className="text-xs font-semibold text-slate-400">Everything you need to know to crack {selectedCompany.name}.</p>
+                          </div>
+                        </header>
+
+                        {/* Company Stats Bar */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl text-white shadow-lg shadow-purple-200">
+                            <span className="text-[10px] font-black uppercase tracking-wider opacity-80 block mb-1">Industry</span>
+                            <p className="text-xs font-bold leading-tight">{selectedCompany.industry.split('&')[0].trim()}</p>
+                          </div>
+                          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-200">
+                            <span className="text-[10px] font-black uppercase tracking-wider opacity-80 block mb-1">Difficulty</span>
+                            <p className="text-xs font-bold">{selectedCompany.difficulty}</p>
+                          </div>
+                          <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-2xl text-white shadow-lg shadow-emerald-200">
+                            <span className="text-[10px] font-black uppercase tracking-wider opacity-80 block mb-1">Avg Package</span>
+                            <p className="text-xs font-bold">{selectedCompany.salaryRange}</p>
+                          </div>
+                          <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-2xl text-white shadow-lg shadow-orange-200">
+                            <span className="text-[10px] font-black uppercase tracking-wider opacity-80 block mb-1">Roles</span>
+                            <p className="text-xs font-bold">{selectedCompany.hiringRoles.length} Openings</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl hover:shadow-2xl transition-shadow">
+                            <h3 className="text-sm font-black uppercase text-slate-800 mb-4 flex items-center gap-2">
+                              <Globe className="w-4 h-4 text-purple-500" /> Industry & Culture
+                            </h3>
+                            <p className="text-xs text-slate-600 mb-4"><span className="font-bold text-slate-800">Industry:</span> {selectedCompany.industry}</p>
+                            <p className="text-xs text-slate-600"><span className="font-bold text-slate-800">Culture:</span> {selectedCompany.culture}</p>
+                          </div>
+                          
+                          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl hover:shadow-2xl transition-shadow">
+                            <h3 className="text-sm font-black uppercase text-slate-800 mb-4 flex items-center gap-2">
+                              <Zap className="w-4 h-4 text-purple-500" /> Hiring Pipeline
+                            </h3>
+                            <ul className="space-y-3">
+                              {selectedCompany.interviewRounds.map((round, idx) => (
+                                <li key={idx} className="flex items-center gap-3 text-xs text-slate-600 font-medium">
+                                  <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-black text-[10px]">{idx + 1}</div>
+                                  {round}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+
+                        {/* Founders & Focus Section */}
+                        {(selectedCompany.founders || selectedCompany.focus) && (
+                          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl">
+                            <h3 className="text-sm font-black uppercase text-slate-800 mb-6 flex items-center gap-2">
+                              <User className="w-4 h-4 text-purple-500" /> Key People & Mission
+                            </h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                              {selectedCompany.focus && (
+                                <div className="p-4 bg-purple-50/50 rounded-2xl border border-purple-100/50">
+                                  <span className="text-[10px] font-black uppercase text-purple-800 tracking-wider block mb-1 flex items-center gap-1"><Sparkles className="w-3 h-3"/> Company Focus</span>
+                                  <p className="text-sm text-slate-700 font-medium leading-relaxed">{selectedCompany.focus}</p>
+                                </div>
+                              )}
+                              
+                              {selectedCompany.motto && (
+                                <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                                  <span className="text-[10px] font-black uppercase text-blue-800 tracking-wider block mb-1 flex items-center gap-1"><Award className="w-3 h-3"/> Motto</span>
+                                  <p className="text-sm text-slate-700 font-medium leading-relaxed italic">{selectedCompany.motto}</p>
+                                </div>
+                              )}
+                            </div>
+
+                            {selectedCompany.hiringPhilosophy && (
+                              <div className="mb-8 p-5 bg-gradient-to-r from-slate-50 to-white rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-slate-100 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                                <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider block mb-2 flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500"/> Hiring Philosophy</span>
+                                <p className="text-sm text-slate-700 font-medium leading-relaxed relative z-10">{selectedCompany.hiringPhilosophy}</p>
+                              </div>
+                            )}
+
+                            {selectedCompany.founders && (
+                              <div>
+                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-4">Founders / Leadership</span>
+                                <div className="flex flex-wrap gap-8">
+                                  {selectedCompany.founders.map((founder, idx) => (
+                                    <div key={idx} className="flex items-center gap-4 bg-gray-50/50 pr-6 rounded-full border border-gray-100 transition-all hover:border-purple-200 hover:bg-purple-50/30">
+                                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md relative group">
+                                        <img src={founder.image} alt={founder.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(founder.name)}&background=random&color=fff&bold=true&size=128`; }} />
+                                      </div>
+                                      <div>
+                                        <h4 className="font-black text-sm text-slate-800">{founder.name}</h4>
+                                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">{founder.title}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Required Roles Section */}
+                        {selectedCompany.hiringRoles && selectedCompany.hiringRoles.length > 0 && (
+                          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl">
+                            <h3 className="text-sm font-black uppercase text-slate-800 mb-4 flex items-center gap-2">
+                              <Briefcase className="w-4 h-4 text-purple-500" /> Open Roles
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedCompany.hiringRoles.map((role, idx) => (
+                                <span key={idx} className="px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 text-[11px] font-bold rounded-full">{role}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* ====================================================
                         TAB: DSA MATRIX

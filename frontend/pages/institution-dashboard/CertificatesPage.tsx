@@ -623,25 +623,12 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
         </div>
       ) : showTemplateBuilder ? (
         <div className="fixed inset-0 z-50 bg-white p-8 overflow-y-auto">
-        <div className="fixed inset-0 z-50 bg-white p-8 overflow-y-auto">
           <button 
             onClick={() => { setShowTemplateBuilder(false); fetchTemplates(); }} 
             className="mb-4 flex items-center text-sm text-slate-500 hover:text-indigo-600"
           >
             <XCircle className="w-4 h-4 mr-2" /> Back to Dashboard
           </button>
-          
-          <CertificateTemplateBuilder 
-            institutionId={institutionId}
-            templates={templates} 
-            onSelect={selectTemplate} 
-            onUpdate={updateTemplate} 
-            onSave={saveTemplate} 
-            onDelete={deleteTemplate} 
-            selectedTemplate={selectedTemplate} 
-          />
-        </div>
-          <button onClick={() => setShowTemplateBuilder(false)} className="mb-4 flex items-center text-sm text-slate-500 hover:text-indigo-600"><XCircle className="w-4 h-4 mr-2" /> Back to Dashboard</button>
           <CertificateTemplateBuilder institutionId={institutionId} />
         </div>
       ) : (

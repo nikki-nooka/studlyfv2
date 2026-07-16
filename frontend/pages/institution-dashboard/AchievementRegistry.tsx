@@ -53,6 +53,7 @@ interface CertificateRecord {
   verification_code?: string;
   email?: string;
   user_id?: string;
+  rank?: number;
 }
 
 const formatDate = (d: string | undefined) => {

@@ -11,7 +11,7 @@ const AdminLayout: React.FC = () => {
 
     if (loading) return <div className="h-screen w-full bg-[#09090B] flex items-center justify-center text-purple-500 font-bold">Initializing Admin Space...</div>;
 
-    if (!user || user.role !== 'super_admin') {
+    if (!user || !['super_admin', 'admin', 'institution'].includes(user.role)) {
         return <Navigate to="/login" replace />;
     }
 

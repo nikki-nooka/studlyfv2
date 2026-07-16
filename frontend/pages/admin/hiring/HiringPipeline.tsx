@@ -30,9 +30,13 @@ const HiringPipeline: React.FC = () => {
                 const response = await fetch(`${API_BASE_URL}/api/admin/hiring`, {
                     headers: { 'X-Admin-Email': user.email }
                 });
-                const data = await response.json();
-                setCandidates(data.pipeline || []);
-                setMetrics(data.metrics || null);
+                if (response.ok) {
+                    const data = await response.json();
+                    setCandidates(data.pipeline || []);
+                    setMetrics(data.metrics || null);
+                } else {
+                    try { console.error("Hiring pipeline fetch failed:", response.status, await response.text()); } catch (_) {}
+                }
             } catch (error) {
                 try { console.error("Error fetching hiring pipeline:", error instanceof Error ? error.message : String(error)); } catch (_) {}
             } finally {

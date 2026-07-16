@@ -486,11 +486,9 @@ const App: React.FC = () => {
             <Route path="/community/top-builders" element={<ProtectedRoute><CommunityTopBuilders /></ProtectedRoute>} />
             <Route path="/community/:postId" element={<ProtectedRoute><CommunityProjectDetail /></ProtectedRoute>} />
 
-            {/* Course Projects */}
+            {/* Course Projects - Student */}
             <Route path="/courses/:courseId/submit-project" element={<ProtectedRoute><SubmitCourseProject /></ProtectedRoute>} />
             <Route path="/courses/:courseId/my-projects" element={<ProtectedRoute><MyCourseProjects /></ProtectedRoute>} />
-            <Route path="/admin/course-projects" element={<ProtectedRoute><CourseProjectsReview /></ProtectedRoute>} />
-            <Route path="/admin/course-projects/:submissionId/evaluate" element={<ProtectedRoute><EvaluateProject /></ProtectedRoute>} />
 
             {/* Events */}
             <Route path="/events/:eventId" element={<ProtectedRoute><EventHub /></ProtectedRoute>} />
@@ -553,6 +551,8 @@ const App: React.FC = () => {
               <Route path="payments" element={<AdminPaymentManagement />} />
               <Route path="resumes" element={<AdminResumeManagement />} />
               <Route path="ads" element={<AdsManagement />} />
+              <Route path="course-projects" element={<CourseProjectsReview />} />
+              <Route path="course-projects/:submissionId/evaluate" element={<EvaluateProject />} />
               <Route path="audit-logs" element={<AdminAuditLogs />} />
 
               <Route

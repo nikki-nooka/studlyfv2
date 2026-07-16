@@ -104,6 +104,10 @@ const AdminCompanyManagement = lazy(() => import('./pages/admin/companies/Compan
 const AdminPaymentManagement = lazy(() => import('./pages/admin/payments/PaymentManagement'));
 const AdminResumeManagement = lazy(() => import('./pages/admin/resumes/ResumeManagement'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/audit/AuditLogs'));
+const CommunityFeed = lazy(() => import('./pages/community/CommunityFeed'));
+const CommunityProjectDetail = lazy(() => import('./pages/community/ProjectDetail'));
+const CommunitySubmitProject = lazy(() => import('./pages/community/SubmitProject'));
+const CommunityTopBuilders = lazy(() => import('./pages/community/TopBuilders'));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -470,6 +474,12 @@ const App: React.FC = () => {
             <Route path="/notifications" element={<Navigate to="/opportunities/my-applications" replace />} />
             <Route path="/opportunities/:id" element={<ProtectedRoute><OpportunityDetails /></ProtectedRoute>} />
             <Route path="/opportunities/:id/results" element={<PublicRoute><ResultsPage /></PublicRoute>} />
+
+            {/* Community */}
+            <Route path="/community" element={<ProtectedRoute><CommunityFeed /></ProtectedRoute>} />
+            <Route path="/community/submit" element={<ProtectedRoute><CommunitySubmitProject /></ProtectedRoute>} />
+            <Route path="/community/top-builders" element={<ProtectedRoute><CommunityTopBuilders /></ProtectedRoute>} />
+            <Route path="/community/:postId" element={<ProtectedRoute><CommunityProjectDetail /></ProtectedRoute>} />
 
             {/* Events */}
             <Route path="/events/:eventId" element={<ProtectedRoute><EventHub /></ProtectedRoute>} />

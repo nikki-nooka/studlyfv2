@@ -451,3 +451,9 @@ gridfs_bucket = None
 
 # Team invite acceptances (audit trail for invite lifecycle)
 team_invite_acceptances_col = db["team_invite_acceptances"]
+
+# Community Projects (Reddit + Product Hunt style)
+community_posts_col = db["community_posts"]
+community_votes_col = db["community_votes"]
+community_comments_col = db["community_comments"]
+community_saves_col = db["community_saves"]

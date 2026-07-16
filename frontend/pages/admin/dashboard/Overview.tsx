@@ -32,8 +32,10 @@ const DashboardOverview: React.FC = () => {
                 const response = await fetch(`${API_BASE_URL}/api/admin/stats`, {
                     headers: { 'X-Admin-Email': user.email }
                 });
-                const data = await response.json();
-                setStats(data);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data);
+                }
             } catch (error) {
                 try { console.error("Failed to fetch admin stats:", error instanceof Error ? error.message : String(error)); } catch (_) {}
             } finally {

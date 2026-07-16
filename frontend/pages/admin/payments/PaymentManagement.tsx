@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { CreditCard, Search, Download, CheckCircle2, AlertCircle, Clock, MoreVertical, TrendingUp, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../../../apiConfig';
+import { useAuth } from '../../../AuthContext';
 
 interface Payment {
     id: string;
@@ -12,6 +13,7 @@ interface Payment {
 }
 
 const PaymentManagement: React.FC = () => {
+    const { user } = useAuth();
     const [payments, setPayments] = useState<Payment[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -19,7 +21,7 @@ const PaymentManagement: React.FC = () => {
     const fetchPayments = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/api/admin/payments`);
+            const response = await fetch(`${API_BASE_URL}/api/admin/payments`, { headers: { 'X-Admin-Email': user?.email || '' } });
             if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setPayments(data);

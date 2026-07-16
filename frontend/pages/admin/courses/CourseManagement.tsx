@@ -457,11 +457,13 @@ const CourseManagement: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this course?') || !user?.email) return;
         try {
-            await fetch(`${API_BASE_URL}/api/admin/courses/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/courses/${id}`, {
                 method: 'DELETE',
                 headers: { 'X-Admin-Email': user.email }
             });
-            setCourses(courses.filter(c => c._id !== id));
+            if (response.ok) {
+                setCourses(courses.filter(c => c._id !== id));
+            }
         } catch (error) {
             try { console.error("Error deleting course:", error instanceof Error ? error.message : String(error)); } catch (_) {}
         }

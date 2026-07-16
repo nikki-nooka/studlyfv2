@@ -138,7 +138,7 @@ export default function EvaluateProject() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a1a] text-white pt-24 flex items-center justify-center">
+      <div className="min-h-full bg-[#0a0a1a] text-white flex items-center justify-center">
         <Loader2 className="animate-spin text-purple-400" size={32} />
       </div>
     );
@@ -146,7 +146,7 @@ export default function EvaluateProject() {
 
   if (!submission) {
     return (
-      <div className="min-h-screen bg-[#0a0a1a] text-white pt-24 flex flex-col items-center justify-center gap-4">
+      <div className="min-h-full bg-[#0a0a1a] text-white flex flex-col items-center justify-center gap-4">
         <p className="text-gray-400 text-lg">Submission not found</p>
         <button onClick={() => navigate('/admin/course-projects')} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium transition-colors">
           Back to Review
@@ -156,7 +156,7 @@ export default function EvaluateProject() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white pt-24">
+    <div className="min-h-full bg-[#0a0a1a] text-white">
       <div className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex items-center gap-4 mb-8">
           <button onClick={() => navigate('/admin/course-projects')} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
@@ -262,8 +262,14 @@ export default function EvaluateProject() {
             <div className="bg-white/5 border border-white/10 rounded-xl p-5">
               <label className="block text-sm font-medium text-gray-300 mb-2">Final Status</label>
               <div className="flex gap-3">
-                {[{ v: 'evaluated', l: 'Approved', c: 'green' }, { v: 'needs_revision', l: 'Needs Revision', c: 'orange' }].map(opt => (
-                  <button key={opt.v} onClick={() => setEvalStatus(opt.v)} className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${evalStatus === opt.v ? `bg-${opt.c}-500/20 border-${opt.c}-500/50 text-${opt.c}-300` : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'}`}>
+                {[{ v: 'evaluated', l: 'Approved' }, { v: 'needs_revision', l: 'Needs Revision' }].map(opt => (
+                  <button key={opt.v} onClick={() => setEvalStatus(opt.v)} className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                    evalStatus === opt.v
+                      ? opt.v === 'evaluated'
+                        ? 'bg-green-500/20 border-green-500/50 text-green-300'
+                        : 'bg-orange-500/20 border-orange-500/50 text-orange-300'
+                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                  }`}>
                     {opt.l}
                   </button>
                 ))}

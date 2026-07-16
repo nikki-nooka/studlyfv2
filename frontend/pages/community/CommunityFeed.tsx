@@ -334,7 +334,7 @@ export default function CommunityFeed() {
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white pt-24">
       {/* Top Nav */}
-      <div className="sticky top-0 z-40 bg-[#0a0a1a]/80 backdrop-blur-xl border-b border-white/10">
+      <div className="sticky top-24 z-40 bg-[#0a0a1a]/80 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Community</h1>
           <Link

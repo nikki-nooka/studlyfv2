@@ -37,6 +37,7 @@ const navItems = [
     { name: 'Overview', icon: LayoutDashboard, path: '/admin/dashboard' },
     { name: 'Students', icon: Users, path: '/admin/students' },
     { name: 'Courses', icon: BookOpen, path: '/admin/courses' },
+    { name: 'Course Projects', icon: Trophy, path: '/admin/course-projects' },
     { name: 'Assessments', icon: Trophy, path: '/admin/assessments' },
     { name: 'SDL Projects', icon: Layers, path: '/admin/sdl-projects' },
     { name: 'Resumes', icon: FileText, path: '/admin/resumes' },

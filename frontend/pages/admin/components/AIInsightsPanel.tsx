@@ -33,8 +33,12 @@ const AIInsightsPanel: React.FC = () => {
                 const response = await fetch(`${API_BASE_URL}/api/admin/insights`, {
                     headers: { 'X-Admin-Email': user.email }
                 });
-                const data = await response.json();
-                setInsights(data);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        setInsights(data);
+                    }
+                }
             } catch (error) {
                 try { console.error("Error fetching insights:", error instanceof Error ? error.message : String(error)); } catch (_) {}
             } finally {

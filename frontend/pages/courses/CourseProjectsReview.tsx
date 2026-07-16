@@ -109,14 +109,14 @@ export default function CourseProjectsReview() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a1a] text-white pt-24 flex items-center justify-center">
+      <div className="min-h-full bg-[#0a0a1a] text-white flex items-center justify-center">
         <Loader2 className="animate-spin text-purple-400" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white pt-24">
+    <div className="min-h-full bg-[#0a0a1a] text-white">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -186,7 +186,7 @@ export default function CourseProjectsReview() {
                       <p className="text-xs text-gray-600 line-clamp-1">{sub.description}</p>
                       <div className="flex items-center gap-3 mt-2">
                         <span className="text-xs text-gray-600">{timeAgo(sub.created_at)}</span>
-                        {sub.tech_stack.slice(0, 3).map(t => (
+                        {(sub.tech_stack || []).slice(0, 3).map(t => (
                           <span key={t} className="px-1.5 py-0.5 text-[10px] rounded bg-white/5 text-gray-500">{t}</span>
                         ))}
                       </div>

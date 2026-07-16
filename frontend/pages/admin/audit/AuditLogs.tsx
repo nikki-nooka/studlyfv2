@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { History, Search, Terminal, User, Clock, ShieldAlert, Filter, MoreVertical, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../../../apiConfig';
+import { useAuth } from '../../../AuthContext';
 
 interface AuditLog {
     id: string;
@@ -11,6 +12,7 @@ interface AuditLog {
 }
 
 const AuditLogs: React.FC = () => {
+    const { user } = useAuth();
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -18,7 +20,7 @@ const AuditLogs: React.FC = () => {
     const fetchLogs = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/api/admin/audit-logs`);
+            const response = await fetch(`${API_BASE_URL}/api/admin/audit-logs`, { headers: { 'X-Admin-Email': user?.email || '' } });
             if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setLogs(data);

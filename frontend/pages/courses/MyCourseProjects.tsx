@@ -185,9 +185,9 @@ export default function MyCourseProjects() {
 
                   <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap mb-4">{selected.description}</p>
 
-                  {selected.tech_stack.length > 0 && (
+                  {(selected.tech_stack || []).length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-4">
-                      {selected.tech_stack.map(t => (
+                      {(selected.tech_stack || []).map(t => (
                         <span key={t} className="px-2 py-0.5 text-xs rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">{t}</span>
                       ))}
                     </div>
@@ -247,7 +247,7 @@ export default function MyCourseProjects() {
                             <p className="text-sm text-gray-300 whitespace-pre-wrap">{selected.evaluation.improvements}</p>
                           </div>
                         )}
-                        <p className="text-xs text-gray-600">Evaluated by {selected.evaluation.evaluator_name}</p>
+                        <p className="text-xs text-gray-600">Evaluated by {selected.evaluation?.evaluator_name || 'Admin'}</p>
                       </div>
                     </div>
                   ) : (

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { FileText, Search, Download, CheckCircle2, AlertCircle, Trash2, XCircle, MoreVertical, Star, FileSearch } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../../../apiConfig';
+import { useAuth } from '../../../AuthContext';
 
 interface Resume {
     id: string;
@@ -11,6 +12,7 @@ interface Resume {
 }
 
 const ResumeManagement: React.FC = () => {
+    const { user } = useAuth();
     const [resumes, setResumes] = useState<Resume[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -18,7 +20,7 @@ const ResumeManagement: React.FC = () => {
     const fetchResumes = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/api/admin/resumes`);
+            const response = await fetch(`${API_BASE_URL}/api/admin/resumes`, { headers: { 'X-Admin-Email': user?.email || '' } });
             if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setResumes(data);

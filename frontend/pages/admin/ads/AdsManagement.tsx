@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Plus, Trash2, Eye, EyeOff, Edit3, Upload, X, GripVertical, ImageIcon, Film, Check } from 'lucide-react';
 import { API_BASE_URL } from '../../../apiConfig';
+import { useAuth } from '../../../AuthContext';
 
 export type AdCardType = 'video' | 'image' | 'video_image';
 
@@ -452,6 +453,7 @@ function AdRow({ ad, onEdit, onDelete, onToggle, onPreview }:
 
 /* ─── Main admin page ─────────────────────────── */
 export default function AdsManagement() {
+    const { user } = useAuth();
     const [ads, setAds] = useState<AdItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [panel, setPanel] = useState<'closed' | 'create' | 'edit'>('closed');
@@ -471,7 +473,7 @@ export default function AdsManagement() {
     const loadAds = useCallback(async () => {
         try {
             setLoading(true);
-            const r = await fetch(`${API}/all`);
+            const r = await fetch(`${API}/all`, { headers: { 'X-Admin-Email': user?.email || '' } });
             if (r.ok) {
                 const data = await r.json();
                 setAds(Array.isArray(data) ? data.sort((a, b) => a.order - b.order) : []);
@@ -486,7 +488,7 @@ export default function AdsManagement() {
         try {
             const url = editing ? `${API}/${editing._id}` : API;
             const meth = editing ? 'PUT' : 'POST';
-            const r = await fetch(url, { method: meth, body: fd });
+            const r = await fetch(url, { method: meth, body: fd, headers: { 'X-Admin-Email': user?.email || '' } });
             if (!r.ok) throw new Error(await r.text());
             showToast(editing ? '✓ Advertisement updated.' : '✓ Advertisement created.');
             setPanel('closed'); setEditing(null);
@@ -498,12 +500,12 @@ export default function AdsManagement() {
 
     const handleDelete = async (id: string) => {
         if (!window.confirm('Delete this advertisement?')) return;
-        await fetch(`${API}/${id}`, { method: 'DELETE' });
+        await fetch(`${API}/${id}`, { method: 'DELETE', headers: { 'X-Admin-Email': user?.email || '' } });
         showToast('🗑 Deleted.'); loadAds();
     };
 
     const handleToggle = async (id: string) => {
-        await fetch(`${API}/${id}/toggle`, { method: 'PATCH' });
+        await fetch(`${API}/${id}/toggle`, { method: 'PATCH', headers: { 'X-Admin-Email': user?.email || '' } });
         loadAds();
     };
 
@@ -631,8 +633,8 @@ export default function AdsManagement() {
                     ads.map(ad => (
                         <AdRow key={ad._id} ad={ad}
                             onEdit={() => { setEditing(ad); setPanel('edit'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            onDelete={() => handleDelete(ad._id!)}
-                            onToggle={() => handleToggle(ad._id!)}
+                            onDelete={() => handleDelete(ad._id || '')}
+                            onToggle={() => handleToggle(ad._id || '')}
                             onPreview={() => setPreviewing(ad)} />
                     ))
                 )}

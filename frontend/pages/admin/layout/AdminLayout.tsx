@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../../AuthContext';
@@ -54,7 +54,9 @@ const AdminLayout: React.FC = () => {
                         transition={{ duration: 0.5 }}
                         className="max-w-[1600px] mx-auto"
                     >
-                        <Outlet />
+                        <AdminContentWrapper>
+                            <Outlet />
+                        </AdminContentWrapper>
                     </motion.div>
                 </div>
             </main>
@@ -63,4 +65,32 @@ const AdminLayout: React.FC = () => {
 };
 
 export default AdminLayout;
+
+class AdminContentWrapper extends React.Component<{ children: React.ReactNode }, { hasError: boolean; errorKey: number }> {
+    state = { hasError: false, errorKey: 0 };
+    static getDerivedStateFromError() { return { hasError: true }; }
+    componentDidCatch(error: Error) {
+        console.error('[AdminContentError]', error);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <h2 className="text-xl font-bold text-white mb-2">Page crashed</h2>
+                    <p className="text-gray-400 text-sm mb-4">This section encountered an error.</p>
+                    <button
+                        onClick={() => {
+                            this.setState({ hasError: false, errorKey: this.state.errorKey + 1 });
+                            window.location.hash = '#/admin/dashboard';
+                        }}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium text-white transition-colors"
+                    >
+                        Go to Dashboard
+                    </button>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
 

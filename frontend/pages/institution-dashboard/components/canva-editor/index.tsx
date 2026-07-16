@@ -39,7 +39,7 @@ export const CanvaEditor: React.FC<CanvaEditorProps> = ({ data, onChange, onSave
     if (!canvas) return;
     
     // Save the raw Fabric JSON
-    const json = canvas.toJSON(['id', 'placeholder', 'assetId', 'locked', 'name']);
+    const json = canvas.toObject(['id', 'placeholder', 'assetId', 'locked', 'name']);
     
     // Generate perfect SVG HTML for backend rendering
     const svgExport = canvas.toSVG();

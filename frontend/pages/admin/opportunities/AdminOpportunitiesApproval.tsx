@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL, authHeaders } from '../../../../apiConfig';
+import { API_BASE_URL, authHeaders } from '../../../apiConfig';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 

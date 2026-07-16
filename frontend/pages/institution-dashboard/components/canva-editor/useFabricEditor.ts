@@ -26,7 +26,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
     setCanvas(c);
 
     if (initialDataJSON) {
-      c.loadFromJSON(initialDataJSON, () => {
+      c.loadFromJSON(initialDataJSON).then(() => {
         c.renderAll();
         saveHistory(c);
         updateObjectsList(c);
@@ -69,7 +69,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
 
   const saveHistory = (c: fabric.Canvas) => {
     if (isHistoryProcessingRef.current) return;
-    const json = JSON.stringify(c.toJSON(['id', 'placeholder', 'assetId', 'locked', 'name']));
+    const json = JSON.stringify(c.toObject(['id', 'placeholder', 'assetId', 'locked', 'name']));
     
     // If we are not at the end of the history, truncate the future
     if (historyIndexRef.current < historyRef.current.length - 1) {
@@ -85,7 +85,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
     isHistoryProcessingRef.current = true;
     historyIndexRef.current -= 1;
     const json = historyRef.current[historyIndexRef.current];
-    canvas.loadFromJSON(json, () => {
+    canvas.loadFromJSON(json).then(() => {
       canvas.renderAll();
       updateObjectsList(canvas);
       isHistoryProcessingRef.current = false;
@@ -97,14 +97,14 @@ export const useFabricEditor = (initialDataJSON?: any) => {
     isHistoryProcessingRef.current = true;
     historyIndexRef.current += 1;
     const json = historyRef.current[historyIndexRef.current];
-    canvas.loadFromJSON(json, () => {
+    canvas.loadFromJSON(json).then(() => {
       canvas.renderAll();
       updateObjectsList(canvas);
       isHistoryProcessingRef.current = false;
     });
   };
 
-  const addText = (text: string, options: Partial<fabric.ITextboxOptions> = {}, placeholder?: any) => {
+  const addText = (text: string, options: Partial<fabric.TextboxProps> = {}, placeholder?: any) => {
     if (!canvas) return;
     const obj = new fabric.Textbox(text, {
       left: CANVAS_WIDTH / 2, top: CANVAS_HEIGHT / 2, originX: 'center', originY: 'center',
@@ -119,7 +119,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
 
   const addSvg = (svgString: string, assetId: string, name: string = 'Asset') => {
     if (!canvas) return;
-    fabric.loadSVGFromString(svgString, (objects, options) => {
+    fabric.loadSVGFromString(svgString).then(({ objects, options }) => {
       const obj = fabric.util.groupSVGElements(objects, options);
       obj.set({
         left: CANVAS_WIDTH / 2, top: CANVAS_HEIGHT / 2, originX: 'center', originY: 'center',
@@ -128,7 +128,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
       if ((obj.width || 0) > CANVAS_WIDTH - 100) obj.scaleToWidth(CANVAS_WIDTH - 100);
       
       (obj as any).assetId = assetId;
-      obj.name = name;
+      (obj as any).name = name;
       canvas.add(obj);
       canvas.setActiveObject(obj);
     });
@@ -137,13 +137,15 @@ export const useFabricEditor = (initialDataJSON?: any) => {
   const setBackgroundImage = (url: string | null) => {
     if (!canvas) return;
     if (!url) {
-      canvas.setBackgroundImage(null as any, canvas.renderAll.bind(canvas));
+      canvas.backgroundImage = undefined;
+      canvas.renderAll();
       saveHistory(canvas);
       return;
     }
-    fabric.Image.fromURL(url, (img) => {
+    fabric.FabricImage.fromURL(url).then((img) => {
       img.set({ scaleX: CANVAS_WIDTH / (img.width || 1), scaleY: CANVAS_HEIGHT / (img.height || 1) });
-      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+      canvas.backgroundImage = img;
+      canvas.renderAll();
       saveHistory(canvas);
     });
   };
@@ -162,7 +164,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
     if (!canvas) return;
     const activeObj = canvas.getActiveObject();
     if (!activeObj) return;
-    activeObj.clone((cloned: fabric.Object) => {
+    activeObj.clone().then((cloned: fabric.FabricObject) => {
       cloned.set({
         left: (cloned.left || 0) + 20,
         top: (cloned.top || 0) + 20,
@@ -203,7 +205,8 @@ export const useFabricEditor = (initialDataJSON?: any) => {
     if (!canvas) return;
     const activeObj = canvas.getActiveObject();
     if (activeObj && activeObj.type === 'activeSelection') {
-      (activeObj as fabric.ActiveSelection).toGroup();
+      // @ts-ignore - fabric v7 removed toGroup, use internal group method
+      (activeObj as fabric.ActiveSelection).toGroup?.() ?? (activeObj as any).group?.();
       canvas.requestRenderAll();
       updateObjectsList(canvas);
     }
@@ -213,7 +216,8 @@ export const useFabricEditor = (initialDataJSON?: any) => {
     if (!canvas) return;
     const activeObj = canvas.getActiveObject();
     if (activeObj && activeObj.type === 'group') {
-      (activeObj as fabric.Group).toActiveSelection();
+      // @ts-ignore - fabric v7 removed toActiveSelection
+      (activeObj as fabric.Group).toActiveSelection?.() ?? (activeObj as any).ungroup?.();
       canvas.requestRenderAll();
       updateObjectsList(canvas);
     }
@@ -236,7 +240,7 @@ export const useFabricEditor = (initialDataJSON?: any) => {
       
       if (e.key === 'Delete' || e.key === 'Backspace') {
         // Only delete if we're not actively editing text
-        if (canvas?.getActiveObject()?.isEditing) return;
+        if ((canvas?.getActiveObject() as any)?.isEditing) return;
         deleteSelection();
       }
       if (e.key === 'z' && (e.ctrlKey || e.metaKey) && !e.shiftKey) { e.preventDefault(); undo(); }

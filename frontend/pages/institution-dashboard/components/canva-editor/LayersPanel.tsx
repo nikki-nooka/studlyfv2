@@ -20,14 +20,14 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({ canvas, objectsList, a
 
   const bringForward = (e: React.MouseEvent, obj: fabric.Object) => {
     e.stopPropagation();
-    canvas.bringForward(obj);
+    canvas.bringObjectForward(obj);
     canvas.requestRenderAll();
     canvas.fire('object:modified', { target: obj }); // force update list
   };
 
   const sendBackwards = (e: React.MouseEvent, obj: fabric.Object) => {
     e.stopPropagation();
-    canvas.sendBackwards(obj);
+    canvas.sendObjectBackwards(obj);
     canvas.requestRenderAll();
     canvas.fire('object:modified', { target: obj }); // force update list
   };
@@ -45,7 +45,7 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({ canvas, objectsList, a
   };
 
   const getName = (obj: fabric.Object) => {
-    if (obj.name) return obj.name;
+    if ((obj as any).name) return (obj as any).name;
     if ((obj as any).placeholder) return `Field: ${(obj as any).placeholder}`;
     if (obj.type === 'textbox' || obj.type === 'i-text') {
       const text = (obj as any).text || '';

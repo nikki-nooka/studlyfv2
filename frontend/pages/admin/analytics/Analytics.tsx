@@ -29,6 +29,7 @@ const Analytics: React.FC = () => {
                 const response = await fetch(`${API_BASE_URL}/api/admin/stats`, {
                     headers: { 'X-Admin-Email': user.email }
                 });
+                if (!response.ok) return;
                 const data = await response.json();
                 setStats(data);
             } catch (error) {

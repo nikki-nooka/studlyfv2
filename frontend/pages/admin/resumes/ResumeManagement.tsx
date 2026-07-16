@@ -19,6 +19,7 @@ const ResumeManagement: React.FC = () => {
         try {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/api/admin/resumes`);
+            if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setResumes(data);
         } catch (error) {

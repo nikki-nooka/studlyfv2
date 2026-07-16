@@ -20,6 +20,7 @@ const PaymentManagement: React.FC = () => {
         try {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/api/admin/payments`);
+            if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setPayments(data);
         } catch (error) {

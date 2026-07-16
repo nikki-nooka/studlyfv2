@@ -27,6 +27,7 @@ const MentorManagement: React.FC = () => {
             const response = await fetch(`${API_BASE_URL}/api/admin/mentors`, {
                 headers: { 'X-Admin-Email': user?.email || '' }
             });
+            if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setMentors(data);
         } catch (error) {

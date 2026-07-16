@@ -472,8 +472,10 @@ export default function AdsManagement() {
         try {
             setLoading(true);
             const r = await fetch(`${API}/all`);
-            const data = await r.json();
-            setAds(Array.isArray(data) ? data.sort((a, b) => a.order - b.order) : []);
+            if (r.ok) {
+                const data = await r.json();
+                setAds(Array.isArray(data) ? data.sort((a, b) => a.order - b.order) : []);
+            }
         } finally { setLoading(false); }
     }, []);
 

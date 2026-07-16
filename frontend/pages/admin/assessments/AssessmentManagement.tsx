@@ -164,7 +164,9 @@ const AssessmentManagement: React.FC = () => {
                 const response = await fetch(`${API_BASE_URL}/api/admin/quizzes`, {
                     headers: { 'X-Admin-Email': user.email }
                 });
+                if (!response.ok) return;
                 const data = await response.json();
+                if (!Array.isArray(data)) return;
                 const formatted = data.map((q: any) => ({
                     id: q._id,
                     name: q.title || 'Dynamic Assessment',

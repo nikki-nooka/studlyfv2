@@ -308,7 +308,7 @@ const App: React.FC = () => {
             </div>
           }
         >
-          <ErrorBoundary>
+          <ErrorBoundary key={pathname}>
             <Routes>
               <Route
                 path="/"

@@ -19,6 +19,7 @@ const AuditLogs: React.FC = () => {
         try {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/api/admin/audit-logs`);
+            if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setLogs(data);
         } catch (error) {

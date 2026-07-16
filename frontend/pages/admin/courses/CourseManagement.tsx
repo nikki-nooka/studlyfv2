@@ -439,8 +439,10 @@ const CourseManagement: React.FC = () => {
             const response = await fetch(`${API_BASE_URL}/api/admin/courses`, {
                 headers: { 'X-Admin-Email': user.email }
             });
-            const data = await response.json();
-            setCourses(data);
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data)) setCourses(data);
+            }
         } catch (error) {
             try { console.error("Error fetching courses:", error instanceof Error ? error.message : String(error)); } catch (_) {}
         } finally {

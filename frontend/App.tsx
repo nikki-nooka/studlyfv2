@@ -524,7 +524,7 @@ const App: React.FC = () => {
             <Route
               path="/admin"
               element={
-                <AdminProtectedRoute>
+                <AdminProtectedRoute allowedRoles={['super_admin', 'admin', 'institution']}>
                   <AdminLayout />
                 </AdminProtectedRoute>
               }

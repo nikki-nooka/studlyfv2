@@ -293,11 +293,14 @@ const allScholarships = [
   }
 ];
 
+import { X } from 'lucide-react';
+
 const Scholarships: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedSchId, setCopiedSchId] = useState<number | null>(null);
   const [bookmarkedSchIds, setBookmarkedSchIds] = useState<number[]>([]);
+  const [selectedScholarship, setSelectedScholarship] = useState<any | null>(null);
 
   React.useEffect(() => {
     const saved = localStorage.getItem('studlyf_bookmarked_scholarships');
@@ -419,7 +422,7 @@ const Scholarships: React.FC = () => {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                onClick={() => handleLinkClick(sch.link)}
+                onClick={() => setSelectedScholarship(sch)}
                 className="bg-white border border-gray-200 rounded-[2rem] p-8 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative overflow-hidden"
               >
                 {/* Category Badge & Share & Bookmark */}
@@ -511,6 +514,89 @@ const Scholarships: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Scholarship Detail Modal */}
+      <AnimatePresence>
+        {selectedScholarship && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setSelectedScholarship(null)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
+            >
+              <div className="p-8 overflow-y-auto custom-scrollbar">
+                <button 
+                  onClick={() => setSelectedScholarship(null)}
+                  className="absolute top-6 right-6 p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${selectedScholarship.bg} mb-6`}>
+                  <selectedScholarship.icon className={`w-8 h-8 ${selectedScholarship.color}`} />
+                </div>
+                
+                <h2 className="text-3xl font-black text-gray-900 mb-2 pr-12 leading-tight">
+                  {selectedScholarship.name}
+                </h2>
+                <div className="flex items-center gap-2 mb-8">
+                  <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+                    {selectedScholarship.provider}
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                  <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border border-gray-100 ${selectedScholarship.color} ${selectedScholarship.bg}`}>
+                    {scholarshipCategories.find(c => c.id === selectedScholarship.categoryId)?.label}
+                  </span>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">About the Scholarship</h3>
+                    <p className="text-gray-700 leading-relaxed font-medium">{selectedScholarship.explanation}</p>
+                  </div>
+                  
+                  <div className="bg-[#F8F9FC] rounded-2xl p-6 border border-gray-100 space-y-4">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Eligibility Criteria</h3>
+                      <p className="text-gray-800 font-semibold">{selectedScholarship.eligibility}</p>
+                    </div>
+                    <div className="w-full h-px bg-gray-200" />
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Benefits & Rewards</h3>
+                      <p className="text-emerald-600 font-black text-lg">{selectedScholarship.benefit}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between mt-auto shrink-0">
+                <button 
+                  onClick={(e) => handleShare(e, selectedScholarship.link, selectedScholarship.id)}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                >
+                  {copiedSchId === selectedScholarship.id ? <Check className="w-5 h-5 text-emerald-500" /> : <Share2 className="w-5 h-5" />}
+                  {copiedSchId === selectedScholarship.id ? 'Copied Link!' : 'Share'}
+                </button>
+                <button 
+                  onClick={() => handleLinkClick(selectedScholarship.link)}
+                  className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 ${selectedScholarship.color.replace('text-', 'bg-')} hover:opacity-90`}
+                >
+                  Apply on Official Site <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };

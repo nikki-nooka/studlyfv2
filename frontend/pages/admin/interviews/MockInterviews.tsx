@@ -28,8 +28,12 @@ const MockInterviews: React.FC = () => {
                 const response = await fetch(`${API_BASE_URL}/api/admin/hiring`, {
                     headers: { 'X-Admin-Email': user.email }
                 });
-                const data = await response.json();
-                setInterviews(data);
+                if (response.ok) {
+                    const data = await response.json();
+                    setInterviews(data);
+                } else {
+                    try { console.error("Interviews fetch failed:", response.status, await response.text()); } catch (_) {}
+                }
             } catch (error) {
                 try { console.error("Error fetching interviews:", error instanceof Error ? error.message : String(error)); } catch (_) {}
             } finally {

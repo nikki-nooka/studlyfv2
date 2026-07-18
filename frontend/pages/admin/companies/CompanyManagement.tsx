@@ -27,6 +27,7 @@ const CompanyManagement: React.FC = () => {
             const response = await fetch(`${API_BASE_URL}/api/admin/companies`, {
                 headers: { 'X-Admin-Email': user?.email || '' }
             });
+            if (!response.ok) return;
             const data = await response.json();
             if (Array.isArray(data)) setCompanies(data);
         } catch (error) {

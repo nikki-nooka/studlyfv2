@@ -36,6 +36,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       ENVIRONMENT: development
+      SUPER_ADMIN_EMAILS: nikshith@gmail.com
 
 volumes:
   mongodb_data:

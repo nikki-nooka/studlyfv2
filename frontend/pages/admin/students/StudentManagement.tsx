@@ -36,7 +36,9 @@ const StudentManagement: React.FC = () => {
             const response = await fetch(`${API_BASE_URL}/api/admin/students`, {
                 headers: { 'X-Admin-Email': user.email }
             });
+            if (!response.ok) return;
             const data = await response.json();
+            if (!Array.isArray(data)) return;
             const formatted = data.map((s: any) => ({
                 id: s.uid || s._id || Math.random().toString(),
                 name: s.displayName || s.name || 'Anonymous Student',

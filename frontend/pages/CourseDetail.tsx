@@ -322,12 +322,28 @@ const CourseDetail: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <button onClick={handleEnrollNow} className="w-full py-4 bg-gradient-to-r from-[#6C2BFF] to-[#A88CFF] text-white font-black text-sm uppercase tracking-widest rounded-xl hover:shadow-[0_0_30px_rgba(108,43,255,0.4)] transition-all">
-                    Enroll Now
-                  </button>
-                  <button className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">
-                    Preview Course
-                  </button>
+                  {userState === 'ENROLLED' ? (
+                    <>
+                      <button onClick={handleGoToCourse} className="w-full py-4 bg-gradient-to-r from-[#6C2BFF] to-[#A88CFF] text-white font-black text-sm uppercase tracking-widest rounded-xl hover:shadow-[0_0_30px_rgba(108,43,255,0.4)] transition-all">
+                        Go to Course
+                      </button>
+                      <button onClick={() => navigate(`/courses/${course?._id}/submit-project`)} className="w-full py-4 bg-green-500/10 border border-green-500/30 text-green-400 font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-green-500/20 transition-all">
+                        Submit Course Project
+                      </button>
+                      <button onClick={() => navigate(`/courses/${course?._id}/my-projects`)} className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">
+                        My Projects
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={handleEnrollNow} className="w-full py-4 bg-gradient-to-r from-[#6C2BFF] to-[#A88CFF] text-white font-black text-sm uppercase tracking-widest rounded-xl hover:shadow-[0_0_30px_rgba(108,43,255,0.4)] transition-all">
+                        Enroll Now
+                      </button>
+                      <button className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">
+                        Preview Course
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">

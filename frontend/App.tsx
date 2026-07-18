@@ -104,6 +104,15 @@ const AdminCompanyManagement = lazy(() => import('./pages/admin/companies/Compan
 const AdminPaymentManagement = lazy(() => import('./pages/admin/payments/PaymentManagement'));
 const AdminResumeManagement = lazy(() => import('./pages/admin/resumes/ResumeManagement'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/audit/AuditLogs'));
+const CommunityFeed = lazy(() => import('./pages/community/CommunityFeed'));
+const CommunityProjectDetail = lazy(() => import('./pages/community/ProjectDetail'));
+const CommunitySubmitProject = lazy(() => import('./pages/community/SubmitProject'));
+const CommunityTopBuilders = lazy(() => import('./pages/community/TopBuilders'));
+
+const SubmitCourseProject = lazy(() => import('./pages/courses/SubmitCourseProject'));
+const MyCourseProjects = lazy(() => import('./pages/courses/MyCourseProjects'));
+const CourseProjectsReview = lazy(() => import('./pages/courses/CourseProjectsReview'));
+const EvaluateProject = lazy(() => import('./pages/courses/EvaluateProject'));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -299,7 +308,7 @@ const App: React.FC = () => {
             </div>
           }
         >
-          <ErrorBoundary>
+          <ErrorBoundary key={pathname}>
             <Routes>
               <Route
                 path="/"
@@ -471,6 +480,16 @@ const App: React.FC = () => {
             <Route path="/opportunities/:id" element={<ProtectedRoute><OpportunityDetails /></ProtectedRoute>} />
             <Route path="/opportunities/:id/results" element={<PublicRoute><ResultsPage /></PublicRoute>} />
 
+            {/* Community */}
+            <Route path="/community" element={<ProtectedRoute><CommunityFeed /></ProtectedRoute>} />
+            <Route path="/community/submit" element={<ProtectedRoute><CommunitySubmitProject /></ProtectedRoute>} />
+            <Route path="/community/top-builders" element={<ProtectedRoute><CommunityTopBuilders /></ProtectedRoute>} />
+            <Route path="/community/:postId" element={<ProtectedRoute><CommunityProjectDetail /></ProtectedRoute>} />
+
+            {/* Course Projects - Student */}
+            <Route path="/courses/:courseId/submit-project" element={<ProtectedRoute><SubmitCourseProject /></ProtectedRoute>} />
+            <Route path="/courses/:courseId/my-projects" element={<ProtectedRoute><MyCourseProjects /></ProtectedRoute>} />
+
             {/* Events */}
             <Route path="/events/:eventId" element={<ProtectedRoute><EventHub /></ProtectedRoute>} />
             <Route path="/events/:eventId/hub" element={<ProtectedRoute><EventHub /></ProtectedRoute>} />
@@ -505,7 +524,7 @@ const App: React.FC = () => {
             <Route
               path="/admin"
               element={
-                <AdminProtectedRoute>
+                <AdminProtectedRoute allowedRoles={['super_admin', 'admin', 'institution']}>
                   <AdminLayout />
                 </AdminProtectedRoute>
               }
@@ -532,6 +551,8 @@ const App: React.FC = () => {
               <Route path="payments" element={<AdminPaymentManagement />} />
               <Route path="resumes" element={<AdminResumeManagement />} />
               <Route path="ads" element={<AdsManagement />} />
+              <Route path="course-projects" element={<CourseProjectsReview />} />
+              <Route path="course-projects/:submissionId/evaluate" element={<EvaluateProject />} />
               <Route path="audit-logs" element={<AdminAuditLogs />} />
 
               <Route

@@ -210,6 +210,12 @@ const Navigation: React.FC = () => {
                 >
                   OPPORTUNITIES
                 </Link>
+                <Link
+                  to="/community"
+                  className="flex items-center transition-all h-full uppercase tracking-[0.22em] font-bold text-[10px] text-white/80 hover:text-white"
+                >
+                  COMMUNITY
+                </Link>
               </div>
             </div>
 
@@ -506,6 +512,20 @@ const Navigation: React.FC = () => {
                           <div>
                             <p className="text-sm font-bold text-white uppercase tracking-wider">STUDOTT</p>
                             <p className="text-[10px] text-white/40">Student Streaming Platform</p>
+                          </div>
+                        </Link>
+
+                        <Link
+                          to="/community"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-[#7C3AED]/30 transition-all hover:bg-[#7C3AED]/10 group text-left"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#A78BFA]">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-white uppercase tracking-wider">Community</p>
+                            <p className="text-[10px] text-white/40">Projects & Startups</p>
                           </div>
                         </Link>
                       </div>

@@ -60,9 +60,10 @@ const MyProfile: React.FC = () => {
       uploadDate: '',
       atsScore: 0,
       version: '1.0',
+      filePath: '',
     },
     projects: [] as { title: string; description: string; link: string; isFeatured: boolean; tags: string[] }[],
-    certifications: [] as { name: string; issuer: string; date: string; link: string }[],
+    certifications: [] as { name: string; issuer: string; date: string; link: string; credentialId?: string }[],
     achievements: [] as { title: string; organization: string; month: string; year: string; category: string; description: string; link: string; isFeatured: boolean }[],
     experienceList: [] as { company: string; role: string; type: string; responsibilities: string; location?: string }[],
     jobDescription: '',
@@ -77,6 +78,7 @@ const MyProfile: React.FC = () => {
     searchStatus: 'active',
     profileVisible: true,
     newsletter: false,
+    customLinks: [] as { title: string; url: string }[],
   });
 
   // Resume upload state

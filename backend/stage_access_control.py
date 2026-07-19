@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Stage Access Control - Validate participant eligibility for stage submissions
 Admin controls who can progress through stages via shortlist/reject status

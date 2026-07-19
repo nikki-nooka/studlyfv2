@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Quiz Visibility Service
 Handles quiz visibility based on stage visibility (Public/Private/Shortlisted Only)

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 SECURED ENDPOINT IMPLEMENTATIONS
 Examples of properly secured FastAPI endpoints

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 PRODUCTION-READY MAIN APPLICATION
 Week 1: All critical security fixes implemented

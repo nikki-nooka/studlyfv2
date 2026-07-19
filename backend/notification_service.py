@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Comprehensive Notification Service
 Handles in-app notifications, email notifications, and notification bell functionality

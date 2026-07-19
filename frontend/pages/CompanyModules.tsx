@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../apiConfig';
+import { VisualizerEngine } from '../utils/visualizers/VisualizerEngine';
 import {
   ShieldCheck,
   ChevronRight,
@@ -48,7 +49,30 @@ import {
 import { PREMIUM_COMPANIES, Company, DSAQuestion } from '../data/premiumCompaniesData';
 import { useAuth } from '../AuthContext';
 
-const CompanyModules: React.FC = () => {
+class InlineErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 m-8 bg-red-50 text-red-900 border border-red-200 rounded-xl">
+          <h2 className="text-xl font-bold mb-4">React Runtime Crash!</h2>
+          <pre className="whitespace-pre-wrap text-sm bg-red-100 p-4 rounded overflow-auto">
+            {this.state.error?.stack || this.state.error?.message}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const CompanyModulesContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -208,206 +232,14 @@ const CompanyModules: React.FC = () => {
     setVisStep(0);
     setVisPlaying(false);
 
-    let baseInput = selectedQuestion.input;
-    if (customInput) {
-      baseInput = customInput;
-    }
-
-    // Prepare steps based on visualizer type
-    if (selectedQuestion.visualizerType === 'tree') {
-      // Setup tree visual state
-      // Node schema: val, left, right, color
-      setVisualizerState({
-        nodes: [
-          { id: 0, val: 10, x: 200, y: 50, left: 1, right: 2, state: 'normal' },
-          { id: 1, val: 5, x: 100, y: 120, left: 3, right: 4, state: 'normal' },
-          { id: 2, val: 15, x: 300, y: 120, left: 5, right: 6, state: 'normal' },
-          { id: 3, val: 2, x: 50, y: 190, state: 'normal' },
-          { id: 4, val: 7, x: 150, y: 190, state: 'normal' },
-          { id: 5, val: 12, x: 250, y: 190, state: 'normal' },
-          { id: 6, val: 20, x: 350, y: 190, state: 'normal' }
-        ],
-        steps: [
-          { node: 0, desc: 'Starting validation at root node (10). Range: (-∞, +∞). Node 10 is within range.', highlight: [0] },
-          { node: 1, desc: 'Moving Left to node (5). Bound updates: (-∞, 10). Node 5 is within range.', highlight: [0, 1] },
-          { node: 3, desc: 'Moving Left to node (2). Bound updates: (-∞, 5). Node 2 is valid.', highlight: [0, 1, 3] },
-          { node: 4, desc: 'Backtrack to 5, moving Right to node (7). Bound updates: (5, 10). Node 7 is valid.', highlight: [0, 1, 3, 4] },
-          { node: 2, desc: 'Backtrack to root, moving Right to node (15). Bound updates: (10, +∞). Node 15 is valid.', highlight: [0, 1, 3, 4, 2] },
-          { node: 5, desc: 'Moving Left to node (12). Bound updates: (10, 15). Node 12 is valid.', highlight: [0, 1, 3, 4, 2, 5] },
-          { node: 6, desc: 'Moving Right to node (20). Bound updates: (15, +∞). Node 20 is valid.', highlight: [0, 1, 3, 4, 2, 5, 6] },
-          { node: -1, desc: 'Validation complete. All nodes recursively meet boundary constraints. Returns TRUE.', highlight: [0, 1, 2, 3, 4, 5, 6], success: true }
-        ]
-      });
-    } else if (selectedQuestion.visualizerType === 'sliding-window') {
-      // sliding window on string
-      const chars = baseInput.replace(/"/g, '').split('');
-      setVisualizerState({
-        chars,
-        steps: chars.map((c, idx) => {
-          // simple dynamic logic to find window boundaries
-          const seen: { [key: string]: number } = {};
-          let left = 0;
-          let maxLen = 0;
-          let conflictIdx = -1;
-
-          for (let r = 0; r <= idx; r++) {
-            const char = chars[r];
-            if (seen[char] !== undefined && seen[char] >= left) {
-              left = seen[char] + 1;
-              if (r === idx) conflictIdx = seen[char];
-            }
-            seen[char] = r;
-            maxLen = Math.max(maxLen, r - left + 1);
-          }
-
-          return {
-            left,
-            right: idx,
-            conflictIdx,
-            c,
-            desc: conflictIdx !== -1
-              ? `Character "${c}" repeated. Shrink left boundary of window to index ${left} to resolve collision.`
-              : `Add character "${c}" to window. Window boundaries: [${left} to ${idx}]. Window is unique.`,
-            maxLen
-          };
-        })
-      });
-    } else if (selectedQuestion.visualizerType === 'linked-list') {
-      // Linked list steps
-      setVisualizerState({
-        nodes: [1, 2, 3, 4, 5],
-        steps: [
-          { curr: 0, prev: -1, desc: 'Initialize prev = null, curr = 1. nextNode pointer holds reference to 2.' },
-          { curr: 1, prev: 0, desc: 'Reverse link: Node(1) now points back to NULL (prev). Shift prev to 1, curr to 2.' },
-          { curr: 2, prev: 1, desc: 'Reverse link: Node(2) now points back to 1 (prev). Shift prev to 2, curr to 3.' },
-          { curr: 3, prev: 2, desc: 'Reverse link: Node(3) now points back to 2 (prev). Shift prev to 3, curr to 4.' },
-          { curr: 4, prev: 3, desc: 'Reverse link: Node(4) now points back to 3 (prev). Shift prev to 4, curr to 5.' },
-          { curr: 5, prev: 4, desc: 'Reverse link: Node(5) now points back to 4 (prev). Shift prev to 5, curr to NULL.' },
-          { curr: -1, prev: 5, desc: 'List fully reversed! Return Node(5) as the new head of the list.', finished: true }
-        ]
-      });
-    } else if (selectedQuestion.visualizerType === 'dp') {
-      // DP Table
-      const chars = (selectedQuestion.input || 'babad').replace(/"/g, '').split('');
-      const n = chars.length;
-      const matrix = Array(n).fill(null).map(() => Array(n).fill(false));
-      const steps: any[] = [];
-
-      // Base cases
-      for (let i = 0; i < n; i++) {
-        matrix[i][i] = true;
-        steps.push({
-          row: i, col: i, val: true,
-          desc: `Base Case (Len 1): Substring "${chars[i]}" is a palindrome. Mark DP[${i}][${i}] = True.`
-        });
-      }
-
-      // Len 2
-      for (let i = 0; i < n - 1; i++) {
-        const isPal = chars[i] === chars[i + 1];
-        matrix[i][i + 1] = isPal;
-        steps.push({
-          row: i, col: i + 1, val: isPal,
-          desc: `Check Len 2 Substring "${chars[i]}${chars[i + 1]}": s[${i}] ${isPal ? '==' : '!='} s[${i + 1}]. DP[${i}][${i + 1}] = ${isPal ? 'True' : 'False'}.`
-        });
-      }
-
-      // Len 3+
-      for (let len = 3; len <= n; len++) {
-        for (let i = 0; i < n - len + 1; i++) {
-          const j = i + len - 1;
-          const isPal = chars[i] === chars[j] && matrix[i + 1][j - 1];
-          matrix[i][j] = isPal;
-          steps.push({
-            row: i, col: j, val: isPal,
-            desc: `Check Len ${len} "${chars.slice(i, j + 1).join('')}": s[${i}] == s[${j}] && inner DP[${i + 1}][${j - 1}] is ${matrix[i + 1][j - 1] ? 'True' : 'False'}. DP[${i}][${j}] = ${isPal ? 'True' : 'False'}.`
-          });
-        }
-      }
-
-      setVisualizerState({ chars, n, steps });
-    } else if (selectedQuestion.visualizerType === 'sorting') {
-      const arr = customInput ? customInput.split(',').map(Number) : [4, 2, 7, 3, 1, 6];
-      setVisualizerState({
-        initialArr: [...arr],
-        steps: [
-          { arr: [...arr], pivot: -1, active: [-1, -1], desc: 'Initial array loaded. Prepare Quick Sort partitioning.' },
-          { arr: [...arr], pivot: 5, active: [0, 5], desc: 'Selected last element "6" as pivot. Iterate through items to partition.' },
-          { arr: [4, 2, 7, 3, 1, 6], pivot: 5, active: [1, 5], desc: 'Value "4" <= pivot "6". Place in left partition.' },
-          { arr: [4, 2, 7, 3, 1, 6], pivot: 5, active: [2, 5], desc: 'Value "7" > pivot "6". Keep in right partition.' },
-          { arr: [4, 2, 3, 7, 1, 6], pivot: 5, active: [3, 5], desc: 'Value "3" <= pivot "6". Swap "7" and "3". Array: [4,2,3,7,1,6]' },
-          { arr: [4, 2, 3, 1, 7, 6], pivot: 5, active: [4, 5], desc: 'Value "1" <= pivot "6". Swap "7" and "1". Array: [4,2,3,1,7,6]' },
-          { arr: [4, 2, 3, 1, 6, 7], pivot: 4, active: [4, 5], desc: 'Loop finished. Swap pivot "6" into sorted partition index. Pivot is now in final position!' },
-          { arr: [1, 2, 3, 4, 6, 7], pivot: -1, active: [-1, -1], desc: 'Quick Sort recursive division sorted all subsets! Sorting complete.', finished: true }
-        ]
-      });
-    } else if (selectedQuestion.visualizerType === 'graph') {
-      setVisualizerState({
-        nodes: [
-          { id: 0, label: '0', x: 100, y: 150, state: 'normal' },
-          { id: 1, label: '1', x: 220, y: 80, state: 'normal' },
-          { id: 2, label: '2', x: 220, y: 220, state: 'normal' },
-          { id: 3, label: '3', x: 340, y: 150, state: 'normal' }
-        ],
-        edges: [
-          { from: 0, to: 1 },
-          { from: 0, to: 2 },
-          { from: 1, to: 3 },
-          { from: 2, to: 3 }
-        ],
-        steps: [
-          {
-            desc: 'Initialize adjacency list and compute in-degrees. In-degrees: {0:0, 1:1, 2:1, 3:2}. Queue: [0].',
-            queue: [0],
-            inDegrees: { 0: 0, 1: 1, 2: 1, 3: 2 },
-            nodesState: { 0: 'processing', 1: 'normal', 2: 'normal', 3: 'normal' },
-            edgesState: { '0-1': 'normal', '0-2': 'normal', '1-3': 'normal', '2-3': 'normal' }
-          },
-          {
-            desc: 'Process node 0. Remove from queue. Decrement in-degree of neighbors 1 and 2.',
-            queue: [],
-            inDegrees: { 0: 0, 1: 0, 2: 0, 3: 2 },
-            nodesState: { 0: 'processed', 1: 'processing', 2: 'processing', 3: 'normal' },
-            edgesState: { '0-1': 'processed', '0-2': 'processed', '1-3': 'normal', '2-3': 'normal' }
-          },
-          {
-            desc: 'Neighbors 1 and 2 have in-degree 0. Add to queue. Queue: [1, 2].',
-            queue: [1, 2],
-            inDegrees: { 0: 0, 1: 0, 2: 0, 3: 2 },
-            nodesState: { 0: 'processed', 1: 'processing', 2: 'processing', 3: 'normal' },
-            edgesState: { '0-1': 'processed', '0-2': 'processed', '1-3': 'normal', '2-3': 'normal' }
-          },
-          {
-            desc: 'Process node 1. Remove from queue. Decrement in-degree of its neighbor 3 (in-degree of 3 becomes 1).',
-            queue: [2],
-            inDegrees: { 0: 0, 1: 0, 2: 0, 3: 1 },
-            nodesState: { 0: 'processed', 1: 'processed', 2: 'processing', 3: 'normal' },
-            edgesState: { '0-1': 'processed', '0-2': 'processed', '1-3': 'processed', '2-3': 'normal' }
-          },
-          {
-            desc: 'Process node 2. Remove from queue. Decrement in-degree of neighbor 3 (in-degree of 3 becomes 0).',
-            queue: [],
-            inDegrees: { 0: 0, 1: 0, 2: 0, 3: 0 },
-            nodesState: { 0: 'processed', 1: 'processed', 2: 'processed', 3: 'processing' },
-            edgesState: { '0-1': 'processed', '0-2': 'processed', '1-3': 'processed', '2-3': 'processed' }
-          },
-          {
-            desc: 'Neighbor 3 has in-degree 0. Add to queue. Queue: [3].',
-            queue: [3],
-            inDegrees: { 0: 0, 1: 0, 2: 0, 3: 0 },
-            nodesState: { 0: 'processed', 1: 'processed', 2: 'processed', 3: 'processing' },
-            edgesState: { '0-1': 'processed', '0-2': 'processed', '1-3': 'processed', '2-3': 'processed' }
-          },
-          {
-            desc: 'Process node 3. Remove from queue. All courses processed successfully (Count = 4). No cycles detected. Return true!',
-            queue: [],
-            inDegrees: { 0: 0, 1: 0, 2: 0, 3: 0 },
-            nodesState: { 0: 'processed', 1: 'processed', 2: 'processed', 3: 'processed' },
-            edgesState: { '0-1': 'processed', '0-2': 'processed', '1-3': 'processed', '2-3': 'processed' }
-          }
-        ]
-      });
-    }
+    const generatedState = VisualizerEngine.generate(
+      selectedQuestion.id,
+      selectedQuestion.visualizerType,
+      customInput,
+      selectedQuestion.input
+    );
+    
+    setVisualizerState(generatedState);
 
   }, [selectedQuestion, customInput]);
 
@@ -748,7 +580,8 @@ const CompanyModules: React.FC = () => {
       </AnimatePresence>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait">
+        <InlineErrorBoundary>
           {/* UPPER DASHBOARD BANNER */}
           {!selectedCompany ? (
             <motion.div
@@ -924,7 +757,7 @@ const CompanyModules: React.FC = () => {
                     <Star className="w-3 h-3" /> Required Skills
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
-                    {selectedCompany.hiringRoles.map((role, idx) => (
+                    {selectedCompany.hiringRoles?.map((role, idx) => (
                       <span key={idx} className="px-2 py-1 bg-white border border-purple-200 text-purple-700 rounded-md text-[9px] font-bold">
                         {role}
                       </span>
@@ -1048,7 +881,7 @@ const CompanyModules: React.FC = () => {
                               <Zap className="w-4 h-4 text-purple-500" /> Hiring Pipeline
                             </h3>
                             <ul className="space-y-3">
-                              {selectedCompany.interviewRounds.map((round, idx) => (
+                              {selectedCompany.interviewRounds?.map((round, idx) => (
                                 <li key={idx} className="flex items-center gap-3 text-xs text-slate-600 font-medium">
                                   <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-black text-[10px]">{idx + 1}</div>
                                   {round}
@@ -1093,7 +926,7 @@ const CompanyModules: React.FC = () => {
                               <div>
                                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-4">Founders / Leadership</span>
                                 <div className="flex flex-wrap gap-8">
-                                  {selectedCompany.founders.map((founder, idx) => (
+                                  {selectedCompany.founders?.map((founder, idx) => (
                                     <div key={idx} className="flex items-center gap-4 bg-gray-50/50 pr-6 rounded-full border border-gray-100 transition-all hover:border-purple-200 hover:bg-purple-50/30">
                                       <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md relative group">
                                         <img src={founder.image} alt={founder.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(founder.name)}&background=random&color=fff&bold=true&size=128`; }} />
@@ -1117,7 +950,7 @@ const CompanyModules: React.FC = () => {
                               <Briefcase className="w-4 h-4 text-purple-500" /> Open Roles
                             </h3>
                             <div className="flex flex-wrap gap-2">
-                              {selectedCompany.hiringRoles.map((role, idx) => (
+                              {selectedCompany.hiringRoles?.map((role, idx) => (
                                 <span key={idx} className="px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 text-[11px] font-bold rounded-full">{role}</span>
                               ))}
                             </div>
@@ -1139,7 +972,7 @@ const CompanyModules: React.FC = () => {
                             </header>
 
                             <div className="grid gap-6">
-                              {selectedCompany.dsa.map((q) => (
+                              {selectedCompany.dsa?.map((q) => (
                                 <div
                                   key={q.id}
                                   className="bg-white hover:bg-gray-50 border border-gray-200 hover:border-purple-500/30 p-6 rounded-3xl transition-all shadow-xl group"
@@ -1173,7 +1006,7 @@ const CompanyModules: React.FC = () => {
 
                                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-5">
                                     <div className="flex gap-2">
-                                      {q.tags.map(t => (
+                                      {q.tags?.map(t => (
                                         <span key={t} className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest">{t}</span>
                                       ))}
                                     </div>
@@ -1232,46 +1065,74 @@ const CompanyModules: React.FC = () => {
                               </div>
 
                               {/* Canvas visualizer viewport */}
-                              <div className="w-full h-80 bg-[#0C061E]/90 border border-gray-100 rounded-3xl flex items-center justify-center overflow-hidden relative" style={{ perspective: '1000px' }}>
+                              <div className="w-full min-h-[550px] bg-gradient-to-br from-[#1e1b4b] via-[#0C061E] to-black border border-gray-800 rounded-3xl flex items-center justify-center overflow-hidden relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" style={{ perspective: '1000px' }}>
                                 
+                                {/* Unsupported Visualizer Fallback */}
+                                {visualizerState?.unsupported && (
+                                  <div className="flex flex-col items-center justify-center w-full h-full text-center p-6 text-gray-400">
+                                    <Terminal className="w-12 h-12 mb-4 text-gray-500 opacity-50" />
+                                    <p className="font-semibold text-lg">{visualizerState.message}</p>
+                                    <p className="text-sm mt-2 max-w-sm">Our engineers are working to build a dynamic algorithm engine for this specific question.</p>
+                                  </div>
+                                )}
+
                                 {/* 3D Traversal rendering */}
-                                {selectedQuestion.visualizerType === 'tree' && visualizerState && (
+                                {selectedQuestion.visualizerType === 'tree' && visualizerState && !visualizerState.unsupported && (
                                   <div className="relative w-full h-full transform rotateX-[15deg]" style={{ transformStyle: 'preserve-3d' }}>
                                     <svg className="absolute inset-0 w-full h-full">
                                       {/* Render link connections */}
-                                      {visualizerState.nodes.map((node: any) => {
+                                      {(visualizerState.nodes || []).map((node: any) => {
+                                        const myVal = visualizerState.steps[visStep]?.nodeVals?.[node.id] ?? node.val;
+                                        if (myVal === null || myVal === '') return null;
+                                        
+                                        const res = [];
                                         if (node.left !== undefined) {
-                                          const target = visualizerState.nodes[node.left];
-                                          return <line key={`l-${node.id}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} stroke="rgba(124,58,237,0.2)" strokeWidth={2} />;
+                                          const target = visualizerState.nodes.find((n: any) => n.id === node.left) || visualizerState.nodes[node.left];
+                                          if (target) {
+                                            const tVal = visualizerState.steps[visStep]?.nodeVals?.[target.id] ?? target.val;
+                                            if (tVal !== null && tVal !== '') {
+                                              res.push(<line key={`l-${node.id}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} stroke="rgba(124,58,237,0.2)" strokeWidth={2} />);
+                                            }
+                                          }
                                         }
                                         if (node.right !== undefined) {
-                                          const target = visualizerState.nodes[node.right];
-                                          return <line key={`r-${node.id}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} stroke="rgba(124,58,237,0.2)" strokeWidth={2} />;
+                                          const target = visualizerState.nodes.find((n: any) => n.id === node.right) || visualizerState.nodes[node.right];
+                                          if (target) {
+                                            const tVal = visualizerState.steps[visStep]?.nodeVals?.[target.id] ?? target.val;
+                                            if (tVal !== null && tVal !== '') {
+                                              res.push(<line key={`r-${node.id}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} stroke="rgba(124,58,237,0.2)" strokeWidth={2} />);
+                                            }
+                                          }
                                         }
-                                        return null;
+                                        return res;
                                       })}
                                     </svg>
 
                                     {/* Render Node Bubbles */}
-                                    {visualizerState.nodes.map((node: any) => {
+                                    {(visualizerState.nodes || []).map((node: any) => {
                                       const activeHighlight = visualizerState.steps[visStep]?.highlight || [];
                                       const isHighlighted = activeHighlight.includes(node.id);
                                       const currentNode = visualizerState.steps[visStep]?.node === node.id;
+                                      
+                                      const dynamicVal = visualizerState.steps[visStep]?.nodeVals?.[node.id];
+                                      const displayVal = dynamicVal !== undefined ? dynamicVal : node.val;
+                                      if (displayVal === null || displayVal === '') return null; // allow hiding node
+
                                       return (
                                         <motion.div
                                           key={node.id}
                                           style={{ left: node.x - 20, top: node.y - 20 }}
-                                          className={`absolute w-10 h-10 rounded-full flex items-center justify-center font-black text-xs border-2 shadow-2xl transition-all ${
+                                          className={`absolute w-10 h-10 rounded-full flex items-center justify-center font-black text-xs border backdrop-blur-md transition-all duration-300 ${
                                             currentNode
-                                              ? 'bg-yellow-500 border-yellow-300 text-slate-900 scale-125 z-20 shadow-yellow-500/50'
+                                              ? 'bg-yellow-400 border-yellow-200 text-black scale-125 z-30 shadow-[0_0_30px_rgba(250,204,21,0.8)]'
                                               : isHighlighted
-                                              ? 'bg-purple-600 border-purple-400 text-white shadow-purple-600/30'
-                                              : 'bg-gray-100 border-gray-200 text-slate-400'
+                                              ? 'bg-fuchsia-500 border-fuchsia-300 text-white z-20 shadow-[0_0_20px_rgba(217,70,239,0.8)]'
+                                              : 'bg-white/5 border-white/20 text-slate-200 shadow-lg'
                                           }`}
-                                          animate={currentNode ? { scale: [1, 1.2, 1] } : {}}
-                                          transition={{ repeat: Infinity, duration: 1.5 }}
+                                          animate={currentNode ? { scale: [1, 1.25, 1] } : {}}
+                                          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                                         >
-                                          {node.val}
+                                          {displayVal}
                                         </motion.div>
                                       );
                                     })}
@@ -1279,67 +1140,74 @@ const CompanyModules: React.FC = () => {
                                 )}
 
                                 {/* 3D Sliding Window rendering */}
-                                {selectedQuestion.visualizerType === 'sliding-window' && visualizerState && (
+                                {selectedQuestion.visualizerType === 'sliding-window' && visualizerState && !visualizerState.unsupported && (
                                   <div className="flex flex-col items-center justify-center space-y-8 w-full px-6">
                                     <div className="flex gap-3 relative py-4">
-                                      {visualizerState.chars.map((char: string, idx: number) => {
+                                      {(visualizerState.chars || []).map((char: string, idx: number) => {
                                         const step = visualizerState.steps[visStep] || { left: 0, right: 0, conflictIdx: -1 };
                                         const insideWindow = idx >= step.left && idx <= step.right;
                                         const isConflict = idx === step.conflictIdx;
                                         return (
                                           <div
                                             key={idx}
-                                            className={`w-12 h-12 rounded-xl border flex flex-col items-center justify-center font-black transition-all relative ${
+                                            className={`w-12 h-12 rounded-xl border backdrop-blur-md flex flex-col items-center justify-center font-black transition-all duration-300 relative ${
                                               isConflict
-                                                ? 'bg-red-950 border-red-500 text-red-400 animate-bounce'
+                                                ? 'bg-red-500/20 border-red-500 text-red-200 animate-bounce shadow-[0_0_20px_rgba(239,68,68,0.5)] z-20'
                                                 : insideWindow
-                                                ? 'bg-purple-100 border-purple-500 text-purple-300'
-                                                : 'bg-gray-100 border-gray-100 text-slate-600'
+                                                ? 'bg-purple-500/20 border-purple-400 text-purple-100 shadow-[0_0_20px_rgba(168,85,247,0.4)] z-10'
+                                                : 'bg-white/5 border-white/10 text-slate-300'
                                             }`}
                                           >
-                                            <span className="text-lg">{char}</span>
+                                            <span className="text-lg drop-shadow-md">{char}</span>
                                             <span className="text-[7px] text-slate-400 absolute bottom-1">{idx}</span>
                                           </div>
                                         );
                                       })}
                                     </div>
                                     {/* Stats panel */}
-                                    <div className="flex gap-4 text-[10px] font-black uppercase text-slate-400">
-                                      <span>Window Bounds: [{visualizerState.steps[visStep]?.left} - {visualizerState.steps[visStep]?.right}]</span>
-                                      <span>Max Substring Length: {visualizerState.steps[visStep]?.maxLen}</span>
+                                    <div className="flex gap-4 text-[10px] font-black uppercase text-purple-200/70 bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+                                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" /> Window: [{visualizerState.steps[visStep]?.left} - {visualizerState.steps[visStep]?.right}]</span>
+                                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400" /> {visualizerState.steps[visStep]?.statLabel || 'Max Substring Length'}: {visualizerState.steps[visStep]?.statValue ?? visualizerState.steps[visStep]?.maxLen}</span>
                                     </div>
                                   </div>
                                 )}
 
                                 {/* Linked list Pointer rendering */}
-                                {selectedQuestion.visualizerType === 'linked-list' && visualizerState && (
-                                  <div className="flex items-center justify-center gap-4 w-full px-6">
-                                    {visualizerState.nodes.map((node: number, idx: number) => {
+                                {selectedQuestion.visualizerType === 'linked-list' && visualizerState && !visualizerState.unsupported && (
+                                  <div className="flex flex-wrap items-center justify-center gap-4 w-full px-6">
+                                    {(visualizerState.steps[visStep]?.nodes || visualizerState.nodes || []).map((nodeObj: any, idx: number, arr: any[]) => {
+                                      const node = typeof nodeObj === 'object' ? nodeObj.val : nodeObj;
+                                      const label = typeof nodeObj === 'object' ? nodeObj.label : null;
+                                      const isHead = typeof nodeObj === 'object' && nodeObj.isHead;
+                                      const isTail = typeof nodeObj === 'object' && nodeObj.isTail;
                                       const step = visualizerState.steps[visStep] || { curr: -1, prev: -1 };
-                                      const isCurr = step.curr === idx;
-                                      const isPrev = step.prev === idx;
-                                      const isReversed = idx < visStep;
+                                      const isCurr = step.curr === idx || step.curr === nodeObj?.id;
+                                      const isPrev = step.prev === idx || step.prev === nodeObj?.id;
+                                      const isReversed = visualizerState.isReverseProblem ? idx < visStep : false;
                                       return (
-                                        <React.Fragment key={idx}>
+                                        <React.Fragment key={typeof nodeObj === 'object' ? nodeObj.id : idx}>
                                           <div
-                                            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-black transition-all relative ${
+                                            className={`w-12 h-12 rounded-full border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 relative ${
                                               isCurr
-                                                ? 'bg-yellow-500 border-yellow-300 text-slate-900 scale-110'
+                                                ? 'bg-yellow-400 border-yellow-200 text-black scale-125 z-30 shadow-[0_0_30px_rgba(250,204,21,0.8)]'
                                                 : isPrev
-                                                ? 'bg-purple-600 border-purple-400 text-white'
-                                                : 'bg-gray-100 border-gray-200 text-slate-400'
+                                                ? 'bg-fuchsia-500 border-fuchsia-300 text-white z-20 shadow-[0_0_20px_rgba(217,70,239,0.8)]'
+                                                : 'bg-white/5 border-white/20 text-slate-200 shadow-lg'
                                             }`}
                                           >
-                                            <span>{node}</span>
+                                            <span className="text-xs">{node}</span>
                                             {isCurr && <span className="absolute -top-6 text-[8px] uppercase tracking-wider text-yellow-400 font-bold">curr</span>}
                                             {isPrev && <span className="absolute -top-6 text-[8px] uppercase tracking-wider text-purple-400 font-bold">prev</span>}
+                                            {label && !isCurr && !isPrev && <span className="absolute -top-6 text-[8px] uppercase tracking-wider text-blue-400 font-bold">{label}</span>}
+                                            {isHead && <span className="absolute -bottom-6 text-[8px] uppercase tracking-wider text-emerald-400 font-bold">head</span>}
+                                            {isTail && <span className="absolute -bottom-6 text-[8px] uppercase tracking-wider text-rose-400 font-bold">tail</span>}
                                           </div>
-                                          {idx < visualizerState.nodes.length - 1 && (
+                                          {idx < arr.length - 1 && (
                                             <motion.div
                                               animate={isReversed ? { rotate: 180 } : { rotate: 0 }}
-                                              className="text-purple-500 font-bold text-lg"
+                                              className="text-purple-500 font-bold text-lg flex items-center gap-1"
                                             >
-                                              ➔
+                                              {visualizerState.isDoublyLinked ? '↔' : '➔'}
                                             </motion.div>
                                           )}
                                         </React.Fragment>
@@ -1349,65 +1217,68 @@ const CompanyModules: React.FC = () => {
                                 )}
 
                                 {/* Dynamic DP table filling visualization */}
-                                {selectedQuestion.visualizerType === 'dp' && visualizerState && (
+                                {selectedQuestion.visualizerType === 'dp' && visualizerState && !visualizerState.unsupported && (
                                   <div className="flex flex-col items-center justify-center space-y-4">
-                                    <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${visualizerState.n}, minmax(0, 1fr))` }}>
-                                      {Array(visualizerState.n).fill(null).map((_, r) => (
-                                        Array(visualizerState.n).fill(null).map((_, c) => {
+                                    <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${visualizerState.cols || visualizerState.n}, minmax(0, 1fr))` }}>
+                                      {Array(visualizerState.rows || visualizerState.n).fill(null).map((_, r) => (
+                                        Array(visualizerState.cols || visualizerState.n).fill(null).map((_, c) => {
                                           const currentStep = visualizerState.steps[visStep] || { row: -1, col: -1 };
                                           const isActiveCell = currentStep.row === r && currentStep.col === c;
                                           
                                           // check if filled in current history steps
                                           let isFilled = false;
-                                          let isPal = false;
+                                          let cellVal: any = false;
                                           for (let s = 0; s <= visStep; s++) {
                                             const step = visualizerState.steps[s];
                                             if (step.row === r && step.col === c) {
                                               isFilled = true;
-                                              isPal = step.val;
+                                              cellVal = step.val;
                                             }
                                           }
+
+                                          const isBoolVal = typeof cellVal === 'boolean';
+                                          const displayVal = isFilled ? (isBoolVal ? (cellVal ? 'T' : 'F') : cellVal) : '-';
 
                                           return (
                                             <div
                                               key={`${r}-${c}`}
-                                              className={`w-9 h-9 rounded-lg border text-[10px] font-mono flex items-center justify-center transition-all ${
+                                              className={`w-9 h-9 rounded-lg border text-[10px] font-mono flex items-center justify-center transition-all duration-300 ${
                                                 isActiveCell
-                                                  ? 'bg-yellow-500 border-yellow-300 text-slate-900 scale-110 z-10'
+                                                  ? 'bg-yellow-400 border-yellow-200 text-black scale-125 z-20 shadow-[0_0_20px_rgba(250,204,21,0.8)]'
                                                   : isFilled
-                                                  ? isPal
-                                                    ? 'bg-green-950/80 border-green-500/40 text-green-400 font-bold'
-                                                    : 'bg-red-950/40 border-red-900/20 text-red-700'
-                                                  : 'bg-gray-100/40 border-white/[0.02] text-slate-700'
+                                                  ? (isBoolVal ? (cellVal ? 'bg-green-500/20 border-green-400/50 text-green-300 font-bold shadow-[0_0_10px_rgba(34,197,94,0.3)]' : 'bg-red-500/20 border-red-500/50 text-red-300') : 'bg-fuchsia-500/20 border-fuchsia-400/50 text-fuchsia-200 font-bold shadow-[0_0_10px_rgba(217,70,239,0.3)]')
+                                                  : 'bg-white/5 border-white/10 text-slate-400 backdrop-blur-sm'
                                               }`}
                                             >
-                                              {isFilled ? (isPal ? 'T' : 'F') : '-'}
+                                              {displayVal}
                                             </div>
                                           );
                                         })
                                       ))}
                                     </div>
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">DP Palindromic Match Array Table</span>
+                                    <div className="bg-black/40 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+                                      <span className="text-[9px] font-black text-purple-200/70 uppercase tracking-widest flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"/> DP State Matrix</span>
+                                    </div>
                                   </div>
                                 )}
 
-                                {/* Sorting visualizer bar list */}
-                                {selectedQuestion.visualizerType === 'sorting' && visualizerState && (
+                                {/* Sorting/Array visualizer bar list */}
+                                {(selectedQuestion.visualizerType === 'sorting' || selectedQuestion.visualizerType === 'array') && visualizerState && !visualizerState.unsupported && (
                                   <div className="flex items-end justify-center gap-4 w-full h-48 px-6">
-                                    {(visualizerState.steps[visStep]?.arr || visualizerState.initialArr).map((val: number, idx: number) => {
+                                    {(visualizerState.steps[visStep]?.arr || visualizerState.initialArr || []).map((val: number, idx: number) => {
                                       const step = visualizerState.steps[visStep] || { pivot: -1, active: [-1, -1] };
                                       const isPivot = step.pivot === idx;
                                       const isActive = step.active.includes(idx);
                                       return (
                                         <div key={idx} className="flex flex-col items-center">
                                           <div
-                                            style={{ height: `${val * 20}px` }}
-                                            className={`w-10 rounded-t-xl transition-all flex items-center justify-center font-black text-xs ${
+                                            style={{ height: `${Math.max(24, Math.min(val * 20, 160))}px` }}
+                                            className={`w-10 rounded-t-xl transition-all duration-300 flex items-center justify-center font-black text-xs backdrop-blur-sm border-x border-t ${
                                               isPivot
-                                                ? 'bg-yellow-500 shadow-lg shadow-yellow-500/20 text-slate-900'
+                                                ? 'bg-yellow-400 border-yellow-200 text-black shadow-[0_0_30px_rgba(250,204,21,0.6)] z-20'
                                                 : isActive
-                                                ? 'bg-purple-600 shadow-lg shadow-purple-600/20 text-white animate-pulse'
-                                                : 'bg-gray-100 border border-gray-200 text-slate-400'
+                                                ? 'bg-fuchsia-500 border-fuchsia-300 text-white shadow-[0_0_20px_rgba(217,70,239,0.6)] z-10 animate-pulse'
+                                                : 'bg-white/10 border-white/20 text-slate-300 shadow-lg'
                                             }`}
                                           >
                                             {val}
@@ -1420,7 +1291,7 @@ const CompanyModules: React.FC = () => {
                                 )}
 
                                 {/* Graph visualizer rendering */}
-                                {selectedQuestion.visualizerType === 'graph' && visualizerState && (
+                                {selectedQuestion.visualizerType === 'graph' && visualizerState && !visualizerState.unsupported && (
                                   <div className="relative w-full h-full transform rotateX-[10deg]" style={{ transformStyle: 'preserve-3d' }}>
                                     <svg className="absolute inset-0 w-full h-full">
                                       <defs>
@@ -1434,9 +1305,12 @@ const CompanyModules: React.FC = () => {
                                           <path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(234,179,8)" />
                                         </marker>
                                       </defs>
-                                      {visualizerState.edges.map((edge: any) => {
-                                        const fromNode = visualizerState.nodes[edge.from];
-                                        const toNode = visualizerState.nodes[edge.to];
+                                      {(visualizerState.edges || []).map((edge: any) => {
+                                        const fromNode = visualizerState.nodes.find((n: any) => n.id === edge.from) || visualizerState.nodes[edge.from];
+                                        const toNode = visualizerState.nodes.find((n: any) => n.id === edge.to) || visualizerState.nodes[edge.to];
+                                        
+                                        if (!fromNode || !toNode) return null;
+                                        
                                         const step = visualizerState.steps[visStep];
                                         const key = `${edge.from}-${edge.to}`;
                                         const edgeState = step?.edgesState?.[key] || 'normal';
@@ -1457,7 +1331,7 @@ const CompanyModules: React.FC = () => {
                                     </svg>
 
                                     {/* Render Graph Nodes */}
-                                    {visualizerState.nodes.map((node: any) => {
+                                    {(visualizerState.nodes || []).map((node: any) => {
                                       const step = visualizerState.steps[visStep];
                                       const nodeState = step?.nodesState?.[node.id] || 'normal';
                                       const inQueue = step?.queue?.includes(node.id);
@@ -1524,7 +1398,12 @@ const CompanyModules: React.FC = () => {
                                       <ChevronLeft className="w-4 h-4" />
                                     </button>
                                     <button
-                                      onClick={() => setVisPlaying(!visPlaying)}
+                                      onClick={() => {
+                                        if (!visPlaying && visStep >= (visualizerState?.steps?.length || 1) - 1) {
+                                          setVisStep(0);
+                                        }
+                                        setVisPlaying(!visPlaying);
+                                      }}
                                       className="p-4 bg-purple-600 hover:bg-purple-500 rounded-full transition-all text-white"
                                     >
                                       {visPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white" />}
@@ -1554,7 +1433,11 @@ const CompanyModules: React.FC = () => {
                                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-purple-500 text-slate-700"
                                 />
                                 <button
-                                  onClick={() => setCustomInput('')}
+                                  onClick={() => {
+                                    setCustomInput('');
+                                    setVisStep(0);
+                                    setVisPlaying(false);
+                                  }}
                                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[10px] font-black uppercase text-slate-400 rounded-xl"
                                 >
                                   Reset
@@ -1613,7 +1496,7 @@ const CompanyModules: React.FC = () => {
                                 <div className="bg-[#120D26]/60 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
                                   <h4 className="text-lg font-bold text-slate-700">Edge Cases</h4>
                                   <ul className="space-y-3">
-                                    {selectedQuestion.explanation.edgeCases.map((ec, idx) => (
+                                    {selectedQuestion.explanation?.edgeCases?.map((ec, idx) => (
                                       <li key={idx} className="text-xs text-slate-400 leading-relaxed flex items-start gap-2">
                                         <span className="text-purple-400 mt-1">•</span>
                                         <span>{ec}</span>
@@ -1625,7 +1508,7 @@ const CompanyModules: React.FC = () => {
                                 <div className="bg-[#120D26]/60 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
                                   <h4 className="text-lg font-bold text-slate-700">Interview Tips</h4>
                                   <ul className="space-y-3">
-                                    {selectedQuestion.explanation.tips.map((tip, idx) => (
+                                    {selectedQuestion.explanation?.tips?.map((tip, idx) => (
                                       <li key={idx} className="text-xs text-slate-400 leading-relaxed flex items-start gap-2">
                                         <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                                         <span>{tip}</span>
@@ -1732,8 +1615,8 @@ const CompanyModules: React.FC = () => {
                                   <h4 className="text-[10px] font-black uppercase tracking-widest text-green-600 flex items-center gap-2 mb-3">
                                     <CheckCircle2 className="w-4 h-4" /> Strengths
                                   </h4>
-                                  <ul className="space-y-2">
-                                    {techEvaluation.results[0].strengths.map((s: string, i: number) => (
+                                  <ul className="space-y-3">
+                                      {techEvaluation.results[0].strengths?.map((s: string, i: number) => (
                                       <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0" /> {s}
                                       </li>
@@ -1747,8 +1630,8 @@ const CompanyModules: React.FC = () => {
                                   <h4 className="text-[10px] font-black uppercase tracking-widest text-red-600 flex items-center gap-2 mb-3">
                                     <span className="w-4 h-4 flex items-center justify-center font-bold">!</span> Gaps
                                   </h4>
-                                  <ul className="space-y-2">
-                                    {techEvaluation.results[0].gaps.map((s: string, i: number) => (
+                                  <ul className="space-y-3">
+                                      {techEvaluation.results[0].gaps?.map((s: string, i: number) => (
                                       <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" /> {s}
                                       </li>
@@ -1891,8 +1774,8 @@ const CompanyModules: React.FC = () => {
                                   <h4 className="text-[10px] font-black uppercase tracking-widest text-green-400 flex items-center gap-2 mb-3">
                                     <CheckCircle2 className="w-4 h-4" /> Strengths
                                   </h4>
-                                  <ul className="space-y-2">
-                                    {hrEvaluation.results[0].strengths.map((s: string, i: number) => (
+                                  <ul className="space-y-3">
+                                      {hrEvaluation.results[0].strengths?.map((s: string, i: number) => (
                                       <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0" /> {s}
                                       </li>
@@ -1907,7 +1790,7 @@ const CompanyModules: React.FC = () => {
                                     <span className="w-4 h-4 flex items-center justify-center font-bold">!</span> Gaps
                                   </h4>
                                   <ul className="space-y-2">
-                                    {hrEvaluation.results[0].gaps.map((s: string, i: number) => (
+                                    {hrEvaluation.results[0].gaps?.map((s: string, i: number) => (
                                       <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" /> {s}
                                       </li>
@@ -2159,7 +2042,7 @@ const CompanyModules: React.FC = () => {
                             {/* Chat history list */}
                             <div className="lg:col-span-2 flex flex-col justify-between bg-gray-100/50 border border-gray-200 rounded-[2rem] h-[500px] overflow-hidden">
                               <div className="p-6 overflow-y-auto space-y-4 flex-grow max-h-[420px]">
-                                {chatMessages.map((msg, i) => (
+                                {chatMessages?.map((msg, i) => (
                                   <div
                                     key={i}
                                     className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
@@ -2374,7 +2257,7 @@ const CompanyModules: React.FC = () => {
                                 <p className="text-xs text-slate-400 font-semibold">No questions bookmarked yet. Start practice challenges to save them!</p>
                               ) : (
                                 <div className="space-y-2">
-                                  {savedQuestions.map((qid) => {
+                                  {savedQuestions?.map((qid) => {
                                     const question = selectedCompany.dsa.find(q => q.id === qid);
                                     if (!question) return null;
                                     return (
@@ -2403,14 +2286,19 @@ const CompanyModules: React.FC = () => {
 
               </div>
             </div>
-
           </motion.div>
         )}
+        </InlineErrorBoundary>
       </AnimatePresence>
     </div>
   </div>
   );
 };
 
-export default CompanyModules;
+const CompanyModules = () => (
+  <InlineErrorBoundary>
+    <CompanyModulesContent />
+  </InlineErrorBoundary>
+);
 
+export default CompanyModules;

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 JWT helpers for institution-scoped routes. Hydrates institution_id from users collection.
 """

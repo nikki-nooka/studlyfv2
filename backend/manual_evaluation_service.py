@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Manual Evaluation Service for Coding Submissions
 Handles manual evaluation workflow for coding challenges and programming assignments

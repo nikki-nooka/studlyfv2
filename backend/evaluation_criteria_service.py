@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Evaluation Criteria Management Service
 Handles creation, updating, and management of evaluation criteria for events

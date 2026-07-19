@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Security utilities for file upload validation and security checks.
 """

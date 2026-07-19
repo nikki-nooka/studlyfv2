@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 DATABASE INDEXES & OPTIMIZATION
 MongoDB indexes for production performance and querying

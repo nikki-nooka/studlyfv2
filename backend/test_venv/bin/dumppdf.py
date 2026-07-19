@@ -1,3 +1,4 @@
+from __future__ import annotations
 #!/Users/nookanikshith/Desktop/STUDLYF/studlyfv2/backend/test_venv/bin/python3
 """Extract pdf structure in XML format"""
 

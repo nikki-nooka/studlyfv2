@@ -575,7 +575,7 @@ public class Solution {
         approach: 'Use a min-heap (priority queue) initialized with the head of each list. Extract the minimum, add it to the result, and if the extracted node has a next node, push it into the heap. This processes all k lists simultaneously in sorted order.',
         time: 'O(N log k) where N is total nodes, k is number of lists',
         space: 'O(k) for the heap',
-        visualizerType: 'linked-list',
+        visualizerType: 'graph',
         code: {
           python: `import heapq
 
@@ -735,7 +735,7 @@ public class Solution {
         approach: 'Define dp[i][j] as max profit using at most j transactions up to day i. For each day and each transaction count, either skip the day or sell on this day (finding the optimal buy point). Optimize space by tracking the best buy value for each transaction level. When k >= n/2, it becomes unlimited transactions — use greedy.',
         time: 'O(n * k)',
         space: 'O(k)',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `def maxProfit(k, prices):
     n = len(prices)
@@ -1121,7 +1121,7 @@ class LRUCache {
         approach: 'Count frequencies with a HashMap, then use bucket sort where index = frequency. Traverse buckets from highest frequency downward to collect top k elements. This avoids a heap and achieves linear time.',
         time: 'O(n)',
         space: 'O(n)',
-        visualizerType: 'array',
+        visualizerType: 'sorting',
         code: {
           python: `def top_k_frequent(nums, k):
     from collections import Counter
@@ -2396,7 +2396,7 @@ class LFUCache:
         approach: 'Use a min-heap of size k containing the head of each list. Extract the minimum, append it to the result, and push the next node from that list into the heap.',
         time: 'O(N log k) where N is total nodes, k is number of lists',
         space: 'O(k) for the heap',
-        visualizerType: 'linked-list',
+        visualizerType: 'tree',
         code: {
           python: `import heapq
 
@@ -3578,7 +3578,7 @@ print(leastInterval(["A","A","A","B","B","B"], 2))  # 8`,
         approach: 'Use interval DP. dp[i][j] stores the minimum scalar multiplications to multiply matrices i through j. For each interval, try every possible split point k and take the minimum.',
         time: 'O(N^3)',
         space: 'O(N^2)',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `def matrixChainOrder(dims):
     n = len(dims) - 1
@@ -3927,7 +3927,7 @@ print(calculate("3+2*2"))    # 7`,
         approach: 'Treat the array as a linked list where nums[i] is the next node. A duplicate creates a cycle. Use Floyd\'s cycle detection (slow/fast pointers) to find the cycle entrance, which is the duplicate number.',
         time: 'O(N)',
         space: 'O(1)',
-        visualizerType: 'linked-list',
+        visualizerType: 'graph',
         code: {
           python: `def findDuplicate(nums):
     slow = nums[0]
@@ -4042,7 +4042,7 @@ print(matrix)  # [[7,4,1],[8,5,2],[9,6,3]]`,
         approach: 'DP where dp[i] = number of ways to decode s[0:i]. At each position, check if the single digit (1-9) is valid, and if the two-digit number (10-26) is valid. dp[i] = dp[i-1] (if single digit valid) + dp[i-2] (if two digits valid).',
         time: 'O(N)',
         space: 'O(1) with rolling variables',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `def numDecodings(s):
     if not s or s[0] == '0':
@@ -4426,7 +4426,7 @@ class TokenizerTrie {
         approach: 'Maintain a min-heap of size k. The root of the min-heap is always the kth largest element. For each new element, if it is larger than the root, replace the root and heapify.',
         time: 'O(N log k) for initialization, O(log k) per add operation',
         space: 'O(k) for the min-heap',
-        visualizerType: 'dp',
+        visualizerType: 'tree',
         code: {
           python: `import heapq
 
@@ -4801,7 +4801,7 @@ class SlidingWindowMedian {
         approach: 'Compute prefix sums of weights. Use binary search to find the index where a random number falls. This enables weighted random sampling critical for token sampling in LLM decoding.',
         time: 'O(N) init, O(log N) per pick',
         space: 'O(N) for prefix sum array',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `import random
 import bisect
@@ -5434,7 +5434,7 @@ print(trap([0,1,0,2,1,0,1,3,2,1,2,1]))  # 6`,
         approach: '2D DP where dp[t][i] is max profit on day i with at most t transactions. Optimize to O(N*k) time, O(k) space using rolling array.',
         time: 'O(N * k)',
         space: 'O(k)',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `def maxProfit(k, prices):
     if not prices or k == 0:
@@ -5496,7 +5496,7 @@ print(maxProfit(2, [3,3,5,0,0,3,1,4]))  # 6`,
         approach: 'State machine DP with three states: hold (own stock), sold (just sold, in cooldown), rest (not holding, not in cooldown). Transition between states at each day.',
         time: 'O(N)',
         space: 'O(1)',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `def maxProfit(prices):
     if len(prices) < 2:
@@ -5774,7 +5774,7 @@ print(maxArea([1,8,6,2,5,4,8,3,7]))  # 49`,
         approach: 'Maintain a "tails" array where tails[i] is the smallest ending element of all increasing subsequences of length i+1. Use binary search to find the position for each new element.',
         time: 'O(N log N)',
         space: 'O(N)',
-        visualizerType: 'dp',
+        visualizerType: 'sorting',
         code: {
           python: `import bisect
 

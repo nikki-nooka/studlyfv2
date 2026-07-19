@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 SECURITY FIXES FOR PRODUCTION DEPLOYMENT
 Addresses critical vulnerabilities from security audit

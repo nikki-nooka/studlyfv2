@@ -1322,7 +1322,7 @@ const CompanyModulesContent: React.FC = () => {
                                             y1={fromNode.y}
                                             x2={toNode.x}
                                             y2={toNode.y}
-                                            stroke={edgeState === 'processed' ? 'rgb(34,197,94)' : edgeState === 'processing' ? 'rgb(234,179,8)' : 'rgba(168,85,247,0.2)'}
+                                            stroke={edgeState === 'processed' ? 'rgb(34,197,94)' : edgeState === 'processing' ? 'rgb(234,179,8)' : 'rgba(168,85,247,0.6)'}
                                             strokeWidth={edgeState === 'normal' ? 2 : 3}
                                             markerEnd={edgeState === 'processed' ? "url(#arrow-processed)" : edgeState === 'processing' ? "url(#arrow-processing)" : "url(#arrow)"}
                                           />
@@ -1340,18 +1340,18 @@ const CompanyModulesContent: React.FC = () => {
                                         <motion.div
                                           key={node.id}
                                           style={{ left: node.x - 20, top: node.y - 20 }}
-                                          className={`absolute w-10 h-10 rounded-full flex flex-col items-center justify-center font-black text-xs border-2 shadow-2xl transition-all ${
+                                          className={`absolute w-10 h-10 rounded-full flex flex-col items-center justify-center font-black text-xs border backdrop-blur-md transition-all duration-300 ${
                                             nodeState === 'processing'
-                                              ? 'bg-yellow-500 border-yellow-300 text-slate-900 scale-125 z-20 shadow-yellow-500/50'
+                                              ? 'bg-yellow-400 border-yellow-200 text-black scale-125 z-30 shadow-[0_0_30px_rgba(250,204,21,0.8)]'
                                               : nodeState === 'processed'
-                                              ? 'bg-green-600 border-green-400 text-white shadow-green-600/30'
-                                              : 'bg-gray-100 border-gray-200 text-slate-400'
+                                              ? 'bg-fuchsia-500 border-fuchsia-300 text-white z-20 shadow-[0_0_20px_rgba(217,70,239,0.8)]'
+                                              : 'bg-white/5 border-white/20 text-slate-200 shadow-lg'
                                           }`}
-                                          animate={nodeState === 'processing' ? { scale: [1, 1.2, 1] } : {}}
+                                          animate={nodeState === 'processing' ? { scale: [1, 1.25, 1] } : {}}
                                           transition={{ repeat: Infinity, duration: 1.5 }}
                                         >
-                                          <span>{node.label}</span>
-                                          {inQueue && <span className="absolute -top-4 text-[7px] text-yellow-500 font-bold uppercase">Q</span>}
+                                          <span>{node.label || node.val || node.id}</span>
+                                          {inQueue && <span className="absolute -top-6 text-[9px] text-yellow-400 font-bold uppercase tracking-wider">Queue</span>}
                                         </motion.div>
                                       );
                                     })}
@@ -1364,6 +1364,110 @@ const CompanyModulesContent: React.FC = () => {
                                   </div>
                                 )}
 
+                                {/* Matrix visualizer rendering */}
+                                {selectedQuestion.visualizerType === 'matrix' && visualizerState && !visualizerState.unsupported && (
+                                  <div className="flex flex-col items-center justify-center space-y-6 w-full h-full px-4">
+                                    <div 
+                                      className="grid gap-2" 
+                                      style={{ gridTemplateColumns: `repeat(${visualizerState.matrix?.[0]?.length || 1}, minmax(0, 1fr))` }}
+                                    >
+                                      {(visualizerState.matrix || []).map((row: any[], rIdx: number) => (
+                                        row.map((cell: any, cIdx: number) => {
+                                          const step = visualizerState.steps[visStep] || { active: [-1, -1], visited: [] };
+                                          const isActive = step.active?.[0] === rIdx && step.active?.[1] === cIdx;
+                                          const isVisited = step.visited?.some((v: any) => v[0] === rIdx && v[1] === cIdx);
+                                          
+                                          return (
+                                            <div
+                                              key={`${rIdx}-${cIdx}`}
+                                              className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 relative ${
+                                                isActive
+                                                  ? 'bg-yellow-400 border-yellow-200 text-black scale-110 z-20 shadow-[0_0_20px_rgba(250,204,21,0.8)]'
+                                                  : isVisited
+                                                  ? 'bg-fuchsia-500 border-fuchsia-300 text-white z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
+                                                  : 'bg-white/5 border-white/10 text-slate-300 shadow-lg'
+                                              }`}
+                                            >
+                                              {cell}
+                                            </div>
+                                          );
+                                        })
+                                      ))}
+                                    </div>
+                                    <div className="bg-black/40 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+                                      <span className="text-[9px] font-black text-purple-200/70 uppercase tracking-widest flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"/> Matrix Traversal</span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Binary Search / Two Pointers visualizer rendering */}
+                                {(selectedQuestion.visualizerType === 'binary-search' || selectedQuestion.visualizerType === 'two-pointers') && visualizerState && !visualizerState.unsupported && (
+                                  <div className="flex flex-col items-center justify-center w-full h-full gap-10 px-4">
+                                    {/* Array 1 */}
+                                    <div className="flex gap-2 relative">
+                                      <span className="absolute -left-16 top-3 text-[10px] font-black text-slate-500">nums1</span>
+                                      {(visualizerState.nums1 || visualizerState.arr || []).map((val: number, idx: number) => {
+                                        const step = visualizerState.steps[visStep] || {};
+                                        const isLeftPartition = step.i !== undefined ? idx < step.i : false;
+                                        const isRightPartition = step.i !== undefined ? idx >= step.i : false;
+                                        const isLo = step.lo === idx;
+                                        const isHi = step.hi === idx;
+                                        const isMid = step.mid === idx || step.i === idx;
+                                        
+                                        return (
+                                          <div key={`n1-${idx}`} className="flex flex-col items-center relative">
+                                            {isLo && <span className="absolute -top-6 text-[9px] font-black text-purple-400">lo</span>}
+                                            {isHi && <span className="absolute -top-6 text-[9px] font-black text-blue-400">hi</span>}
+                                            {isMid && <span className="absolute -bottom-6 text-[9px] font-black text-yellow-400">mid</span>}
+                                            <div
+                                              className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
+                                                isMid
+                                                  ? 'bg-yellow-400 border-yellow-200 text-black scale-110 z-20 shadow-[0_0_20px_rgba(250,204,21,0.8)]'
+                                                  : isLeftPartition
+                                                  ? 'bg-fuchsia-500/80 border-fuchsia-300 text-white z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
+                                                  : isRightPartition
+                                                  ? 'bg-blue-500/80 border-blue-300 text-white z-10 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
+                                                  : 'bg-white/5 border-white/10 text-slate-300 shadow-lg'
+                                              }`}
+                                            >
+                                              {val}
+                                            </div>
+                                            <span className="text-[8px] text-slate-500 mt-2">{idx}</span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                    
+                                    {/* Array 2 (if exists) */}
+                                    {visualizerState.nums2 && (
+                                      <div className="flex gap-2 relative">
+                                        <span className="absolute -left-16 top-3 text-[10px] font-black text-slate-500">nums2</span>
+                                        {visualizerState.nums2.map((val: number, idx: number) => {
+                                          const step = visualizerState.steps[visStep] || {};
+                                          const isLeftPartition = step.j !== undefined ? idx < step.j : false;
+                                          const isRightPartition = step.j !== undefined ? idx >= step.j : false;
+                                          
+                                          return (
+                                            <div key={`n2-${idx}`} className="flex flex-col items-center relative">
+                                              <div
+                                                className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
+                                                  isLeftPartition
+                                                    ? 'bg-fuchsia-500/80 border-fuchsia-300 text-white z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
+                                                    : isRightPartition
+                                                    ? 'bg-blue-500/80 border-blue-300 text-white z-10 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
+                                                    : 'bg-white/5 border-white/10 text-slate-300 shadow-lg'
+                                                }`}
+                                              >
+                                                {val}
+                                              </div>
+                                              <span className="text-[8px] text-slate-500 mt-2">{idx}</span>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
 
                               {/* Playback Controls */}

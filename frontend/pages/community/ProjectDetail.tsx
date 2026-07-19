@@ -231,9 +231,13 @@ export default function ProjectDetail() {
   const [editGithub, setEditGithub] = useState('');
   const [editWebsite, setEditWebsite] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
+  const lastFetchedPostId = React.useRef<string | null>(null);
 
   useEffect(() => {
-    if (postId) loadPost();
+    if (postId && lastFetchedPostId.current !== postId) {
+      lastFetchedPostId.current = postId;
+      loadPost();
+    }
   }, [postId]);
 
   const loadPost = async () => {

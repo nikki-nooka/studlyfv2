@@ -79,9 +79,10 @@ async def _get_author_info(author_id: str) -> dict:
     from db import users_col, user_profiles_col
     user = await users_col.find_one({"user_id": author_id})
     if user:
+        name = user.get("full_name") or user.get("name") or "Anonymous"
         return {
             "author_id": author_id,
-            "author_name": user.get("name") or user.get("email", "Unknown"),
+            "author_name": name,
             "author_avatar": user.get("avatar") or user.get("photo_url"),
         }
     return {"author_id": author_id, "author_name": "Unknown", "author_avatar": None}

@@ -15,7 +15,7 @@ export const serializeAndDeserializeBinaryTreeGenerator = (inputStr: string) => 
     if (n.right !== undefined) edges.push({ from: n.id, to: n.right });
   });
 
-  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, 1, 800, 450);
+  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, 1, 400, 300);
 
   const steps: any[] = [];
   const queue: (number | null)[] = [1];

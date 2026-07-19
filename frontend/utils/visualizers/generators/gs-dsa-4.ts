@@ -9,47 +9,75 @@ export const gsDsa4Generator = (inputStr: string) => {
         intervals = parsed;
       }
     }
-  } catch (e) {
-    // fallback to default
-  }
+  } catch (e) {}
 
   const steps: any[] = [];
   
+  // Build standard Min-Heap tree skeleton (15 nodes for 4 levels)
+  const maxNodes = 15;
+  const nodes: any[] = [];
+  for (let i = 0; i < maxNodes; i++) {
+    const level = Math.floor(Math.log2(i + 1));
+    const offset = i - (Math.pow(2, level) - 1);
+    const width = 400;
+    const y = 50 + level * 60;
+    const itemsInLevel = Math.pow(2, level);
+    const spacing = width / itemsInLevel;
+    const x = spacing / 2 + offset * spacing;
+
+    nodes.push({
+      id: i,
+      val: '', 
+      x,
+      y,
+      left: 2 * i + 1 < maxNodes ? 2 * i + 1 : undefined,
+      right: 2 * i + 2 < maxNodes ? 2 * i + 2 : undefined
+    });
+  }
+
+  const heap: number[] = [];
+
+  const getHeapVals = () => {
+    const vals: Record<number, any> = {};
+    for (let i = 0; i < maxNodes; i++) {
+      vals[i] = i < heap.length ? heap[i].toString() : '';
+    }
+    return vals;
+  };
+
   steps.push({
-    arr: [],
-    pivot: -1,
-    active: [],
+    nodeVals: getHeapVals(),
+    highlight: [],
+    node: null,
     desc: `Input parsed. Intervals: ${JSON.stringify(intervals)}. Sorting by start time...`
   });
 
   const sortedIntervals = [...intervals].sort((a, b) => a[0] - b[0]);
   
   steps.push({
-    arr: [],
-    pivot: -1,
-    active: [],
-    desc: `Sorted intervals: ${JSON.stringify(sortedIntervals)}. Initializing a min-heap to track room end times.`
+    nodeVals: getHeapVals(),
+    highlight: [],
+    node: null,
+    desc: `Sorted intervals: ${JSON.stringify(sortedIntervals)}. Initializing a Min-Heap tree to track room end times.`
   });
-
-  const heap: number[] = [];
 
   for (let i = 0; i < sortedIntervals.length; i++) {
     const [start, end] = sortedIntervals[i];
     
     steps.push({
-      arr: [...heap],
-      pivot: -1,
-      active: [],
+      nodeVals: getHeapVals(),
+      highlight: [],
+      node: null,
       desc: `Processing meeting [${start}, ${end}]. Current heap (end times): [${heap.join(', ')}].`
     });
 
     if (heap.length === 0) {
       heap.push(end);
       steps.push({
-        arr: [...heap],
-        pivot: -1,
-        active: [0],
-        desc: `Heap is empty. Allocate new room. Pushed end time ${end}.`
+        nodeVals: getHeapVals(),
+        highlight: [0],
+        node: 0,
+        desc: `Heap is empty. Allocate new room. Pushed end time ${end} to root.`
       });
     } else {
       let minIdx = 0;
@@ -62,34 +90,34 @@ export const gsDsa4Generator = (inputStr: string) => {
 
       if (start >= minEnd) {
         steps.push({
-          arr: [...heap],
-          pivot: minIdx,
-          active: [],
+          nodeVals: getHeapVals(),
+          highlight: [minIdx],
+          node: minIdx,
           desc: `Meeting starts at ${start}, which is >= earliest ending room at ${minEnd}. Room freed! Reusing it.`
         });
         
         heap[minIdx] = end;
         
         steps.push({
-          arr: [...heap],
-          pivot: -1,
-          active: [minIdx],
+          nodeVals: getHeapVals(),
+          highlight: [minIdx],
+          node: minIdx,
           desc: `Updated room end time to ${end}.`
         });
       } else {
         steps.push({
-          arr: [...heap],
-          pivot: minIdx,
-          active: [],
+          nodeVals: getHeapVals(),
+          highlight: [minIdx],
+          node: minIdx,
           desc: `Meeting starts at ${start}, which is < earliest ending room at ${minEnd}. Need a new room.`
         });
         
         heap.push(end);
         
         steps.push({
-          arr: [...heap],
-          pivot: -1,
-          active: [heap.length - 1],
+          nodeVals: getHeapVals(),
+          highlight: [heap.length - 1],
+          node: heap.length - 1,
           desc: `Allocated new room. Pushed end time ${end} to heap.`
         });
       }
@@ -97,12 +125,12 @@ export const gsDsa4Generator = (inputStr: string) => {
   }
 
   steps.push({
-    arr: [...heap],
-    pivot: -1,
-    active: [],
+    nodeVals: getHeapVals(),
+    highlight: [],
+    node: null,
     desc: `All meetings processed. Final heap size is ${heap.length}, so we need ${heap.length} meeting rooms.`,
     finished: true
   });
 
-  return { initialArr: [], steps };
+  return { nodes, steps };
 };

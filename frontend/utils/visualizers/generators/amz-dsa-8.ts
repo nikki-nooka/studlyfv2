@@ -45,7 +45,7 @@ export const binaryTreeZigzagLevelOrderTraversalGenerator = (inputStr: string) =
   });
 
   const rootId = rawNodes.length > 0 ? rawNodes[0].id : 0;
-  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, rootId, 800, 450);
+  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, rootId, 400, 300);
 
   const steps: any[] = [];
   

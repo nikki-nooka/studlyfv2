@@ -166,7 +166,7 @@ export const kthLargestElementInAStreamGenerator = (inputStr: string) => {
     rawNodes.push(node);
   }
   
-  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, 0, 800, 450);
+  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, 0, 400, 300);
 
   return { nodes, edges, steps };
 };

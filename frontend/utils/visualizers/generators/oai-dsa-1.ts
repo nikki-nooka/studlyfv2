@@ -214,7 +214,7 @@ export const designTokenizerTrieGenerator = (inputStr: string) => {
     });
   }
 
-  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, rootId, 600, 400);
+  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, rootId, 400, 300);
 
   return { nodes, edges, steps };
 };

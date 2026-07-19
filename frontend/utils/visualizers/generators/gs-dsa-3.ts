@@ -13,44 +13,64 @@ export const bestTimeToBuyAndSellStockWithCooldownGenerator = (inputStr: string)
   } catch (e) {}
 
   const steps: any[] = [];
+  const n = prices.length;
+  const rows = 3; // 0: Hold, 1: Sold, 2: Rest
+  const cols = n;
   
-  if (prices.length < 2) {
-    steps.push({
-      desc: `Prices length < 2. Max profit is 0.`,
-      hold: 0, sold: 0, rest: 0,
-      finished: true
-    });
-    return { n: 0, steps };
+  if (n < 2) {
+    steps.push({ desc: `Prices length < 2. Max profit is 0.`, finished: true });
+    return { rows, cols, steps };
   }
 
-  let hold = -prices[0];
-  let sold = 0;
-  let rest = 0;
+  const dpHold = Array(n).fill(0);
+  const dpSold = Array(n).fill(0);
+  const dpRest = Array(n).fill(0);
+
+  dpHold[0] = -prices[0];
+  dpSold[0] = 0;
+  dpRest[0] = 0;
 
   steps.push({
-    desc: `Init: hold = -prices[0] = ${hold}, sold = 0, rest = 0.`,
-    hold, sold, rest
+    row: 0, col: 0, val: dpHold[0],
+    desc: `Day 0: Buy stock. Hold state = -prices[0] = ${dpHold[0]}.`
+  });
+  steps.push({
+    row: 1, col: 0, val: 0,
+    desc: `Day 0: Cannot sell stock on day 0. Sold state = 0.`
+  });
+  steps.push({
+    row: 2, col: 0, val: 0,
+    desc: `Day 0: Do nothing. Rest state = 0.`
   });
 
-  for (let i = 1; i < prices.length; i++) {
-    const prevHold = hold;
+  for (let i = 1; i < n; i++) {
     const price = prices[i];
     
-    hold = Math.max(hold, rest - price);
-    rest = Math.max(rest, sold);
-    sold = prevHold + price;
-
+    dpHold[i] = Math.max(dpHold[i-1], dpRest[i-1] - price);
     steps.push({
-      desc: `Day ${i} (Price = ${price}): hold = max(prev_hold, rest - price) = ${hold}. rest = max(prev_rest, sold) = ${rest}. sold = prev_hold + price = ${sold}.`,
-      hold, sold, rest
+      row: 0, col: i, val: dpHold[i],
+      desc: `Day ${i} (Price = ${price}): Hold = max(prevHold[${dpHold[i-1]}], prevRest[${dpRest[i-1]}] - price) = ${dpHold[i]}.`
+    });
+
+    dpRest[i] = Math.max(dpRest[i-1], dpSold[i-1]);
+    steps.push({
+      row: 2, col: i, val: dpRest[i],
+      desc: `Day ${i} (Price = ${price}): Rest = max(prevRest[${dpRest[i-1]}], prevSold[${dpSold[i-1]}]) = ${dpRest[i]}.`
+    });
+
+    dpSold[i] = dpHold[i-1] + price;
+    steps.push({
+      row: 1, col: i, val: dpSold[i],
+      desc: `Day ${i} (Price = ${price}): Sold = prevHold[${dpHold[i-1]}] + price = ${dpSold[i]}.`
     });
   }
 
+  const maxProfit = Math.max(dpSold[n-1], dpRest[n-1]);
   steps.push({
-    desc: `Final Result: max(sold=${sold}, rest=${rest}) = ${Math.max(sold, rest)}.`,
-    hold, sold, rest,
+    row: 1, col: n-1, val: maxProfit,
+    desc: `Final Result: max(Sold=${dpSold[n-1]}, Rest=${dpRest[n-1]}) = ${maxProfit}.`,
     finished: true
   });
 
-  return { n: 0, steps };
+  return { rows, cols, steps };
 };

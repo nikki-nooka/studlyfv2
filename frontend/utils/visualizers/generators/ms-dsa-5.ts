@@ -92,9 +92,9 @@ export const designAddAndSearchWordsDataStructureGenerator = (inputStr: string) 
   getDepth(1, 0);
 
   const maxDepth = Math.max(...Array.from(depths.keys()));
-  const ySpacing = 500 / (maxDepth + 1.5);
+  const ySpacing = 300 / (maxDepth + 1.5);
   depths.forEach((nodesAtDepth, depth) => {
-    const xSpacing = 800 / (nodesAtDepth.length + 1);
+    const xSpacing = 400 / (nodesAtDepth.length + 1);
     nodesAtDepth.forEach((node, idx) => {
       node.x = xSpacing * (idx + 1);
       node.y = 30 + (depth * ySpacing);

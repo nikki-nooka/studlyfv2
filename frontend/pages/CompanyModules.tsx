@@ -1078,18 +1078,19 @@ const CompanyModulesContent: React.FC = () => {
 
                                 {/* 3D Traversal rendering */}
                                 {selectedQuestion.visualizerType === 'tree' && visualizerState && !visualizerState.unsupported && (
-                                  <div className="relative w-full h-full transform rotateX-[15deg]" style={{ transformStyle: 'preserve-3d' }}>
-                                    <svg className="absolute inset-0 w-full h-full">
+                                  <div className="w-full h-full min-h-[500px] flex items-center justify-center relative">
+                                    <div className="relative w-[400px] h-[300px] scale-[1.3] md:scale-[1.6]">
+                                      <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
                                       {/* Render link connections */}
                                       {(visualizerState.nodes || []).map((node: any) => {
-                                        const myVal = visualizerState.steps[visStep]?.nodeVals?.[node.id] ?? node.val;
+                                        const myVal = visualizerState?.steps?.[visStep]?.nodeVals?.[node.id] ?? node.val;
                                         if (myVal === null || myVal === '') return null;
                                         
                                         const res = [];
                                         if (node.left !== undefined) {
                                           const target = visualizerState.nodes.find((n: any) => n.id === node.left) || visualizerState.nodes[node.left];
                                           if (target) {
-                                            const tVal = visualizerState.steps[visStep]?.nodeVals?.[target.id] ?? target.val;
+                                            const tVal = visualizerState?.steps?.[visStep]?.nodeVals?.[target.id] ?? target.val;
                                             if (tVal !== null && tVal !== '') {
                                               res.push(<line key={`l-${node.id}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} stroke="rgba(124,58,237,0.2)" strokeWidth={2} />);
                                             }
@@ -1098,7 +1099,7 @@ const CompanyModulesContent: React.FC = () => {
                                         if (node.right !== undefined) {
                                           const target = visualizerState.nodes.find((n: any) => n.id === node.right) || visualizerState.nodes[node.right];
                                           if (target) {
-                                            const tVal = visualizerState.steps[visStep]?.nodeVals?.[target.id] ?? target.val;
+                                            const tVal = visualizerState?.steps?.[visStep]?.nodeVals?.[target.id] ?? target.val;
                                             if (tVal !== null && tVal !== '') {
                                               res.push(<line key={`r-${node.id}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} stroke="rgba(124,58,237,0.2)" strokeWidth={2} />);
                                             }
@@ -1110,32 +1111,37 @@ const CompanyModulesContent: React.FC = () => {
 
                                     {/* Render Node Bubbles */}
                                     {(visualizerState.nodes || []).map((node: any) => {
-                                      const activeHighlight = visualizerState.steps[visStep]?.highlight || [];
+                                      const activeHighlight = visualizerState?.steps?.[visStep]?.highlight || [];
                                       const isHighlighted = activeHighlight.includes(node.id);
-                                      const currentNode = visualizerState.steps[visStep]?.node === node.id;
+                                      const currentNode = visualizerState?.steps?.[visStep]?.node === node.id;
                                       
-                                      const dynamicVal = visualizerState.steps[visStep]?.nodeVals?.[node.id];
+                                      const dynamicVal = visualizerState?.steps?.[visStep]?.nodeVals?.[node.id];
                                       const displayVal = dynamicVal !== undefined ? dynamicVal : node.val;
-                                      if (displayVal === null || displayVal === '') return null; // allow hiding node
+                                      if (displayVal === null) return null; // allow hiding node
+                                      
+                                      const isEmptySlot = displayVal === '';
 
                                       return (
                                         <motion.div
-                                          key={node.id}
+                                          key={`n-${node.id}`}
                                           style={{ left: node.x - 20, top: node.y - 20 }}
-                                          className={`absolute w-10 h-10 rounded-full flex items-center justify-center font-black text-xs border backdrop-blur-md transition-all duration-300 ${
-                                            currentNode
+                                          className={`absolute w-10 h-10 rounded-full flex flex-col items-center justify-center font-black text-xs transition-all duration-300 ${
+                                            isHighlighted
                                               ? 'bg-yellow-400 border-yellow-200 text-black scale-125 z-30 shadow-[0_0_30px_rgba(250,204,21,0.8)]'
-                                              : isHighlighted
+                                              : currentNode
                                               ? 'bg-fuchsia-500 border-fuchsia-300 text-white z-20 shadow-[0_0_20px_rgba(217,70,239,0.8)]'
-                                              : 'bg-white/5 border-white/20 text-slate-200 shadow-lg'
+                                              : isEmptySlot
+                                              ? 'bg-transparent border border-dashed border-white/20 text-transparent'
+                                              : 'bg-white/5 border border-white/20 text-slate-200 shadow-lg backdrop-blur-md'
                                           }`}
-                                          animate={currentNode ? { scale: [1, 1.25, 1] } : {}}
-                                          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                          animate={isHighlighted ? { scale: [1, 1.25, 1] } : {}}
+                                          transition={{ repeat: isHighlighted ? Infinity : 0, duration: 1.5 }}
                                         >
-                                          {displayVal}
+                                          <span>{displayVal}</span>
                                         </motion.div>
                                       );
                                     })}
+                                    </div>
                                   </div>
                                 )}
 
@@ -1144,7 +1150,7 @@ const CompanyModulesContent: React.FC = () => {
                                   <div className="flex flex-col items-center justify-center space-y-8 w-full px-6">
                                     <div className="flex gap-3 relative py-4">
                                       {(visualizerState.chars || []).map((char: string, idx: number) => {
-                                        const step = visualizerState.steps[visStep] || { left: 0, right: 0, conflictIdx: -1 };
+                                        const step = visualizerState?.steps?.[visStep] || { left: 0, right: 0, conflictIdx: -1 };
                                         const insideWindow = idx >= step.left && idx <= step.right;
                                         const isConflict = idx === step.conflictIdx;
                                         return (
@@ -1166,8 +1172,8 @@ const CompanyModulesContent: React.FC = () => {
                                     </div>
                                     {/* Stats panel */}
                                     <div className="flex gap-4 text-[10px] font-black uppercase text-purple-200/70 bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-                                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" /> Window: [{visualizerState.steps[visStep]?.left} - {visualizerState.steps[visStep]?.right}]</span>
-                                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400" /> {visualizerState.steps[visStep]?.statLabel || 'Max Substring Length'}: {visualizerState.steps[visStep]?.statValue ?? visualizerState.steps[visStep]?.maxLen}</span>
+                                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" /> Window: [{visualizerState?.steps?.[visStep]?.left} - {visualizerState?.steps?.[visStep]?.right}]</span>
+                                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400" /> {visualizerState?.steps?.[visStep]?.statLabel || 'Max Substring Length'}: {visualizerState?.steps?.[visStep]?.statValue ?? visualizerState?.steps?.[visStep]?.maxLen}</span>
                                     </div>
                                   </div>
                                 )}
@@ -1175,12 +1181,12 @@ const CompanyModulesContent: React.FC = () => {
                                 {/* Linked list Pointer rendering */}
                                 {selectedQuestion.visualizerType === 'linked-list' && visualizerState && !visualizerState.unsupported && (
                                   <div className="flex flex-wrap items-center justify-center gap-4 w-full px-6">
-                                    {(visualizerState.steps[visStep]?.nodes || visualizerState.nodes || []).map((nodeObj: any, idx: number, arr: any[]) => {
+                                    {(visualizerState?.steps?.[visStep]?.nodes || visualizerState.nodes || []).map((nodeObj: any, idx: number, arr: any[]) => {
                                       const node = typeof nodeObj === 'object' ? nodeObj.val : nodeObj;
                                       const label = typeof nodeObj === 'object' ? nodeObj.label : null;
                                       const isHead = typeof nodeObj === 'object' && nodeObj.isHead;
                                       const isTail = typeof nodeObj === 'object' && nodeObj.isTail;
-                                      const step = visualizerState.steps[visStep] || { curr: -1, prev: -1 };
+                                      const step = visualizerState?.steps?.[visStep] || { curr: -1, prev: -1 };
                                       const isCurr = step.curr === idx || step.curr === nodeObj?.id;
                                       const isPrev = step.prev === idx || step.prev === nodeObj?.id;
                                       const isReversed = visualizerState.isReverseProblem ? idx < visStep : false;
@@ -1222,14 +1228,14 @@ const CompanyModulesContent: React.FC = () => {
                                     <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${visualizerState.cols || visualizerState.n}, minmax(0, 1fr))` }}>
                                       {Array(visualizerState.rows || visualizerState.n).fill(null).map((_, r) => (
                                         Array(visualizerState.cols || visualizerState.n).fill(null).map((_, c) => {
-                                          const currentStep = visualizerState.steps[visStep] || { row: -1, col: -1 };
+                                          const currentStep = visualizerState?.steps?.[visStep] || { row: -1, col: -1 };
                                           const isActiveCell = currentStep.row === r && currentStep.col === c;
                                           
                                           // check if filled in current history steps
                                           let isFilled = false;
                                           let cellVal: any = false;
                                           for (let s = 0; s <= visStep; s++) {
-                                            const step = visualizerState.steps[s];
+                                            const step = visualizerState?.steps?.[s];
                                             if (step.row === r && step.col === c) {
                                               isFilled = true;
                                               cellVal = step.val;
@@ -1265,35 +1271,49 @@ const CompanyModulesContent: React.FC = () => {
                                 {/* Sorting/Array visualizer bar list */}
                                 {(selectedQuestion.visualizerType === 'sorting' || selectedQuestion.visualizerType === 'array') && visualizerState && !visualizerState.unsupported && (
                                   <div className="flex items-end justify-center gap-4 w-full h-48 px-6">
-                                    {(visualizerState.steps[visStep]?.arr || visualizerState.initialArr || []).map((val: number, idx: number) => {
-                                      const step = visualizerState.steps[visStep] || { pivot: -1, active: [-1, -1] };
-                                      const isPivot = step.pivot === idx;
-                                      const isActive = step.active.includes(idx);
-                                      return (
-                                        <div key={idx} className="flex flex-col items-center">
-                                          <div
-                                            style={{ height: `${Math.max(24, Math.min(val * 20, 160))}px` }}
-                                            className={`w-10 rounded-t-xl transition-all duration-300 flex items-center justify-center font-black text-xs backdrop-blur-sm border-x border-t ${
-                                              isPivot
-                                                ? 'bg-yellow-400 border-yellow-200 text-black shadow-[0_0_30px_rgba(250,204,21,0.6)] z-20'
-                                                : isActive
-                                                ? 'bg-fuchsia-500 border-fuchsia-300 text-white shadow-[0_0_20px_rgba(217,70,239,0.6)] z-10 animate-pulse'
-                                                : 'bg-white/10 border-white/20 text-slate-300 shadow-lg'
-                                            }`}
-                                          >
-                                            {val}
+                                    {(() => {
+                                      const arr = visualizerState?.steps?.[visStep]?.arr || visualizerState.initialArr || [];
+                                      if (arr.length === 0) {
+                                        return (
+                                          <div className="flex flex-col items-center justify-center w-full h-full text-slate-500/50">
+                                            <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-slate-600/50 flex items-center justify-center mb-4">
+                                              <span className="text-2xl font-black text-slate-600/50">?</span>
+                                            </div>
+                                            <span className="text-xs font-black uppercase tracking-widest">Empty Array</span>
                                           </div>
-                                          <span className="text-[8px] text-slate-400 mt-2">{idx}</span>
-                                        </div>
-                                      );
-                                    })}
+                                        );
+                                      }
+                                      return arr.map((val: number, idx: number) => {
+                                        const step = visualizerState?.steps?.[visStep] || { pivot: -1, active: [-1, -1] };
+                                        const isPivot = step.pivot === idx;
+                                        const isActive = step.active && step.active.includes(idx);
+                                        return (
+                                          <div key={idx} className="flex flex-col items-center">
+                                            <div
+                                              style={{ height: `${Math.max(24, Math.min(val * 20, 160))}px` }}
+                                              className={`w-10 rounded-t-xl transition-all duration-300 flex items-center justify-center font-black text-xs backdrop-blur-sm border-x border-t ${
+                                                isPivot
+                                                  ? 'bg-yellow-400 border-yellow-200 text-black shadow-[0_0_30px_rgba(250,204,21,0.6)] z-20'
+                                                  : isActive
+                                                  ? 'bg-fuchsia-500 border-fuchsia-300 text-white shadow-[0_0_20px_rgba(217,70,239,0.6)] z-10 animate-pulse'
+                                                  : 'bg-white/10 border-white/20 text-slate-300 shadow-lg'
+                                              }`}
+                                            >
+                                              {val}
+                                            </div>
+                                            <span className="text-[8px] text-slate-400 mt-2">{idx}</span>
+                                          </div>
+                                        );
+                                      });
+                                    })()}
                                   </div>
                                 )}
 
                                 {/* Graph visualizer rendering */}
                                 {selectedQuestion.visualizerType === 'graph' && visualizerState && !visualizerState.unsupported && (
-                                  <div className="relative w-full h-full transform rotateX-[10deg]" style={{ transformStyle: 'preserve-3d' }}>
-                                    <svg className="absolute inset-0 w-full h-full">
+                                  <div className="w-full h-full min-h-[500px] flex items-center justify-center relative">
+                                    <div className="relative w-[400px] h-[300px] scale-[1.3] md:scale-[1.6]">
+                                      <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
                                       <defs>
                                         <marker id="arrow" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                                           <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(168,85,247,0.8)" />
@@ -1311,7 +1331,7 @@ const CompanyModulesContent: React.FC = () => {
                                         
                                         if (!fromNode || !toNode) return null;
                                         
-                                        const step = visualizerState.steps[visStep];
+                                        const step = visualizerState?.steps?.[visStep];
                                         const key = `${edge.from}-${edge.to}`;
                                         const edgeState = step?.edgesState?.[key] || 'normal';
                                         
@@ -1322,9 +1342,8 @@ const CompanyModulesContent: React.FC = () => {
                                             y1={fromNode.y}
                                             x2={toNode.x}
                                             y2={toNode.y}
-                                            stroke={edgeState === 'processed' ? 'rgb(34,197,94)' : edgeState === 'processing' ? 'rgb(234,179,8)' : 'rgba(168,85,247,0.6)'}
-                                            strokeWidth={edgeState === 'normal' ? 2 : 3}
-                                            markerEnd={edgeState === 'processed' ? "url(#arrow-processed)" : edgeState === 'processing' ? "url(#arrow-processing)" : "url(#arrow)"}
+                                            stroke={edgeState === 'processed' ? '#22c55e' : edgeState === 'processing' ? '#eab308' : '#ffffff'}
+                                            strokeWidth={edgeState === 'normal' ? 3 : 5}
                                           />
                                         );
                                       })}
@@ -1332,7 +1351,7 @@ const CompanyModulesContent: React.FC = () => {
 
                                     {/* Render Graph Nodes */}
                                     {(visualizerState.nodes || []).map((node: any) => {
-                                      const step = visualizerState.steps[visStep];
+                                      const step = visualizerState?.steps?.[visStep];
                                       const nodeState = step?.nodesState?.[node.id] || 'normal';
                                       const inQueue = step?.queue?.includes(node.id);
                                       
@@ -1341,26 +1360,31 @@ const CompanyModulesContent: React.FC = () => {
                                           key={node.id}
                                           style={{ left: node.x - 20, top: node.y - 20 }}
                                           className={`absolute w-10 h-10 rounded-full flex flex-col items-center justify-center font-black text-xs border backdrop-blur-md transition-all duration-300 ${
-                                            nodeState === 'processing'
+                                            nodeState === 'processing' || nodeState === 'highlight'
                                               ? 'bg-yellow-400 border-yellow-200 text-black scale-125 z-30 shadow-[0_0_30px_rgba(250,204,21,0.8)]'
                                               : nodeState === 'processed'
                                               ? 'bg-fuchsia-500 border-fuchsia-300 text-white z-20 shadow-[0_0_20px_rgba(217,70,239,0.8)]'
+                                              : nodeState === 'error'
+                                              ? 'bg-red-500 border-red-300 text-white z-20 shadow-[0_0_20px_rgba(239,68,68,0.8)]'
                                               : 'bg-white/5 border-white/20 text-slate-200 shadow-lg'
                                           }`}
-                                          animate={nodeState === 'processing' ? { scale: [1, 1.25, 1] } : {}}
-                                          transition={{ repeat: Infinity, duration: 1.5 }}
+                                          animate={nodeState === 'processing' || nodeState === 'highlight' ? { scale: [1, 1.25, 1] } : nodeState === 'error' ? { x: [-5, 5, -5, 5, 0] } : {}}
+                                          transition={nodeState === 'error' ? { duration: 0.4 } : { repeat: Infinity, duration: 1.5 }}
                                         >
                                           <span>{node.label || node.val || node.id}</span>
                                           {inQueue && <span className="absolute -top-6 text-[9px] text-yellow-400 font-bold uppercase tracking-wider">Queue</span>}
                                         </motion.div>
                                       );
                                     })}
+                                    </div>
 
                                     {/* Stats panel for graph */}
-                                    <div className="absolute bottom-4 left-4 flex gap-4 text-[9px] font-black uppercase text-slate-400 z-10 bg-[#0C061E]/80 backdrop-blur border border-purple-500/10 px-3 py-1.5 rounded-xl">
-                                      <span>Queue: [{visualizerState.steps[visStep]?.queue?.join(', ')}]</span>
-                                      <span>In-degrees: {JSON.stringify(visualizerState.steps[visStep]?.inDegrees)}</span>
-                                    </div>
+                                    {(visualizerState?.steps?.[visStep]?.queue || visualizerState?.steps?.[visStep]?.inDegrees) && (
+                                      <div className="absolute bottom-4 left-4 flex gap-4 text-[9px] font-black uppercase text-slate-400 z-10 bg-[#0C061E]/80 backdrop-blur border border-purple-500/10 px-3 py-1.5 rounded-xl">
+                                        {visualizerState?.steps?.[visStep]?.queue && <span>Queue: [{visualizerState.steps[visStep].queue.join(', ')}]</span>}
+                                        {visualizerState?.steps?.[visStep]?.inDegrees && <span>In-degrees: {JSON.stringify(visualizerState.steps[visStep].inDegrees)}</span>}
+                                      </div>
+                                    )}
                                   </div>
                                 )}
 
@@ -1373,7 +1397,7 @@ const CompanyModulesContent: React.FC = () => {
                                     >
                                       {(visualizerState.matrix || []).map((row: any[], rIdx: number) => (
                                         row.map((cell: any, cIdx: number) => {
-                                          const step = visualizerState.steps[visStep] || { active: [-1, -1], visited: [] };
+                                          const step = visualizerState?.steps?.[visStep] || { active: [-1, -1], visited: [] };
                                           const isActive = step.active?.[0] === rIdx && step.active?.[1] === cIdx;
                                           const isVisited = step.visited?.some((v: any) => v[0] === rIdx && v[1] === cIdx);
                                           
@@ -1406,18 +1430,18 @@ const CompanyModulesContent: React.FC = () => {
                                     {/* Array 1 */}
                                     <div className="flex gap-2 relative">
                                       <span className="absolute -left-16 top-3 text-[10px] font-black text-slate-500">nums1</span>
-                                      {(visualizerState.nums1 || visualizerState.arr || []).map((val: number, idx: number) => {
-                                        const step = visualizerState.steps[visStep] || {};
+                                      {(visualizerState.nums1 || visualizerState.arr || visualizerState.chars || []).map((val: number, idx: number) => {
+                                        const step = visualizerState?.steps?.[visStep] || {};
                                         const isLeftPartition = step.i !== undefined ? idx < step.i : false;
                                         const isRightPartition = step.i !== undefined ? idx >= step.i : false;
-                                        const isLo = step.lo === idx;
-                                        const isHi = step.hi === idx;
+                                        const isLo = step.lo === idx || step.left === idx;
+                                        const isHi = step.hi === idx || step.right === idx;
                                         const isMid = step.mid === idx || step.i === idx;
                                         
                                         return (
                                           <div key={`n1-${idx}`} className="flex flex-col items-center relative">
-                                            {isLo && <span className="absolute -top-6 text-[9px] font-black text-purple-400">lo</span>}
-                                            {isHi && <span className="absolute -top-6 text-[9px] font-black text-blue-400">hi</span>}
+                                            {isLo && <span className="absolute -top-6 text-[9px] font-black text-purple-400">{step.left !== undefined ? "left" : "lo"}</span>}
+                                            {isHi && <span className="absolute -top-6 text-[9px] font-black text-blue-400">{step.right !== undefined ? "right" : "hi"}</span>}
                                             {isMid && <span className="absolute -bottom-6 text-[9px] font-black text-yellow-400">mid</span>}
                                             <div
                                               className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
@@ -1443,7 +1467,7 @@ const CompanyModulesContent: React.FC = () => {
                                       <div className="flex gap-2 relative">
                                         <span className="absolute -left-16 top-3 text-[10px] font-black text-slate-500">nums2</span>
                                         {visualizerState.nums2.map((val: number, idx: number) => {
-                                          const step = visualizerState.steps[visStep] || {};
+                                          const step = visualizerState?.steps?.[visStep] || {};
                                           const isLeftPartition = step.j !== undefined ? idx < step.j : false;
                                           const isRightPartition = step.j !== undefined ? idx >= step.j : false;
                                           

@@ -12,7 +12,7 @@ export interface DSAQuestion {
   space: string;
   acceptanceRate?: number;
   estimatedRounds?: string;
-  visualizerType: 'tree' | 'sliding-window' | 'linked-list' | 'dp' | 'sorting' | 'graph' | 'array' | 'matrix' | 'binary-search' | 'two-pointer' | 'heap' | 'hashmap' | 'string' | 'trie' | 'stack' | 'queue' | 'circular' | 'cache' | 'timeline' | 'grid';
+  visualizerType: 'tree' | 'sliding-window' | 'linked-list' | 'dp' | 'sorting' | 'graph' | 'array' | 'matrix' | 'binary-search' | 'two-pointers' | 'heap' | 'hashmap' | 'string' | 'trie' | 'stack' | 'queue' | 'circular' | 'cache' | 'timeline' | 'grid';
   explanation: {
     intuition: string;
     brute: string;
@@ -424,7 +424,7 @@ public class Solution {
         approach: 'Use two pointers left and right starting from both ends. Track left_max and right_max as the maximum height seen from each side. At each step, move the pointer with the smaller max height inward. Water trapped at each position = max_height - height[pos].',
         time: 'O(N)',
         space: 'O(1)',
-        visualizerType: 'two-pointer',
+        visualizerType: 'two-pointers',
         code: {
           python: `def trap(height):
     if not height:
@@ -488,7 +488,7 @@ public class Solution {
         approach: 'For each cell, run DFS to find the longest increasing path starting from that cell. Memoize the result for each cell to avoid recomputation. At each cell, explore all 4 directions and take the maximum among valid increasing neighbors + 1.',
         time: 'O(M * N) where M and N are matrix dimensions',
         space: 'O(M * N) for memoization table',
-        visualizerType: 'matrix',
+        visualizerType: 'graph',
         code: {
           python: `def longestIncreasingPath(matrix):
     if not matrix or not matrix[0]:
@@ -735,7 +735,7 @@ public class Solution {
         approach: 'Define dp[i][j] as max profit using at most j transactions up to day i. For each day and each transaction count, either skip the day or sell on this day (finding the optimal buy point). Optimize space by tracking the best buy value for each transaction level. When k >= n/2, it becomes unlimited transactions — use greedy.',
         time: 'O(n * k)',
         space: 'O(k)',
-        visualizerType: 'sorting',
+        visualizerType: 'dp',
         code: {
           python: `def maxProfit(k, prices):
     n = len(prices)
@@ -1530,7 +1530,7 @@ print(product_except_self([1, 0]))`,
         approach: 'Maintain two heaps: a max-heap for the lower half and a min-heap for the upper half. Balance them so the max-heap has at most one more element. Median is the max of the lower half (odd count) or average of both heap tops (even count).',
         time: 'O(log n) addNum, O(1) findMedian',
         space: 'O(n)',
-        visualizerType: 'array',
+        visualizerType: 'sliding-window',
         code: {
           python: `import heapq
 
@@ -2287,7 +2287,7 @@ class WordDictionary {
         approach: 'Maintain a freq-to-keys mapping (ordered dict) and key-to-(value,freq) mapping. On access, move the key to the next frequency bucket. On eviction, remove the least recently used key from the lowest frequency bucket.',
         time: 'O(1) for get and put',
         space: 'O(capacity)',
-        visualizerType: 'linked-list',
+        visualizerType: 'graph',
         code: {
           python: `from collections import defaultdict, OrderedDict
 
@@ -4042,7 +4042,7 @@ print(matrix)  # [[7,4,1],[8,5,2],[9,6,3]]`,
         approach: 'DP where dp[i] = number of ways to decode s[0:i]. At each position, check if the single digit (1-9) is valid, and if the two-digit number (10-26) is valid. dp[i] = dp[i-1] (if single digit valid) + dp[i-2] (if two digits valid).',
         time: 'O(N)',
         space: 'O(1) with rolling variables',
-        visualizerType: 'sorting',
+        visualizerType: 'dp',
         code: {
           python: `def numDecodings(s):
     if not s or s[0] == '0':
@@ -5434,7 +5434,7 @@ print(trap([0,1,0,2,1,0,1,3,2,1,2,1]))  # 6`,
         approach: '2D DP where dp[t][i] is max profit on day i with at most t transactions. Optimize to O(N*k) time, O(k) space using rolling array.',
         time: 'O(N * k)',
         space: 'O(k)',
-        visualizerType: 'sorting',
+        visualizerType: 'dp',
         code: {
           python: `def maxProfit(k, prices):
     if not prices or k == 0:
@@ -5496,7 +5496,7 @@ print(maxProfit(2, [3,3,5,0,0,3,1,4]))  # 6`,
         approach: 'State machine DP with three states: hold (own stock), sold (just sold, in cooldown), rest (not holding, not in cooldown). Transition between states at each day.',
         time: 'O(N)',
         space: 'O(1)',
-        visualizerType: 'sorting',
+        visualizerType: 'dp',
         code: {
           python: `def maxProfit(prices):
     if len(prices) < 2:
@@ -5550,7 +5550,7 @@ print(maxProfit([1,2,3,0,2]))  # 3`,
         approach: 'Sort meetings by start time. Use a min-heap to track end times. For each meeting, if it starts after the earliest ending meeting, reuse that room. Otherwise, allocate a new room.',
         time: 'O(N log N)',
         space: 'O(N)',
-        visualizerType: 'sorting',
+        visualizerType: 'tree',
         code: {
           python: `import heapq
 
@@ -5774,7 +5774,7 @@ print(maxArea([1,8,6,2,5,4,8,3,7]))  # 49`,
         approach: 'Maintain a "tails" array where tails[i] is the smallest ending element of all increasing subsequences of length i+1. Use binary search to find the position for each new element.',
         time: 'O(N log N)',
         space: 'O(N)',
-        visualizerType: 'sorting',
+        visualizerType: 'dp',
         code: {
           python: `import bisect
 

@@ -52,7 +52,7 @@ export const binaryTreeMaximumPathSumGenerator = (inputStr: string) => {
     i++;
   }
 
-  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, rootId, 800, 450);
+  const nodes = LayoutEngine.generateTreeLayout(rawNodes, edges, rootId, 400, 300);
   const steps: any[] = [];
   
   let globalMax = -Infinity;

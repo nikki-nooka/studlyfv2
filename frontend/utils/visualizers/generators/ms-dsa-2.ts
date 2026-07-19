@@ -93,7 +93,7 @@ export const wordSearchIIGenerator = (inputStr: string) => {
 
   buildLCRS(root);
 
-  const layoutedNodes = LayoutEngine.generateTreeLayout(rawNodes, edges, root.id, 800, 450);
+  const layoutedNodes = LayoutEngine.generateTreeLayout(rawNodes, edges, root.id, 400, 300);
 
   const getHighlight = (activeId: number) => {
     const h = [];

@@ -67,22 +67,26 @@ export const lruCacheGenerator = (inputStr: string) => {
   // Helper to serialize current state to visualizer nodes
   const snapshotNodes = (activeKey?: number) => {
     const result = [];
+    result.push({ id: 'dummy-head', val: 'HEAD', isHead: true, isTail: false });
+    
     let curr = head.next;
     while (curr !== tail) {
       result.push({
         id: curr!.key,
         val: `${curr!.key}:${curr!.val}`,
-        isHead: curr === head.next,
-        isTail: curr === tail.prev
+        isHead: false,
+        isTail: false
       });
       curr = curr!.next;
     }
+    
+    result.push({ id: 'dummy-tail', val: 'TAIL', isHead: false, isTail: true });
     return result;
   };
 
   steps.push({
-    nodes: [],
-    desc: `Initialized LRU Cache with capacity = ${capacity}.`,
+    nodes: snapshotNodes(),
+    desc: `Initialized LRU Cache with capacity = ${capacity} and dummy HEAD/TAIL pointers.`,
     curr: -1
   });
 

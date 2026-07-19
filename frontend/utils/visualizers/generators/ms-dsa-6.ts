@@ -26,7 +26,7 @@ export const lfuCacheGenerator = (inputStr: string) => {
     const nodes: LayoutNode[] = [];
     const edges: LayoutEdge[] = [];
     
-    let yFreq = 50;
+    let yFreq = 100;
     const sortedFreqs = Array.from(freqToKeys.entries()).sort((a,b) => a[0] - b[0]);
     
     for (const [freq, keys] of sortedFreqs) {
@@ -37,12 +37,12 @@ export const lfuCacheGenerator = (inputStr: string) => {
         id: freqNodeId, 
         label: `Freq ${freq}`, 
         state: freq === minFreq ? 'highlight' : 'normal', 
-        x: 50, 
+        x: 100, 
         y: yFreq 
       });
       
       let prevId: string | number = freqNodeId;
-      let xKey = 150;
+      let xKey = 200;
       for (const key of keys) {
         const valFreq = keyToValFreq.get(key);
         const label = valFreq ? `${key}:${valFreq.val}` : `${key}`;
@@ -57,7 +57,7 @@ export const lfuCacheGenerator = (inputStr: string) => {
         prevId = key;
         xKey += 80;
       }
-      yFreq += 60;
+      yFreq += 70;
     }
     
     return { nodes, edges };

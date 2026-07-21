@@ -145,7 +145,7 @@ const PostInternshipModal: React.FC<PostInternshipModalProps> = ({ isOpen, onClo
             // Map the modal's fields to the opportunity schema expected by MongoDB
             const payload = {
                 title: formData.title,
-                organization: formData.organizationName,
+                company: formData.organizationName,
                 type: "Internship",
                 description: JSON.stringify({
                     category: formData.category,
@@ -181,7 +181,7 @@ const PostInternshipModal: React.FC<PostInternshipModalProps> = ({ isOpen, onClo
                 status: isDraft ? 'draft' : 'active'
             };
 
-            const response = await fetch(`${API_BASE_URL}/api/opportunities`, {
+            const response = await fetch(`${API_BASE_URL}/api/opportunities?_t=${Date.now()}`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 

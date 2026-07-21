@@ -46,7 +46,7 @@ export const InstitutionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
                 fetchWithTimeout(`${API_BASE_URL}/api/v1/institution/profile/${institutionId}`),
                 fetchWithTimeout(`${API_BASE_URL}/api/v1/institution/notifications/${institutionId}`),
                 fetchWithTimeout(`${API_BASE_URL}/api/v1/institution/events/${institutionId}`),
-                fetchWithTimeout(`${API_BASE_URL}/api/institution/dashboard/stats?institution_id=${institutionId}`),
+                fetchWithTimeout(`${API_BASE_URL}/api/institution/dashboard/stats?institution_id=${institutionId}&_t=${Date.now()}`),
             ]);
 
             const profile = profileRes.ok ? await profileRes.json() : null;

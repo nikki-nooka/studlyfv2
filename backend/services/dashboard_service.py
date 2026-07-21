@@ -1,5 +1,6 @@
 from db import db, events_col, participants_col, opportunities_col, opportunity_applications_col
 from datetime import datetime
+from bson import ObjectId
 
 async def get_institution_stats(institution_id: str):
     try:

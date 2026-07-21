@@ -25,8 +25,8 @@ const StatsSection: React.FC<StatsSectionProps> = ({ institutionId, onUpgrade, o
             try {
                 setLoading('institutionStats', true);
                 const res = await fetch(
-                    `${API_BASE_URL}/api/institution/dashboard/stats?institution_id=${encodeURIComponent(institutionId)}`,
-                    { headers: { ...authHeaders() } }
+                    `${API_BASE_URL}/api/institution/dashboard/stats?institution_id=${encodeURIComponent(institutionId)}&_t=${Date.now()}`,
+                    { headers: { ...authHeaders() }, cache: 'no-store' }
                 );
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const data = await res.json();
@@ -76,7 +76,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({ institutionId, onUpgrade, o
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                onClick={() => onNavigate?.('events')}
+                onClick={() => onNavigate?.('opportunities')}
                 className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[160px] cursor-pointer hover:shadow-md hover:border-blue-100 transition-all group"
             >
                 <div className="flex justify-between items-start">
@@ -86,7 +86,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({ institutionId, onUpgrade, o
                     </div>
                 </div>
                 <div className="space-y-3">
-                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-50 pb-2">Active J&I</p>
+                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-50 pb-2">Active Jobs & Internships</p>
                     <div className="flex justify-between items-center text-[10px] font-medium text-slate-400">
                         <span>Total</span>
                         <span className="font-bold text-slate-900">{stats?.active_ji || 0}</span>
@@ -98,12 +98,12 @@ const StatsSection: React.FC<StatsSectionProps> = ({ institutionId, onUpgrade, o
                 </div>
             </motion.div>
 
-            {/* Active Opportunities */}
+            {/* Active Events */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                onClick={() => onNavigate?.('opportunities')}
+                onClick={() => onNavigate?.('events')}
                 className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[160px] cursor-pointer hover:shadow-md hover:border-amber-100 transition-all group"
             >
                 <div className="flex justify-between items-start">
@@ -113,7 +113,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({ institutionId, onUpgrade, o
                     </div>
                 </div>
                 <div className="space-y-3">
-                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-50 pb-2">Active Opportunities</p>
+                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-50 pb-2">Active Events</p>
                     <div className="flex justify-between items-center text-[10px] font-medium text-slate-400">
                         <span>Total</span>
                         <span className="font-bold text-slate-900">{stats?.active_events || 0}</span>

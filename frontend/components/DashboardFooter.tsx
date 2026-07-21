@@ -209,7 +209,7 @@ const DashboardFooter: React.FC<DashboardFooterProps> = ({ variant = 'student' }
                                             y: -5,
                                         }}
                                         whileTap={{ scale: 0.95 }}
-                                        href="https://www.instagram.com/stuudent.lyf?igsh=bDIwYzIxaDFyeWd3"
+                                        href="https://www.instagram.com/studlyf.in/"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex flex-col items-center gap-2 group"

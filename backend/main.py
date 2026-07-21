@@ -7040,43 +7040,6 @@ async def get_global_leaderboard():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/institution/dashboard/stats")
-async def get_institution_stats(institution_id: str):
-    """
-    DYNAMIC STATS: Aggregates real-time data from MongoDB for the dashboard.
-    """
-    inst_id = institution_id
-    try:
-        # 1. Total Events for this institution
-        total_events = await events_col.count_documents({"institution_id": inst_id})
-        
-        # 2. Total Participants registered in any event of this institution
-        total_participants = await participants_col.count_documents({"institution_id": inst_id})
-        
-        # 3. Total Active Teams
-        total_teams = await teams_col.count_documents({"status": "Approved"})
-        
-        # 4. Total Submissions
-        # We need event IDs first to filter submissions
-        from bson import ObjectId
-        event_cursor = events_col.find({"institution_id": inst_id}, {"_id": 1})
-        event_ids = [str(doc["_id"]) async for doc in event_cursor]
-        total_submissions = await submissions_col.count_documents({"event_id": {"$in": event_ids}})
-
-        return {
-            "total_events": total_events,
-            "total_participants": total_participants,
-            "total_teams": total_teams,
-            "total_submissions": total_submissions
-        }
-    except Exception as e:
-        print(f"Stats Error: {e}")
-        return {
-            "total_events": 0,
-            "total_participants": 0,
-            "total_teams": 0,
-            "total_submissions": 0
-        }
 
 @app.patch("/api/users/{user_id}/role")
 async def update_user_role(user_id: str, req: UserRoleUpdate):

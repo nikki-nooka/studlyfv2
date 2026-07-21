@@ -23,7 +23,7 @@ async def get_auth_user(
     
     # Fallback to HTTP-only cookie if header/query token is missing
     if not token and request.cookies:
-        token = request.cookies.get("token") or request.cookies.get("auth_token")
+        token = request.cookies.get("access_token") or request.cookies.get("token") or request.cookies.get("auth_token")
 
     if not token:
         raise HTTPException(status_code=401, detail="Missing or invalid token")
@@ -132,7 +132,7 @@ async def get_auth_user_optional(request: Request, authorization: Optional[str] 
         token = authorization.split(" ")[1]
         
     if not token and request.cookies:
-        token = request.cookies.get("token") or request.cookies.get("auth_token")
+        token = request.cookies.get("access_token") or request.cookies.get("token") or request.cookies.get("auth_token")
         
     if not token:
         return None

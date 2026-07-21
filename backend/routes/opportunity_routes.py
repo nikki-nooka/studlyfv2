@@ -40,7 +40,7 @@ def _strict_team_size_bounds(ev: dict) -> Optional[tuple[int, int]]:
         return None
     return min_team, max_team
 
-@router.post("/")
+@router.post("")
 async def post_opportunity(data: dict = Body(...), user: dict = Depends(get_auth_user)):
     """API to post a new opportunity."""
     try:
@@ -71,7 +71,7 @@ async def post_opportunity(data: dict = Body(...), user: dict = Depends(get_auth
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/")
+@router.get("")
 async def list_opportunities(
     type: Optional[str] = Query(None),
     institution_id: Optional[str] = Query(None),

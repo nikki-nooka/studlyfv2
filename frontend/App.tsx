@@ -582,7 +582,23 @@ const App: React.FC = () => {
         </>
       )}
 
-      <Footer />
+      {(() => {
+        const isOpportunityDetail =
+          pathname.startsWith('/opportunities/') &&
+          pathname !== '/opportunities' &&
+          pathname !== '/opportunities/my-applications';
+
+        const hideFooter =
+          isLoginPage ||
+          isPlayer ||
+          isCheckout ||
+          isAdmin ||
+          pathname.startsWith('/evaluate/') ||
+          pathname.startsWith('/institution-dashboard') ||
+          pathname.startsWith('/judge-portal');
+
+        return !hideFooter && <Footer />;
+      })()}
     </div>
   );
 };

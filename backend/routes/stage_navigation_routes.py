@@ -148,6 +148,52 @@ async def register_for_event(
         raise HTTPException(status_code=400, detail=result["error"])
     return result
 
+@router.delete("/events/{event_id}/register")
+async def cancel_registration_endpoint(
+    event_id: str,
+    user: dict = Depends(get_auth_user)
+):
+    """Cancel registration for an event."""
+    from db import participants_col, teams_col, registrations_col, applications_col, opportunities_col
+    
+    user_id = user["user_id"]
+    
+    # If they are in a team, try to leave it first
+    team = await teams_col.find_one({"event_id": event_id, "members.user_id": user_id})
+    if team:
+        await leave_team(event_id=event_id, user_id=user_id)
+        
+    p_res = await participants_col.delete_one({"event_id": event_id, "user_id": user_id})
+    r_res = await registrations_col.delete_one({"event_id": event_id, "user_id": user_id})
+    
+    # Also attempt to delete from legacy applications just in case
+    # Need to find the opportunity id for this event
+    from db import opportunity_applications_col
+    opp = await opportunities_col.find_one({"event_link_id": event_id})
+    a_res = None
+    oa_res = None
+    if opp:
+        a_res = await applications_col.delete_many({"opportunity_id": str(opp["_id"]), "user_id": user_id})
+        oa_res = await opportunity_applications_col.delete_many({"opportunity_id": str(opp["_id"]), "user_id": user_id})
+    
+    # Alternatively, if event_id IS the opportunity_id
+    alt_oa_res = await opportunity_applications_col.delete_many({"opportunity_id": event_id, "user_id": user_id})
+    alt_a_res = await applications_col.delete_many({"opportunity_id": event_id, "user_id": user_id})
+
+    deleted_any = (
+        (p_res and p_res.deleted_count > 0) or
+        (r_res and r_res.deleted_count > 0) or
+        (a_res and a_res.deleted_count > 0) or
+        (oa_res and oa_res.deleted_count > 0) or
+        (alt_oa_res and alt_oa_res.deleted_count > 0) or
+        (alt_a_res and alt_a_res.deleted_count > 0)
+    )
+
+    if not deleted_any:
+        raise HTTPException(status_code=404, detail="Registration not found")
+        
+    return {"status": "success", "message": "Registration cancelled successfully"}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # TEAM FORMATION STAGE ENDPOINTS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -416,6 +462,9 @@ async def submit_stage(
 
     if not target_stage:
         raise HTTPException(status_code=404, detail="Stage not found")
+
+    # Enforce stage deadline on the backend
+    await check_stage_deadline(event_id=resolved_id, stage_name=target_stage.get("name"))
 
     stage_type = str(target_stage.get("type", "")).lower()
     await check_stage_submission_access(

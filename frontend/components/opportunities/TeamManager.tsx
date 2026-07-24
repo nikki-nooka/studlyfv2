@@ -259,6 +259,32 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
         }
     };
 
+    const handleRemoveMember = async (memberId: string) => {
+        if (!team?._id || !eventId) return;
+        if (!window.confirm("Are you sure you want to remove this member?")) return;
+        
+        setError(null);
+        setActionLoading(true);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/teams/${team._id}/members/${memberId}`, {
+                method: 'DELETE',
+                headers: { ...authHeaders() },
+            });
+            if (res.ok) {
+                await fetchProgress(); // Refresh team state
+                setSuccessMsg("Member removed successfully.");
+                setTimeout(() => setSuccessMsg(null), 3000);
+            } else {
+                const err = await res.json();
+                throw new Error(err.detail || 'Failed to remove member');
+            }
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const handleLeaveTeam = async () => {
         if (!eventId || !team) return;
         const msg = isLeader
@@ -503,6 +529,15 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                                             {isThisLeader && (
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Leader</span>
                                             )}
+                                            {isLeader && !isThisLeader && (team as any).status !== 'finalized' && (
+                                                <button
+                                                    onClick={() => handleRemoveMember(member.user_id as string)}
+                                                    disabled={actionLoading}
+                                                    className="ml-2 text-xs font-bold text-red-500 hover:text-red-700 hover:underline transition-colors disabled:opacity-50"
+                                                >
+                                                    Remove
+                                                </button>
+                                            )}
                                         </div>
                                     );
                                 })}
@@ -518,8 +553,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                         </div>
                     </div>
 
-                    {/* Invite section — leader only (only if not finalized, hidden for solo) */}
-                    {isLeader && !isSoloTeam && (team as any).status !== 'finalized' && (
+                    {/* Invite section — all members (only if not finalized, hidden for solo) */}
+                    {!isSoloTeam && (team as any).status !== 'finalized' && (
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Invite Members</p>
 
@@ -688,7 +723,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                     )}
 
                     {/* Finalize/Submit Button — leader only (hidden for solo — already finalized) */}
-                    {isLeader && !isSoloTeam && (team as any).status !== 'finalized' && (
+                    {!isSoloTeam && (team as any).status !== 'finalized' && (
                         memberCount >= (minSize || 1) ? (
                             <button
                                 type="button"

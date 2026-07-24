@@ -222,13 +222,13 @@ const JudgeDashboard: React.FC = () => {
     const rejectedCount = assignments.filter(a => a.classification === 'Rejected' || a.classification === 'rejected').length;
 
     const statCards = [
-        { label: 'Pending Assessment', value: stats.pending, icon: <Clock size={20} />, color: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/20', text: 'text-purple-600', valueText: 'text-slate-800' },
-        { label: 'Evaluations Completed', value: stats.completed, icon: <CheckCircle size={20} />, color: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/20', text: 'text-purple-600', valueText: 'text-slate-800' },
-        { label: 'Shortlisted', value: shortlistedCount, icon: <Award size={20} />, color: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/20', text: 'text-emerald-600', valueText: 'text-emerald-500' },
-        { label: 'Waitlisted', value: waitlistedCount, icon: <Clock size={20} />, color: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-500/20', text: 'text-amber-600', valueText: 'text-amber-500' },
-        { label: 'Rejected', value: rejectedCount, icon: <XCircle size={20} />, color: 'from-red-500/20 to-red-600/10', border: 'border-red-500/20', text: 'text-red-600', valueText: 'text-red-500' },
-        { label: 'Average Score Given', value: stats.avgScore, icon: <TrendingUp size={20} />, color: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/20', text: 'text-purple-600', valueText: 'text-slate-800' },
-        { label: 'Active Events', value: stats.activeEvents, icon: <Trophy size={20} />, color: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/20', text: 'text-purple-600', valueText: 'text-slate-800' },
+        { label: 'Pending', value: stats.pending, icon: <Clock size={20} />, iconColor: 'text-purple-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Completed', value: stats.completed, icon: <CheckCircle size={20} />, iconColor: 'text-emerald-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Shortlisted', value: shortlistedCount, icon: <Award size={20} />, iconColor: 'text-blue-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Waitlisted', value: waitlistedCount, icon: <Clock size={20} />, iconColor: 'text-amber-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Rejected', value: rejectedCount, icon: <XCircle size={20} />, iconColor: 'text-red-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Avg Score', value: stats.avgScore, icon: <TrendingUp size={20} />, iconColor: 'text-indigo-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Events', value: stats.activeEvents, icon: <Trophy size={20} />, iconColor: 'text-pink-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
     ];
 
     if (loading && assignments.length === 0) return (
@@ -292,40 +292,39 @@ const JudgeDashboard: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        className={`p-5 bg-gradient-to-br ${s.color} border ${s.border} rounded-[2rem] relative overflow-hidden group hover:scale-[1.02] transition-all cursor-default shadow-xl`}
+                        className={`p-6 ${s.bg} border ${s.border} rounded-3xl relative overflow-hidden group hover:bg-slate-800 transition-all cursor-default`}
                     >
-                        <div className={`absolute top-[-20px] right-[-20px] opacity-10 group-hover:scale-150 transition-transform duration-700 ${s.text}`}>
-                            {s.icon}
+                        <div className="flex items-center justify-between mb-4">
+                            <div className={`w-10 h-10 bg-slate-950/50 rounded-2xl flex items-center justify-center ${s.iconColor} border border-slate-800 shadow-inner`}>
+                                {s.icon}
+                            </div>
                         </div>
-                        <div className={`w-10 h-10 bg-gradient-to-br ${s.color} rounded-2xl flex items-center justify-center ${s.text} border ${s.border} mb-4 shadow-inner`}>
-                            {s.icon}
-                        </div>
-                        <h3 className={`text-2xl font-black mb-1 tracking-tighter ${s.valueText}`}>{s.value}</h3>
-                        <p className={`text-[8px] font-black uppercase tracking-widest ${s.text}`}>{s.label}</p>
+                        <div className="text-3xl font-black text-white mb-1 tracking-tight">{s.value}</div>
+                        <div className="text-xs font-bold uppercase tracking-widest text-slate-400">{s.label}</div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Thresholds Info */}
             {Object.keys(eventThresholds).length > 0 && (
-                <div className="p-6 bg-white/5 border border-purple-500/20 rounded-[2rem] space-y-3">
-                    <h3 className="text-[10px] font-black text-purple-400 uppercase tracking-widest flex items-center gap-2">
-                        <Target size={14} /> Evaluation Thresholds (Set by Admin)
+                <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-3xl">
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+                        <Target size={14} className="text-indigo-400" /> Evaluation Thresholds
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {Object.entries(eventThresholds).map(([eid, t]: [string, any]) => (
                             <React.Fragment key={eid}>
-                                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-center">
-                                    <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Shortlist</p>
-                                    <p className="text-lg font-black text-white mt-1">{t.shortlist_min || 80}%+</p>
+                                <div className="p-5 bg-slate-950/50 border border-slate-800 rounded-2xl text-center hover:border-emerald-500/50 transition-colors">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Shortlist</p>
+                                    <p className="text-2xl font-black text-emerald-400 tracking-tight">{t.shortlist_min || 80}%+</p>
                                 </div>
-                                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-center">
-                                    <p className="text-[8px] font-black text-amber-400 uppercase tracking-widest">Waitlist</p>
-                                    <p className="text-lg font-black text-white mt-1">{t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%+</p>
+                                <div className="p-5 bg-slate-950/50 border border-slate-800 rounded-2xl text-center hover:border-amber-500/50 transition-colors">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Waitlist</p>
+                                    <p className="text-2xl font-black text-amber-400 tracking-tight">{t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%+</p>
                                 </div>
-                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-center">
-                                    <p className="text-[8px] font-black text-red-400 uppercase tracking-widest">Reject Below</p>
-                                    <p className="text-lg font-black text-white mt-1">&lt; {t.reject_below || t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%</p>
+                                <div className="p-5 bg-slate-950/50 border border-slate-800 rounded-2xl text-center hover:border-red-500/50 transition-colors">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Reject Below</p>
+                                    <p className="text-2xl font-black text-red-400 tracking-tight">&lt; {t.reject_below || t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%</p>
                                 </div>
                             </React.Fragment>
                         ))}
@@ -366,74 +365,71 @@ const JudgeDashboard: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {filteredAssignments.length > 0 ? filteredAssignments.map((sub, idx) => (
                         <motion.div 
                             key={sub._id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            className="group p-8 bg-white/5 border border-white/5 rounded-[2.5rem] hover:bg-white/10 transition-all hover:border-white/10 shadow-lg relative overflow-hidden"
+                            className="group p-6 bg-slate-900/50 border border-slate-800 rounded-3xl hover:bg-slate-800/80 transition-all flex flex-col md:flex-row gap-6 justify-between items-start"
                         >
-                            {/* Background Glow */}
-                            <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity ${sub.existing_scores ? 'bg-emerald-500' : 'bg-purple-500'}`} />
-                            
-                            <div className="flex justify-between items-start relative z-10">
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-lg font-black text-white group-hover:text-purple-400 transition-colors leading-tight">{sub.project_title}</h3>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[8px] font-black text-slate-400">
-                                                <Users size={10} />
-                                            </div>
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{sub.team_name}</span>
+                            <div className="space-y-4 flex-1">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <div className="w-5 h-5 rounded-md bg-slate-800 flex items-center justify-center text-slate-400">
+                                            <Users size={12} />
                                         </div>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{sub.team_name || 'Team'}</span>
                                     </div>
-
-                                    <div className="flex flex-wrap gap-2">
-                                        {sub.github_link && (
-                                            <a href={sub.github_link} target="_blank" rel="noreferrer" className="p-2 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all">
-                                                <Github size={14} />
-                                            </a>
-                                        )}
-                                        {sub.demo_link && (
-                                            <a href={sub.demo_link} target="_blank" rel="noreferrer" className="p-2 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all">
-                                                <Play size={14} />
-                                            </a>
-                                        )}
-                                        <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border ${
-                                            sub.classification === 'Shortlisted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                            sub.classification === 'Waitlisted' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                                            sub.classification === 'Rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                            sub.existing_scores ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                            'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                                        }`}>
-                                            {sub.classification || (sub.existing_scores ? 'Evaluated' : 'Awaiting Review')}
-                                        </div>
-                                    </div>
+                                    <h3 className="text-xl font-black text-slate-100 group-hover:text-white transition-colors">{sub.project_title || 'Untitled Project'}</h3>
                                 </div>
 
-                                <div className="text-right flex flex-col items-end gap-6">
-                                    {sub.existing_scores ? (
-                                        <div className="text-center">
-                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Score</p>
-                                            <div className="text-3xl font-black text-emerald-400 tracking-tighter">
-                                                {((Object.values(sub.existing_scores.scores || {}) as number[]).reduce((a,b)=>a+b, 0) / Object.keys(sub.existing_scores.scores || {}).length).toFixed(1)}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="w-12 h-12 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center text-slate-700">
-                                            <TrendingUp size={20} />
-                                        </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {sub.github_link && (
+                                        <a href={sub.github_link} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-all border border-slate-700">
+                                            <Github size={12} />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Code</span>
+                                        </a>
                                     )}
-                                    
-                                    <button 
-                                        onClick={() => handleOpenScoring(sub)}
-                                        className={`px-6 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${sub.existing_scores ? 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white' : 'bg-purple-600 text-white hover:bg-purple-500 shadow-xl shadow-purple-900/20'}`}
-                                    >
-                                        {sub.existing_scores ? 'Edit Score' : 'Begin Evaluation'}
-                                    </button>
+                                    {sub.demo_link && (
+                                        <a href={sub.demo_link} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-all border border-slate-700">
+                                            <Play size={12} />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Demo</span>
+                                        </a>
+                                    )}
+                                    <div className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border flex items-center ${
+                                        sub.classification === 'Shortlisted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                        sub.classification === 'Waitlisted' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                                        sub.classification === 'Rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                        sub.existing_scores ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                                        'bg-slate-800 text-slate-400 border-slate-700'
+                                    }`}>
+                                        {sub.classification || (sub.existing_scores ? 'Evaluated' : 'Awaiting Review')}
+                                    </div>
                                 </div>
+                            </div>
+
+                            <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-4">
+                                {sub.existing_scores ? (
+                                    <div className="text-left md:text-right">
+                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Score</p>
+                                        <div className="text-3xl font-black text-emerald-400 tracking-tighter">
+                                            {((Object.values(sub.existing_scores.scores || {}) as number[]).reduce((a,b)=>a+b, 0) / Object.keys(sub.existing_scores.scores || {}).length).toFixed(1)}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="hidden md:flex w-12 h-12 bg-slate-800 border border-slate-700 rounded-xl items-center justify-center text-slate-500">
+                                        <TrendingUp size={20} />
+                                    </div>
+                                )}
+                                
+                                <button 
+                                    onClick={() => handleOpenScoring(sub)}
+                                    className={`w-full md:w-auto px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border ${sub.existing_scores ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white' : 'bg-purple-600 border-purple-500 text-white hover:bg-purple-500 shadow-lg shadow-purple-900/20'}`}
+                                >
+                                    {sub.existing_scores ? 'Edit Score' : 'Evaluate'}
+                                </button>
                             </div>
                         </motion.div>
                     )) : (

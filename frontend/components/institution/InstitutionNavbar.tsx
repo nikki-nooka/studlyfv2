@@ -140,7 +140,8 @@ const InstitutionNavbar: React.FC<{ refreshKey?: number, onNavigate?: (tab: stri
             // Define all pages
             const pages = [
                 { id: 'dashboard', title: 'Main Dashboard', type: 'Page', link: '#' },
-                { id: 'events', title: 'Events Management', type: 'Page', link: '#' },
+                { id: 'events', title: 'Jobs & Internships', type: 'Page', link: '#' },
+                { id: 'opportunities', title: 'Events & Competitions', type: 'Page', link: '#' },
                 { id: 'participants', title: 'Participants', type: 'Page', link: '#' },
                 { id: 'submissions', title: 'Submissions', type: 'Page', link: '#' },
                 { id: 'judges', title: 'Judge Management', type: 'Page', link: '#' },

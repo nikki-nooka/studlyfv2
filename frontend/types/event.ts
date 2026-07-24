@@ -18,6 +18,7 @@ export interface IStageConfig {
     allow_cross_college_teams?: boolean;
     team_formation_instructions?: string;
     description?: string;
+    criteria?: any[];
 }
 
 export interface IStageCommunication {

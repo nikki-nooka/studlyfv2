@@ -2504,7 +2504,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                 const isShortlisted = r.participant_status === 'shortlisted' || r.participant_status === 'accepted';
                                                 return (
                                                     <tr key={r.user_id} className={`hover:bg-slate-50/30 transition-colors group ${isShortlisted ? 'bg-emerald-50/20' : ''}`}>
-                                                        <td className="px-10 py-8">
+                                                        <td className="px-6 py-5">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={quizSelectedIds.has(r.user_id)}
@@ -2564,35 +2564,38 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         }
 
         return (
-            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
-                    <div className="relative z-10">
-                        <h3 className="text-4xl font-black tracking-tight mb-4">Submission Management</h3>
-                        <p className="text-slate-400 font-bold max-w-xl leading-relaxed">Review submissions, assign judges, and evaluate in real-time.</p>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
+                <div className="p-8 bg-white/70 backdrop-blur-xl rounded-3xl relative overflow-hidden shadow-sm border border-slate-200 mx-4">
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-3xl font-black tracking-tight mb-2 text-slate-900">Submissions</h3>
+                            <p className="text-slate-500 font-medium text-sm">Review submissions, assign judges, and evaluate in real-time.</p>
+                        </div>
                     </div>
-                    <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px]"></div>
                 </div>
 
-                <div className="flex bg-slate-100 p-1.5 rounded-[2.2rem] shadow-inner border border-slate-200/50 w-fit mx-4">
-                    <button
-                        type="button"
-                        onClick={() => setSubmissionSubTab('projects')}
-                        className={`px-8 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all ${submissionSubTab === 'projects' ? 'bg-white text-[#6C3BFF] shadow-xl' : 'text-slate-500 hover:text-slate-800'}`}
-                    >
-                        Projects & Deliverables
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setSubmissionSubTab('assessments')}
-                        className={`px-8 py-3 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all ${false ? 'bg-white text-[#6C3BFF] shadow-xl' : 'text-slate-500 hover:text-slate-800'}`}
-                    >
-                        Quizzes & Assessments
-                    </button>
+                <div className="flex flex-wrap items-center gap-4 px-4">
+                    <div className="flex bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50">
+                        <button
+                            type="button"
+                            onClick={() => setSubmissionSubTab('projects')}
+                            className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${submissionSubTab === 'projects' ? 'bg-white text-purple-700 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                        >
+                            Projects & Deliverables
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSubmissionSubTab('assessments')}
+                            className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${submissionSubTab === 'assessments' ? 'bg-white text-purple-700 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                        >
+                            Quizzes & Assessments
+                        </button>
+                    </div>
                     {projectStages.length > 0 && (
                         <select
                             value={selectedProjectStageId}
                             onChange={(e) => setSelectedProjectStageId(e.target.value)}
-                            className="ml-4 px-6 py-2 bg-white border border-slate-200 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest text-[#6C3BFF] outline-none shadow-sm focus:ring-2 focus:ring-purple-200"
+                            className="px-5 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-purple-700 outline-none shadow-sm focus:ring-2 focus:ring-purple-500/20"
                         >
                             <option value="">All Stages</option>
                             {projectStages.map(s => (
@@ -2602,46 +2605,46 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-6 px-4">
-                    <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-4 px-4">
+                    <div className="flex flex-wrap items-center gap-3">
                         <div className="relative">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             <input
                                 type="text"
-                                placeholder="Search teams or leads..."
+                                placeholder="Search teams..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-purple-50 transition-all w-80"
+                                className="pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-900 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all w-64 shadow-sm"
                             />
                         </div>
                         <select
                             value={domainFilter}
                             onChange={(e) => setDomainFilter(e.target.value)}
-                            className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-purple-50 transition-all"
+                            className="px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-sm"
                         >
                             {domains.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                         <select
                             value={judgeFilter}
                             onChange={(e) => setJudgeFilter(e.target.value)}
-                            className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-purple-50 transition-all max-w-[200px] truncate"
+                            className="px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-sm max-w-[200px] truncate"
                         >
                             <option value="All Judges">All Judges</option>
                             <option value="">Unassigned</option>
                             {institutionJudges.map(j => <option key={j._id} value={j._id}>{j.name}</option>)}
                         </select>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsBulkMode(!isBulkMode)}
-                            className={`px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${isBulkMode ? 'bg-purple-600 text-white shadow-xl shadow-purple-600/20' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                            className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all border ${isBulkMode ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                         >
                             Bulk Assignment
                         </button>
                         {isBulkMode && selectedSubmissions.length > 0 && (
                             <select
                                 onChange={(e) => handleBulkAssign(e.target.value)}
-                                className="px-6 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest outline-none shadow-xl cursor-pointer"
+                                className="px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-xs font-bold outline-none shadow-md cursor-pointer"
                             >
                                 <option value="">Assign Judge to ({selectedSubmissions.length})</option>
                                 {(institutionJudges || []).map((j: any) => (
@@ -2687,24 +2690,25 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     };
 
                     return (
-                        <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
-                            <table className="w-full text-left table-fixed border-collapse">
-                                <thead>
-                                    <tr className="bg-slate-50/50">
-                                        {isBulkMode && <th className="px-10 py-6 w-10"></th>}
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Detail</th>
-                                        {submissionTextFields.map((f: any) => (
-                                            <th key={f.id || f.key} className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
-                                                {f.label || f.key}
-                                            </th>
-                                        ))}
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Files</th>
-                                        <th className="px-2 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Judge</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Score</th>
-                                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
+                        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm mx-4">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                                            {isBulkMode && <th className="px-6 py-4 w-12 text-center"></th>}
+                                            <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wide">Team Detail</th>
+                                            {submissionTextFields.map((f: any) => (
+                                                <th key={f.id || f.key} className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wide whitespace-nowrap">
+                                                    {f.label || f.key}
+                                                </th>
+                                            ))}
+                                            <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wide">Files</th>
+                                            <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wide text-center">Judge</th>
+                                            <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wide text-center">Score</th>
+                                            <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wide text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
                                     {filtered.length > 0 ? (
                                         filtered.map((sub) => {
                                             const rowStage = stages.find(s => String(s.id) === String(sub.stage_id || selectedProjectStageId));
@@ -2715,7 +2719,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                             return (
                                                 <tr key={sub._id} className="hover:bg-slate-50/30 transition-colors group">
                                                     {isBulkMode && (
-                                                        <td className="px-10 py-8">
+                                                        <td className="px-6 py-5">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={selectedSubmissions.includes(sub._id)}
@@ -2727,40 +2731,39 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                             />
                                                         </td>
                                                     )}
-                                                    <td className="px-10 py-8">
+                                                    <td className="px-6 py-5">
                                                         <div className="flex flex-col">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => handleOpenSubmissionTeam(sub)}
-                                                                className="font-black text-slate-900 text-lg tracking-tight text-left hover:text-[#6C3BFF] transition-colors"
+                                                                className="font-bold text-slate-900 text-base text-left hover:text-purple-600 transition-colors"
                                                             >
                                                                 {displayTeamName}
                                                             </button>
                                                             {displayLead ? (
-                                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                                                <span className="text-xs font-medium text-slate-500 mt-0.5">
                                                                     Lead: {displayLead}
                                                                 </span>
                                                             ) : null}
                                                             {sub.domain && (
-                                                                <span className="text-[9px] font-black text-purple-600 uppercase tracking-[0.2em] mt-2">{sub.domain}</span>
+                                                                <span className="inline-flex mt-2 w-fit px-2 py-0.5 rounded text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-100">{sub.domain}</span>
                                                             )}
-
                                                         </div>
                                                     </td>
                                                     {submissionTextFields.map((f: any) => {
                                                         const key = f.id || f.key;
                                                         return (
-                                                            <td key={key} className="px-10 py-8 max-w-[200px] whitespace-pre-wrap break-words">
-                                                                <p className="text-sm font-bold text-slate-800 line-clamp-3">
+                                                            <td key={key} className="px-6 py-5 max-w-[200px] whitespace-pre-wrap break-words">
+                                                                <p className="text-sm font-medium text-slate-700 line-clamp-3">
                                                                     {renderSubmissionFieldValue(sub, key)}
                                                                 </p>
                                                             </td>
                                                         );
                                                     })}
-                                                    <td className="px-10 py-8">
+                                                    <td className="px-6 py-5">
                                                         {renderSubmissionAssetButtons(rowAssets)}
                                                     </td>
-                                                    <td className="px-2 py-8">
+                                                    <td className="px-6 py-5 text-center">
                                                         <div className="flex items-center justify-center">
                                                             {(() => {
                                                                 const judge = (institutionJudges || []).find((j: any) => String(j._id) === String(sub.assignedJudgeId));
@@ -2772,9 +2775,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                             })()}
                                                         </div>
                                                     </td>
-                                                    <td className="px-10 py-8 text-center">
+                                                    <td className="px-6 py-5 text-center">
                                                         <div className="flex flex-col items-center whitespace-nowrap">
-                                                            <span className="text-xl font-black text-purple-600">{(sub.totalScore || 0).toFixed(1)}</span>
+                                                            <span className="text-lg font-black text-purple-600">{(sub.totalScore || 0).toFixed(1)}</span>
                                                             {(() => {
                                                                 const fbCount = Array.isArray(sub.judges_feedback) ? sub.judges_feedback.length : 0;
                                                                 const label = fbCount > 1 ? 'Avg Pts' : 'Score';
@@ -2793,7 +2796,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className="px-10 py-8 text-right">
+                                                    <td className="px-6 py-5 text-right">
                                                         <div className="flex justify-end gap-2">
                                                             <button
                                                                 type="button"
@@ -2820,7 +2823,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                                         setEvaluationComment('');
                                                                     }
                                                                 }}
-                                                                className="px-6 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all shadow-sm"
+                                                                className="px-4 py-2 bg-purple-50 text-purple-700 border border-purple-100 hover:bg-purple-100 hover:border-purple-200 rounded-xl text-xs font-bold transition-all shadow-sm"
                                                             >
                                                                 Evaluate
                                                             </button>
@@ -2831,11 +2834,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                         })
                                     ) : (
                                         <tr>
-                                            <td colSpan={submissionTableColSpan} className="px-10 py-32 text-center text-slate-300 font-black text-[10px] uppercase tracking-[0.4em]">No submissions match your filters</td>
+                                            <td colSpan={submissionTableColSpan} className="px-6 py-20 text-center text-slate-400 font-medium text-sm">No submissions match your filters</td>
                                         </tr>
                                     )}
                                 </tbody>
-                            </table>
+                                </table>
+                            </div>
                         </div>
                     );
                 })()}
@@ -6090,28 +6094,35 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
                                 <div className="space-y-6">
                                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Scoring Rubric</h4>
-                                    {criteria.length > 0 ? (
-                                        criteria.map((c: any) => (
-                                            <div key={c._id || c.name} className="space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-black text-slate-800">{c.name}</span>
-                                                    <span className="text-sm font-black text-purple-600">{evaluationScores[c.name] || 0} / {c.max_points}</span>
+                                    {(() => {
+                                        const stageConfig = stages.find((st: any) => st.id === evaluatingSubmission.stage_id || st._id === evaluatingSubmission.stage_id);
+                                        const activeCriteria = (stageConfig?.config?.criteria?.length > 0) ? stageConfig.config.criteria : criteria;
+                                        
+                                        if (activeCriteria.length > 0) {
+                                            return activeCriteria.map((c: any) => (
+                                                <div key={c._id || c.name} className="space-y-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-black text-slate-800">{c.name}</span>
+                                                        <span className="text-sm font-black text-purple-600">{evaluationScores[c.name] || 0} / {c.max_points}</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max={c.max_points}
+                                                        value={evaluationScores[c.name] || 0}
+                                                        onChange={(e) => setEvaluationScores({ ...evaluationScores, [c.name]: parseInt(e.target.value) })}
+                                                        className="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-purple-600"
+                                                    />
                                                 </div>
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max={c.max_points}
-                                                    value={evaluationScores[c.name] || 0}
-                                                    onChange={(e) => setEvaluationScores({ ...evaluationScores, [c.name]: parseInt(e.target.value) })}
-                                                    className="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-purple-600"
-                                                />
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="p-6 bg-amber-50 rounded-2xl border border-amber-100">
-                                            <p className="text-xs font-bold text-amber-700">No scoring rubrics defined. Please add criteria in the "Scoring Rubrics" tab first.</p>
-                                        </div>
-                                    )}
+                                            ));
+                                        } else {
+                                            return (
+                                                <div className="p-6 bg-amber-50 rounded-2xl border border-amber-100">
+                                                    <p className="text-xs font-bold text-amber-700">No scoring rubrics defined. Please add criteria in the "Scoring Rubrics" tab first or within the Stage settings.</p>
+                                                </div>
+                                            );
+                                        }
+                                    })()}
                                 </div>
 
                                 <div className="space-y-3">

@@ -8,7 +8,7 @@ import {
     ChevronDown, 
     ChevronUp,
     FileText,
-    Gavel,
+    Gavel, List,
     Trophy,
     UserCheck,
     CheckCircle2,
@@ -214,7 +214,7 @@ const STAGE_TYPES = [
     { id: 'SUBMISSION', label: 'Submission', icon: Plus, color: 'text-emerald-500', bg: 'bg-emerald-50' },
     { id: 'HACKATHON', label: 'Hackathon', icon: Code2, color: 'text-indigo-500', bg: 'bg-indigo-50' },
     { id: 'MENTORSHIP', label: 'Mentorship', icon: Users, color: 'text-pink-500', bg: 'bg-pink-50' },
-    { id: 'REVIEW', label: 'Review / Evaluation', icon: Gavel, color: 'text-purple-500', bg: 'bg-purple-50' },
+    { id: 'REVIEW', label: 'Review / Evaluation', icon: Gavel, List, color: 'text-purple-500', bg: 'bg-purple-50' },
     { id: 'INTERVIEW', label: 'Interview', icon: Video, color: 'text-teal-500', bg: 'bg-teal-50' },
     { id: 'FINALE', label: 'Finale', icon: Trophy, color: 'text-orange-500', bg: 'bg-orange-50' },
     { id: 'RESULTS', label: 'Results', icon: Award, color: 'text-rose-500', bg: 'bg-rose-50' },
@@ -1173,24 +1173,94 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                             )}
 
                                             {stageTypeId === 'REVIEW' && (
-                                                <div className="md:col-span-2 p-8 bg-purple-50/30 rounded-[2rem] border border-purple-100/50">
-                                                    <div className="flex items-center gap-3 mb-6">
-                                                        <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
-                                                            <Gavel size={20} />
+                                                <div className="md:col-span-2 p-8 bg-purple-50/30 rounded-[2rem] border border-purple-100/50 space-y-8">
+                                                    <div>
+                                                        <div className="flex items-center gap-3 mb-6">
+                                                            <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                                                                <Gavel size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="text-sm font-black text-slate-900 uppercase tracking-tight">Judge Assignment</h5>
+                                                                <p className="text-[10px] text-slate-500 font-medium">Select experts to evaluate submissions for this stage</p>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <h5 className="text-sm font-black text-slate-900 uppercase tracking-tight">Judge Assignment & Rubric</h5>
-                                                            <p className="text-[10px] text-slate-500 font-medium">Select experts to evaluate submissions for this stage</p>
+
+                                                        <JudgeAssignment 
+                                                            assignedJudgeIds={stage.config?.judgeIds || []}
+                                                            onUpdate={(newJudgeIds) => updateStage(stage.id, {
+                                                                config: { ...(stage.config || {}), judgeIds: newJudgeIds }
+                                                            })}
+                                                            availableJudges={availableJudges}
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div className="pt-8 border-t border-purple-100/50">
+                                                        <div className="flex items-center gap-3 mb-6">
+                                                            <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                                                                <List size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="text-sm font-black text-slate-900 uppercase tracking-tight">Stage-Specific Scoring Rubrics</h5>
+                                                                <p className="text-[10px] text-slate-500 font-medium">Define the evaluation criteria specifically for this round. Overrides global rubrics.</p>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div className="space-y-4">
+                                                            {(stage.config?.criteria || []).map((crit: any, cIdx: number) => (
+                                                                <div key={cIdx} className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-purple-100 shadow-sm">
+                                                                    <div className="flex-1 space-y-1">
+                                                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dimension Name</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={crit.name}
+                                                                            placeholder="e.g. Innovation"
+                                                                            onChange={(e) => {
+                                                                                const newCriteria = [...(stage.config?.criteria || [])];
+                                                                                newCriteria[cIdx] = { ...newCriteria[cIdx], name: e.target.value };
+                                                                                updateStage(stage.id, { config: { ...(stage.config || {}), criteria: newCriteria } });
+                                                                            }}
+                                                                            className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all text-sm"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="w-24 space-y-1">
+                                                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Max Pts</label>
+                                                                        <input
+                                                                            type="number"
+                                                                            min="1"
+                                                                            value={crit.max_points}
+                                                                            onChange={(e) => {
+                                                                                const newCriteria = [...(stage.config?.criteria || [])];
+                                                                                newCriteria[cIdx] = { ...newCriteria[cIdx], max_points: parseInt(e.target.value) || 0 };
+                                                                                updateStage(stage.id, { config: { ...(stage.config || {}), criteria: newCriteria } });
+                                                                            }}
+                                                                            className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all text-sm"
+                                                                        />
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const newCriteria = (stage.config?.criteria || []).filter((_: any, i: number) => i !== cIdx);
+                                                                            updateStage(stage.id, { config: { ...(stage.config || {}), criteria: newCriteria } });
+                                                                        }}
+                                                                        className="mt-5 p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                            
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const currentCriteria = stage.config?.criteria || [];
+                                                                    updateStage(stage.id, { config: { ...(stage.config || {}), criteria: [...currentCriteria, { name: '', max_points: 10 }] } });
+                                                                }}
+                                                                className="px-6 py-3 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2"
+                                                            >
+                                                                <Plus size={14} /> Add Stage Rubric
+                                                            </button>
                                                         </div>
                                                     </div>
-
-                                                    <JudgeAssignment 
-                                                        assignedJudgeIds={stage.config?.judgeIds || []}
-                                                        onUpdate={(newJudgeIds) => updateStage(stage.id, {
-                                                            config: { ...(stage.config || {}), judgeIds: newJudgeIds }
-                                                        })}
-                                                        availableJudges={availableJudges}
-                                                    />
                                                 </div>
                                             )}
 

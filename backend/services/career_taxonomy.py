@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Career Dreamer — Taxonomy Data Layer
 =====================================

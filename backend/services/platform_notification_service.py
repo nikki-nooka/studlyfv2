@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Centralized notification service.
 All email triggers route through here using the DB-based template system.

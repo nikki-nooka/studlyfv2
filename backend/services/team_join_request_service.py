@@ -206,6 +206,23 @@ async def approve_join_request(
             )
             return {"error": "Request has expired"}
         
+        # Enforce max team size
+        current_members = len(team.get("members", []))
+        max_size = team.get("size_max")
+        if max_size is None:
+            # Fallback to event config
+            event = await events_col.find_one({"_id": ObjectId(join_request["event_id"])})
+            if event:
+                max_size = event.get("max_team_size") if event.get("max_team_size") is not None else event.get("maxTeamSize")
+        
+        if max_size is not None:
+            try:
+                max_size = int(max_size)
+                if current_members >= max_size:
+                    return {"error": f"Cannot approve request: Team is full (Max {max_size} members)."}
+            except:
+                pass
+                
         # Add member to team
         requester_id = str(join_request["requester_user_id"])
         requester = await users_col.find_one({"user_id": requester_id})

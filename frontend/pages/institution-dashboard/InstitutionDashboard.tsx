@@ -220,9 +220,7 @@ const InstitutionDashboard: React.FC = () => {
                         }}
                     />
                 ) : (
-                    <div className="py-24 text-center text-slate-400 font-bold">
-                        Select an event to view its submissions.
-                    </div>
+                    <SubmissionList institutionId={institutionId} />
                 );
             case 'judges':
                 return <JudgeManagement />;

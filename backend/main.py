@@ -7575,14 +7575,26 @@ async def update_participant_status(p_id: str, status: str = Body(embed=True), c
     """
     from bson import ObjectId
     try:
-        await participants_col.update_one(
+        from db import opportunity_applications_col
+        # Try updating participants collection
+        res1 = await participants_col.update_one(
             {"_id": ObjectId(p_id)},
             {"$set": {"registration_status": status, "updated_at": datetime.utcnow()}}
         )
+        
+        # Try updating opportunity applications collection
+        res2 = await opportunity_applications_col.update_one(
+            {"_id": ObjectId(p_id)},
+            {"$set": {"status": status, "updated_at": datetime.utcnow()}}
+        )
+
         await log_admin_action(current_user["email"], "PARTICIPANT_STATUS_UPDATE", f"Updated participant {p_id} to {status}")
         
         # Create In-App Notification for student
         p_doc = await participants_col.find_one({"_id": ObjectId(p_id)})
+        if not p_doc:
+            p_doc = await opportunity_applications_col.find_one({"_id": ObjectId(p_id)})
+            
         if p_doc:
             asyncio.create_task(notifications_col.insert_one({
                 "user_id": p_doc["user_id"],

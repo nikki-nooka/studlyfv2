@@ -62,7 +62,9 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
         eventStartDate: '',
         eventEndDate: '',
         stages: [],
+        submission_requirements: [] as { type: 'URL' | 'FILE', label: string, maxSizeMB?: number }[],
         contacts: [],
+        submission_requirements: [],
         // Festival Creation Fields
         festivalData: {
             name: '',
@@ -1676,6 +1678,102 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
                                                 </div>
                                             )}
                                         </div>
+
+                                        {formData.opportunityType === 'Hackathons & Coding Challenges' && (
+                                            <div className="pt-10 border-t border-slate-50">
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div>
+                                                        <h4 className="text-[13px] font-black text-slate-900 uppercase tracking-widest">Submission Requirements</h4>
+                                                        <p className="text-[10px] text-slate-400 mt-1 font-medium">Define what participants need to submit (e.g. GitHub URL, Presentation Deck)</p>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => setFormData({
+                                                            ...formData,
+                                                            submission_requirements: [...(formData.submission_requirements || []), { type: 'URL', label: '', maxSizeMB: 10 }]
+                                                        })}
+                                                        className="px-4 py-2 bg-[#6C3BFF]/10 text-[#6C3BFF] hover:bg-[#6C3BFF]/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"
+                                                    >
+                                                        <Plus size={14} /> Add Requirement
+                                                    </button>
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    {(formData.submission_requirements || []).length === 0 ? (
+                                                        <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col items-center justify-center text-center">
+                                                            <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-300 mb-3">
+                                                                <FileText size={20} />
+                                                            </div>
+                                                            <p className="text-[11px] font-bold text-slate-400">No submission requirements added yet.</p>
+                                                            <p className="text-[10px] text-slate-400 mt-1">Participants will not be required to submit anything to complete this phase.</p>
+                                                        </div>
+                                                    ) : (
+                                                        (formData.submission_requirements || []).map((req, idx) => (
+                                                            <div key={idx} className="flex items-start gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl relative group">
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        const newReqs = [...(formData.submission_requirements || [])];
+                                                                        newReqs.splice(idx, 1);
+                                                                        setFormData({...formData, submission_requirements: newReqs});
+                                                                    }}
+                                                                    className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                                >
+                                                                    <X size={16} />
+                                                                </button>
+                                                                
+                                                                <div className="flex-1 grid grid-cols-12 gap-4">
+                                                                    <div className="col-span-12 sm:col-span-5">
+                                                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Requirement Type</label>
+                                                                        <select
+                                                                            value={req.type}
+                                                                            onChange={(e) => {
+                                                                                const newReqs = [...(formData.submission_requirements || [])];
+                                                                                newReqs[idx].type = e.target.value as any;
+                                                                                setFormData({...formData, submission_requirements: newReqs});
+                                                                            }}
+                                                                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#6C3BFF] font-medium text-sm text-slate-700"
+                                                                        >
+                                                                            <option value="URL">Link / URL (e.g. GitHub)</option>
+                                                                            <option value="FILE">File Upload (e.g. PPT, PDF)</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div className="col-span-12 sm:col-span-7">
+                                                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Label / Name</label>
+                                                                        <input 
+                                                                            type="text" 
+                                                                            value={req.label}
+                                                                            onChange={(e) => {
+                                                                                const newReqs = [...(formData.submission_requirements || [])];
+                                                                                newReqs[idx].label = e.target.value;
+                                                                                setFormData({...formData, submission_requirements: newReqs});
+                                                                            }}
+                                                                            placeholder="e.g. GitHub Repository Link"
+                                                                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#6C3BFF] font-medium text-sm"
+                                                                        />
+                                                                    </div>
+                                                                    {req.type === 'FILE' && (
+                                                                        <div className="col-span-12">
+                                                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Max File Size (MB)</label>
+                                                                            <input 
+                                                                                type="number" 
+                                                                                value={req.maxSizeMB || 10}
+                                                                                onChange={(e) => {
+                                                                                    const newReqs = [...(formData.submission_requirements || [])];
+                                                                                    newReqs[idx].maxSizeMB = parseInt(e.target.value) || 10;
+                                                                                    setFormData({...formData, submission_requirements: newReqs});
+                                                                                }}
+                                                                                min={1}
+                                                                                max={500}
+                                                                                className="w-32 px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#6C3BFF] font-medium text-sm"
+                                                                            />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div className="pt-10 border-t border-slate-50">
                                             

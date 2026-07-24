@@ -306,6 +306,27 @@ async def _list_submissions_for_judge_user(
         row["project_title"] = row.get("stage_name") or row.get("title") or ""
         out.append(row)
 
+    hack_q: dict = {"status": {"$in": review_statuses}}
+    if event_id:
+        hack_q["event_id"] = event_id
+    from db import hackathon_submissions_col
+    async for doc in hackathon_submissions_col.find(hack_q):
+        if not _judge_assigned(doc):
+            continue
+        sid = str(doc["_id"])
+        if sid in seen:
+            continue
+        seen.add(sid)
+        row = dict(doc)
+        row["_id"] = sid
+        row["source"] = "hackathon"
+        row["team_name"] = (
+            row.get("team_name") or row.get("teamName") or row.get("user_name")
+            or row.get("title") or "Team"
+        )
+        row["project_title"] = row.get("project_title") or row.get("title") or ""
+        out.append(row)
+
     out.sort(key=lambda x: str(x.get("submitted_at") or x.get("created_at") or ""), reverse=True)
     sliced = out[offset : offset + max(1, min(limit, 100))]
     return await _enrich_judge_assignment_scores(sliced, email, judge_user_id)
@@ -6662,6 +6683,32 @@ async def create_pro_event(request: Request, user: dict = Depends(get_auth_user)
     if "stages" not in event_data or event_data.get("stages") is None:
         event_data["stages"] = []
 
+    # Map generic submission_requirements into a SUBMISSION stage for participant UI
+    submission_reqs = event_data.get("submission_requirements")
+    if submission_reqs and isinstance(submission_reqs, list) and len(submission_reqs) > 0:
+        has_sub_stage = any(str(s.get("type", "")).upper() == "SUBMISSION" for s in event_data["stages"])
+        if not has_sub_stage:
+            fields = []
+            for i, req in enumerate(submission_reqs):
+                ftype = "url" if str(req.get("type", "")).upper() == "URL" else "file"
+                fields.append({
+                    "id": f"sub_req_{i}",
+                    "label": req.get("label", f"Requirement {i+1}"),
+                    "type": ftype,
+                    "required": True,
+                    "acceptTypes": ["*/*"] if ftype == "file" else []
+                })
+            
+            event_data["stages"].append({
+                "id": str(uuid.uuid4()),
+                "name": "Final Submission",
+                "type": "SUBMISSION",
+                "description": "Please submit the required deliverables for your project.",
+                "config": {
+                    "fields": fields
+                }
+            })
+
     if not event_data.get("title"):
         raise HTTPException(status_code=400, detail="Event title is required")
 
@@ -6943,6 +6990,34 @@ async def update_pro_event(event_id: str, request: Request, user: dict = Depends
                 reg_end = s.get("end_date") or s.get("endDate") or s.get("deadline")
                 if reg_end:
                     event_data["registrationDeadline"] = reg_end
+
+    # Map generic submission_requirements into a SUBMISSION stage for participant UI
+    submission_reqs = event_data.get("submission_requirements")
+    if submission_reqs and isinstance(submission_reqs, list) and len(submission_reqs) > 0:
+        if not isinstance(event_data.get("stages"), list):
+            event_data["stages"] = []
+        has_sub_stage = any(str(s.get("type", "")).upper() == "SUBMISSION" for s in event_data["stages"])
+        if not has_sub_stage:
+            fields = []
+            for i, req in enumerate(submission_reqs):
+                ftype = "url" if str(req.get("type", "")).upper() == "URL" else "file"
+                fields.append({
+                    "id": f"sub_req_{i}",
+                    "label": req.get("label", f"Requirement {i+1}"),
+                    "type": ftype,
+                    "required": True,
+                    "acceptTypes": ["*/*"] if ftype == "file" else []
+                })
+            
+            event_data["stages"].append({
+                "id": str(uuid.uuid4()),
+                "name": "Final Submission",
+                "type": "SUBMISSION",
+                "description": "Please submit the required deliverables for your project.",
+                "config": {
+                    "fields": fields
+                }
+            })
 
     existing_event = await events_col.find_one({"_id": ObjectId(event_id)})
     existing_opp = await opportunities_col.find_one({"event_link_id": str(event_id)})

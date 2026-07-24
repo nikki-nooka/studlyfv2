@@ -93,5 +93,11 @@ export function useInstitutionEvents(institutionId?: string) {
         refresh();
     }, [institutionId, refresh, setLoading, cache]);
 
+    // Auto-refresh when an opportunity/event is created/updated
+    useEffect(() => {
+        window.addEventListener('opportunity-list-refresh', refresh);
+        return () => window.removeEventListener('opportunity-list-refresh', refresh);
+    }, [refresh]);
+
     return { events: data, loading, refresh };
 }

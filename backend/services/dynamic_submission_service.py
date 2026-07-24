@@ -49,14 +49,19 @@ async def _find_stage_submission(
     team_id: Optional[str] = None,
 ) -> Optional[dict]:
     for eid in await _event_id_variants(event_id):
-        query: Dict[str, Any] = {"event_id": eid, "stage_id": str(stage_id)}
-        if team_id:
-            query["team_id"] = str(team_id)
-        else:
-            query["user_id"] = str(user_id)
-        doc = await submission_data_col.find_one(query)
+        # 1. Try to find the user's specific submission first
+        query_by_user: Dict[str, Any] = {"event_id": eid, "stage_id": str(stage_id), "user_id": str(user_id)}
+        doc = await submission_data_col.find_one(query_by_user)
         if doc:
             return doc
+            
+        # 2. Try to find the team's submission (if created by a teammate)
+        if team_id:
+            query_by_team: Dict[str, Any] = {"event_id": eid, "stage_id": str(stage_id), "team_id": str(team_id)}
+            doc = await submission_data_col.find_one(query_by_team)
+            if doc:
+                return doc
+                
     return None
 
 async def validate_submission_data(
@@ -319,6 +324,8 @@ async def submit_stage_data(
                     "status": "submitted",
                 }
             }
+            if team_id:
+                update_doc["$set"]["team_id"] = str(team_id)
 
             result = await submission_data_col.update_one({"_id": existing_sub["_id"]}, update_doc)
             submission_id = str(existing_sub.get("_id"))

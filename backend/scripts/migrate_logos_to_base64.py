@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Migration: Convert legacy file-path logos/banners to base64 in MongoDB.
 Reads files from the local uploads directory and stores them as base64 data URIs.

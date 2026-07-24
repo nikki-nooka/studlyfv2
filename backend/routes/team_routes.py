@@ -822,3 +822,49 @@ async def preview_invite(code: str):
 
     # NOTE: invitation acceptance audit is inserted earlier when available
 
+
+
+@router.delete("/{team_id}/members/{member_user_id}")
+async def remove_team_member(
+    team_id: str,
+    member_user_id: str,
+    user: dict = Depends(get_auth_user)
+):
+    """
+    Remove a member from the team. Only the team leader can do this, and they cannot remove themselves.
+    """
+    team = await teams_col.find_one({"_id": ObjectId(team_id)})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+        
+    if str(team.get("team_leader_id")) != str(user["user_id"]):
+        raise HTTPException(status_code=403, detail="Only the team leader can remove members")
+        
+    if str(member_user_id) == str(user["user_id"]):
+        raise HTTPException(status_code=400, detail="Team leader cannot remove themselves. Use the leave or disband team function instead.")
+
+    # Remove from team members array
+    await teams_col.update_one(
+        {"_id": ObjectId(team_id)},
+        {"$pull": {"members": {"user_id": str(member_user_id)}}},
+    )
+    
+    # Remove team info from participant
+    await participants_col.update_one(
+        {
+            "event_id": team["event_id"],
+            "user_id": str(member_user_id)
+        },
+        {
+            "$set": {
+                "team_id": None,
+                "team_name": None,
+                "team_lead_id": None,
+            },
+            "$unset": {
+                "joined_team_at": ""
+            }
+        }
+    )
+    
+    return {"status": "success", "message": "Member removed successfully"}

@@ -29,8 +29,8 @@ import {
 
 const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'events', label: 'Events Management', icon: Briefcase },
-    { id: 'opportunities', label: 'Opportunities', icon: Target },
+    { id: 'events', label: 'Jobs & Internships', icon: Briefcase },
+    { id: 'opportunities', label: 'Events & Competitions', icon: Target },
     { id: 'participants', label: 'Participants', icon: Users },
     { id: 'teams', label: 'Teams', icon: UserCircle },
     { id: 'submissions', label: 'Submissions', icon: ClipboardList },

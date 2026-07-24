@@ -116,8 +116,9 @@ def _strip_payload_bloat(doc: dict) -> None:
         return
     for key in ("banner_url", "image_url", "logo_url", "profilePhoto"):
         val = doc.get(key)
-        if isinstance(val, str) and val.startswith("data:") and len(val) > 2048:
-            doc.pop(key, None)
+        # We MUST NOT strip these out, otherwise the frontend cannot display banners or logos!
+        # if isinstance(val, str) and val.startswith("data:") and len(val) > 2048:
+        #     doc.pop(key, None)
     sections = doc.get("sections")
     if isinstance(sections, list):
         for section in sections:

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
     Users, Mail, ShieldCheck, Trash2, UserPlus, 
     Search, Filter, ChevronRight, Gavel, MailCheck,
-    Clock, AlertCircle, RefreshCw
+    Clock, AlertCircle, RefreshCw, Link, Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL, authHeaders } from '../../apiConfig';
@@ -107,7 +107,7 @@ const JudgeManagement: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="px-6 py-3 bg-[#6C3BFF] text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:scale-[1.02] transition-all shadow-xl shadow-purple-500/20"
+                    className="px-6 py-3 bg-gradient-to-r from-[#6C3BFF] to-[#8b5cf6] text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300"
                 >
                     <UserPlus size={16} /> Invite New Judge
                 </button>
@@ -145,51 +145,71 @@ const JudgeManagement: React.FC = () => {
                             key={judge._id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+                            className="relative bg-white p-7 rounded-[2.5rem] border border-slate-100/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(108,59,255,0.08)] hover:-translate-y-1 transition-all duration-300 group overflow-hidden"
                         >
+                            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#6C3BFF] to-[#a78bfa] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            
                             <div className="flex justify-between items-start mb-6">
-                                <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center text-[#6C3BFF] font-black text-xl border border-purple-100">
-                                    <Mail size={24} />
+                                <div className="w-16 h-16 bg-gradient-to-br from-purple-50 to-indigo-50/50 rounded-2xl flex items-center justify-center text-[#6C3BFF] shadow-sm border border-purple-100/50 group-hover:scale-110 transition-transform duration-300">
+                                    <Mail size={26} strokeWidth={2.5} />
                                 </div>
                                 <div className="flex gap-2">
                                     <button 
                                         onClick={() => handleRemoveJudge(judge._id)}
                                         className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        title="Remove Judge"
                                     >
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <h3 className="text-lg font-black text-slate-900 truncate">{judge.name || 'Invited Judge'}</h3>
+                            <div className="space-y-1.5 mb-2">
+                                <h3 className="text-xl font-black text-slate-900 truncate tracking-tight">{judge.name || 'Invited Judge'}</h3>
                                 <p className="text-sm text-slate-500 font-medium truncate flex items-center gap-2">
-                                    <Mail size={14} className="text-slate-300" /> {judge.email}
+                                    <Mail size={14} className="text-slate-400" /> {judge.email}
                                 </p>
                             </div>
 
-                            <div className="mt-6 pt-6 border-t border-slate-50 space-y-4">
+                            <div className="mt-8 pt-6 border-t border-slate-50 space-y-5">
                                 {judge.expertise && (
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Expertise</p>
-                                        <span className="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Area of Expertise</p>
+                                        <span className="px-3.5 py-1.5 bg-slate-50 border border-slate-100 rounded-full text-[11px] font-bold text-slate-600 shadow-sm">
                                             {judge.expertise}
                                         </span>
                                     </div>
                                 )}
                                 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getJudgeStatusColor(judge.status || 'pending') }} />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <div className="flex items-center justify-between bg-slate-50/50 p-3 rounded-2xl border border-slate-50">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: getJudgeStatusColor(judge.status || 'pending') }} />
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
                                             {getJudgeStatusLabel(judge.status || 'pending')}
                                         </span>
                                     </div>
-                                    <span className="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-1 rounded-lg">
-                                        {judge.assignment_count ?? 0} assigned
-                                    </span>
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-lg font-black text-[#6C3BFF] leading-none">
+                                            {judge.assignment_count ?? 0}
+                                        </span>
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">assigned</span>
+                                    </div>
                                 </div>
-                                <div className="text-[10px] font-bold text-slate-300 text-right">
+
+                                {judge.invitation_token && ['INVITED', 'PENDING', 'PENDING_INVITATION'].includes(String(judge.status).toUpperCase()) && (
+                                    <button
+                                        onClick={() => {
+                                            const link = `${window.location.origin}/#/judge-invitation?token=${judge.invitation_token}`;
+                                            navigator.clipboard.writeText(link);
+                                            alert('Invite link copied to clipboard!');
+                                        }}
+                                        className="w-full mt-2 px-4 py-3 bg-indigo-50/80 hover:bg-indigo-100 text-[#6C3BFF] text-sm font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 shadow-sm group-hover:bg-[#6C3BFF] group-hover:text-white"
+                                    >
+                                        <Link size={16} className="group-hover:rotate-12 transition-transform" /> Copy Invite Link
+                                    </button>
+                                )}
+                                
+                                <div className="text-[10px] font-bold text-slate-400 text-center uppercase tracking-widest pt-2">
                                     Added {judge.created_at ? new Date(judge.created_at).toLocaleDateString() : '—'}
                                 </div>
                             </div>

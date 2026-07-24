@@ -63,6 +63,16 @@ export const InstitutionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
 
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [institutionId]);
+
+    // Auto-refresh stats when an opportunity/event is created/updated
+    useEffect(() => {
+        const handleRefresh = () => {
+            fetchData();
+        };
+        window.addEventListener('opportunity-list-refresh', handleRefresh);
+        return () => window.removeEventListener('opportunity-list-refresh', handleRefresh);
     }, [institutionId]);
 
     return (

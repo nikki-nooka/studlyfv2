@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from typing import Optional
 from bson import ObjectId
 from datetime import datetime
 from db import events_col, users_col, participants_col, event_certificates_col, cert_templates_col
@@ -16,7 +17,7 @@ async def generate_event_certificates(
     event_id: str,
     achievement_type: str = "participation",
     user_id: str = None,
-    template_id: str | None = None,
+    template_id: Optional[str] = None,
     user: dict = Depends(get_auth_user),
 ):
     role = str(user.get("role") or "").lower()

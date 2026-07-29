@@ -259,14 +259,28 @@ async def _list_submissions_for_judge_user(
     out: list[dict] = []
     seen: set[str] = set()
 
+    my_judge_ids = set()
+    if email:
+        from db import judges_col
+        async for j in judges_col.find({"email": email}):
+            my_judge_ids.add(str(j.get("_id")))
+
     def _judge_assigned(doc: dict) -> bool:
         emails = doc.get("assigned_judge_emails") or []
         norm = {str(a).strip().lower() for a in emails if a}
-        if email in norm:
+        if email and email in norm:
             return True
-        for aj in doc.get("assigned_judges") or []:
-            if isinstance(aj, dict) and str(aj.get("email") or "").strip().lower() == email:
+        
+        # Check by judge_id if email match failed or was empty
+        if my_judge_ids:
+            if str(doc.get("assigned_judge_id")) in my_judge_ids:
                 return True
+            for aj in doc.get("assigned_judges") or []:
+                if isinstance(aj, dict):
+                    if str(aj.get("judge_id")) in my_judge_ids:
+                        return True
+                    if email and str(aj.get("email") or "").strip().lower() == email:
+                        return True
         return False
 
     legacy_q: dict = {"status": {"$in": review_statuses}}
@@ -298,8 +312,37 @@ async def _list_submissions_for_judge_user(
         row = dict(doc)
         row["_id"] = sid
         row["source"] = "stage_deliverable"
+        t_name = row.get("team_name")
+        
+        if not t_name and row.get("team_id"):
+            from db import teams_col
+            try:
+                t_id_str = str(row["team_id"]).strip()
+                if t_id_str:
+                    from bson import ObjectId
+                    t_doc = None
+                    if ObjectId.is_valid(t_id_str):
+                        t_doc = await teams_col.find_one({"_id": ObjectId(t_id_str)})
+                    if not t_doc:
+                        t_doc = await teams_col.find_one({"team_id": t_id_str})
+                    if t_doc:
+                        t_name = t_doc.get("team_name") or t_doc.get("name")
+            except Exception:
+                pass
+
+        if not t_name and row.get("user_id"):
+            from db import users_col
+            try:
+                u_id_str = str(row["user_id"]).strip()
+                if u_id_str and ObjectId.is_valid(u_id_str):
+                    u_doc = await users_col.find_one({"_id": ObjectId(u_id_str)})
+                    if u_doc:
+                        t_name = u_doc.get("name") or u_doc.get("username")
+            except Exception:
+                pass
+
         row["team_name"] = (
-            row.get("team_name") or row.get("user_name")
+            t_name or row.get("user_name")
             or (row.get("data") or {}).get("team_display_name")
             or row.get("title") or "Submission"
         )
@@ -2000,9 +2043,17 @@ async def list_event_submissions_enriched(event_id: str, user: dict = Depends(ge
             pass
         sc_cursor = scores_col.find({"$or": or_sub})
         totals = []
+        judges_feedback = []
         async for sc in sc_cursor:
-            totals.append(_score_sum(sc))
+            score_val = _score_sum(sc)
+            totals.append(score_val)
+            judges_feedback.append({
+                "judge_name": sc.get("judge_name") or sc.get("judge_email") or "Judge",
+                "score": score_val,
+                "criteria_scores": sc.get("criteria_scores") or sc.get("scores") or {}
+            })
         s["total_score"] = round(sum(totals) / len(totals), 1) if totals else float(s.get("score") or 0)
+        s["judges_feedback"] = judges_feedback
         if "assigned_judge_emails" not in s or s["assigned_judge_emails"] is None:
             s["assigned_judge_emails"] = []
         out.append(s)
@@ -2063,8 +2114,15 @@ async def list_event_submissions_enriched(event_id: str, user: dict = Depends(ge
                 sd_or_sub.append({"team_id": str(tid_for_score)})
             sc_cursor = scores_col.find({"$or": sd_or_sub})
             totals = []
+            judges_feedback = []
             async for sc in sc_cursor:
-                totals.append(_score_sum(sc))
+                score_val = _score_sum(sc)
+                totals.append(score_val)
+                judges_feedback.append({
+                    "judge_name": sc.get("judge_name") or sc.get("judge_email") or "Judge",
+                    "score": score_val,
+                    "criteria_scores": sc.get("criteria_scores") or sc.get("scores") or {}
+                })
             total_score = round(sum(totals) / len(totals), 1) if totals else float(sd.get("total_score") or sd.get("score") or 0)
             team_name = sd.get("team_name") or sd.get("user_name") or ""
             tid = sd.get("team_id")
@@ -2089,6 +2147,7 @@ async def list_event_submissions_enriched(event_id: str, user: dict = Depends(ge
                 "stage_name": sd.get("stage_name", ""),
                 "stage_type": sd.get("stage_type", ""),
                 "total_score": total_score,
+                "judges_feedback": judges_feedback,
                 "assigned_judge_id": sd.get("assigned_judge_id", ""),
                 "assigned_judges": sd.get("assigned_judges", []),
                 "assigned_judge_emails": sd.get("assigned_judge_emails", []),
@@ -3889,12 +3948,41 @@ async def judge_download_submission_file(
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
 
+    from db import judges_col
+    my_judge_ids = set()
+    if email:
+        async for j in judges_col.find({"email": email}):
+            my_judge_ids.add(str(j.get("_id")))
+
+    judge_match = False
     assigned_emails = {str(a).strip().lower() for a in (sub.get("assigned_judge_emails") or []) if a}
-    judge_match = email in assigned_emails or any(
-        isinstance(aj, dict) and str(aj.get("email") or "").strip().lower() == email
-        for aj in (sub.get("assigned_judges") or [])
-    )
+    print(f"[DEBUG FILE DL] Email: {email}")
+    print(f"[DEBUG FILE DL] Assigned Emails: {assigned_emails}")
+    print(f"[DEBUG FILE DL] My Judge IDs: {my_judge_ids}")
+    print(f"[DEBUG FILE DL] Sub assigned_judge_id: {sub.get('assigned_judge_id')}")
+    print(f"[DEBUG FILE DL] Sub assigned_judges: {sub.get('assigned_judges')}")
+
+    if email in assigned_emails:
+        judge_match = True
+        print("[DEBUG FILE DL] Matched by email in assigned_emails")
+    elif my_judge_ids:
+        if str(sub.get("assigned_judge_id")) in my_judge_ids:
+            judge_match = True
+            print("[DEBUG FILE DL] Matched by assigned_judge_id in my_judge_ids")
+        else:
+            for aj in (sub.get("assigned_judges") or []):
+                if isinstance(aj, dict):
+                    if str(aj.get("judge_id")) in my_judge_ids:
+                        judge_match = True
+                        print("[DEBUG FILE DL] Matched by judge_id in assigned_judges array")
+                        break
+                    if email and str(aj.get("email") or "").strip().lower() == email:
+                        judge_match = True
+                        print("[DEBUG FILE DL] Matched by email in assigned_judges array")
+                        break
+
     if not judge_match:
+        print("[DEBUG FILE DL] judge_match failed. 403 Forbidden.")
         raise HTTPException(status_code=403, detail="You are not assigned to this submission")
 
     value = (sub.get("data") or {}).get(field_id)
@@ -3918,6 +4006,9 @@ async def judge_download_submission_file(
 async def get_judge_event_criteria(event_id: str, user: dict = Depends(get_auth_user)):
     """Return rubric criteria for a judge to score assigned submissions."""
     event = await events_col.find_one(_event_id_query(event_id), {"judging_criteria": 1, "title": 1})
+    if not event:
+        from db import opportunities_col
+        event = await opportunities_col.find_one(_event_id_query(event_id), {"judging_criteria": 1, "title": 1})
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     criteria = event.get("judging_criteria") or []
@@ -3993,7 +4084,11 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
             criteria_scores = {k: float(v) for k, v in criteria_scores.items()}
         except (TypeError, ValueError):
             criteria_scores = {}
-    total_score = sum(criteria_scores.values()) if criteria_scores else float(score_data.get("total_score", 0))
+            
+    if criteria_scores:
+        total_score = round(sum(criteria_scores.values()) / len(criteria_scores), 1)
+    else:
+        total_score = round(float(score_data.get("total_score", 0)), 1)
 
     submission_id = score_data.get("submission_id")
     event_id = score_data.get("event_id")
@@ -4014,18 +4109,32 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
     if not team_id and sub.get("team_id"):
         team_id = str(sub["team_id"])
     assigned = sub.get("assigned_judge_emails") or []
-    if assigned:
-        norm = {str(a).strip().lower() for a in assigned if a}
-        if ue not in norm:
-            raise HTTPException(status_code=403, detail="You are not assigned to review this submission")
-    else:
-        judge_match = any(
-            str(aj.get("email") or "").strip().lower() == ue
-            for aj in (sub.get("assigned_judges") or [])
-            if isinstance(aj, dict)
-        )
-        if not judge_match:
-            raise HTTPException(status_code=403, detail="You are not assigned to review this submission")
+    judge_match = False
+    
+    from db import judges_col
+    my_judge_ids = set()
+    if ue:
+        async for j in judges_col.find({"email": ue}):
+            my_judge_ids.add(str(j.get("_id")))
+            
+    norm = {str(a).strip().lower() for a in assigned if a}
+    if ue and ue in norm:
+        judge_match = True
+    elif my_judge_ids:
+        if str(sub.get("assigned_judge_id")) in my_judge_ids:
+            judge_match = True
+        else:
+            for aj in (sub.get("assigned_judges") or []):
+                if isinstance(aj, dict):
+                    if str(aj.get("judge_id")) in my_judge_ids:
+                        judge_match = True
+                        break
+                    if ue and str(aj.get("email") or "").strip().lower() == ue:
+                        judge_match = True
+                        break
+                        
+    if not judge_match:
+        raise HTTPException(status_code=403, detail="You are not assigned to review this submission")
 
     je = (score_data.get("judge_email") or "").strip().lower()
     if je and je != ue:
@@ -4578,12 +4687,31 @@ async def send_status_email(event_id: str, email_data: dict, user: dict = Depend
     
     message = status_messages.get(status, f"Your team status has been updated to: {status}")
     
+    metrics_html = ""
+    total_score = email_data.get("total_score")
+    judges_feedback = email_data.get("judges_feedback", [])
+    
+    if total_score is not None:
+        metrics_html += f"""
+            <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; border-left: 4px solid #6C3BFF; margin: 20px 0;">
+                <p style="margin: 0; font-size: 16px; color: #333;"><strong>Overall Score:</strong> {total_score} / 100</p>
+        """
+        if judges_feedback and isinstance(judges_feedback, list):
+            metrics_html += '<ul style="margin-top: 10px; padding-left: 20px; color: #555; font-size: 14px;">'
+            for fb in judges_feedback:
+                j_name = fb.get("judge_name", "Judge")
+                j_score = fb.get("score", 0)
+                metrics_html += f"<li><strong>{j_name}:</strong> {j_score} pts</li>"
+            metrics_html += "</ul>"
+        metrics_html += "</div>"
+    
     body_html = f"""
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <h2 style="color: #6C3BFF; margin-top: 0;">{subject}</h2>
             <p style="font-size: 16px; color: #333;">Dear Team,</p>
             <p style="font-size: 16px; color: #333; line-height: 1.6;">{message}</p>
+            {metrics_html}
             <p style="font-size: 16px; color: #333; line-height: 1.6;">This is an automated message regarding your application for <strong>{event.get('title', 'the event')}</strong>.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
             <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Best regards,</p>
@@ -4651,16 +4779,26 @@ async def get_complex_event_details(event_id: str, user: dict = Depends(get_auth
         if mutated:
             await events_col.update_one(_event_id_query(event_id), {"$set": {"stages": event["stages"]}})
 
-    # Backfill image fields from the mirrored opportunity row when the event record does not carry them.
+    # Backfill image fields and criteria from the mirrored opportunity row when the event record does not carry them.
     try:
-        if not event.get("logo_url") or not event.get("banner_url"):
+        if not event.get("logo_url") or not event.get("banner_url") or not event.get("judging_criteria"):
             from db import opportunities_col
-            opp = await opportunities_col.find_one({"event_link_id": str(event_id)})
+            from bson.errors import InvalidId
+            id_query = [{"event_link_id": str(event_id)}]
+            try:
+                id_query.append({"_id": ObjectId(event_id)})
+            except (InvalidId, ValueError):
+                pass
+            id_query.append({"_id": event_id})
+            
+            opp = await opportunities_col.find_one({"$or": id_query})
             if opp:
                 if not event.get("logo_url"):
                     event["logo_url"] = opp.get("logo_url") or opp.get("image_url") or opp.get("logoUrl") or ""
                 if not event.get("banner_url"):
                     event["banner_url"] = opp.get("banner_url") or opp.get("bannerUrl") or ""
+                if not event.get("judging_criteria"):
+                    event["judging_criteria"] = opp.get("judging_criteria") or []
         # Normalize common aliases for frontend consumers that still read legacy keys.
         if event.get("logo_url"):
             event["logoUrl"] = event.get("logo_url")
@@ -5664,7 +5802,13 @@ async def update_judging_criteria(event_id: str, request: Request, background_ta
         update_doc = {"judging_criteria": criteria_data, "updated_at": now}
         if isinstance(thresholds, dict):
             update_doc["evaluation_thresholds"] = thresholds
-        await events_col.update_one({"_id": ObjectId(event_id)}, {"$set": update_doc})
+            
+        id_query = [{"_id": ObjectId(event_id)}, {"event_id": event_id}] if ObjectId.is_valid(event_id) else [{"event_id": event_id}]
+        
+        res = await events_col.update_one({"$or": id_query}, {"$set": update_doc})
+        if res.matched_count == 0:
+            from db import opportunities_col
+            await opportunities_col.update_one({"$or": id_query}, {"$set": update_doc})
 
     # ── Auto-classify submissions based on thresholds (BACKGROUND) ──
     if isinstance(thresholds, dict) and criteria_data:

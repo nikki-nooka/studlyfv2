@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Search, Filter, Eye, CheckCircle, XCircle, ExternalLink, Github, 
-    Play, FileText, MessageSquare, TrendingUp, Clock, Trophy, 
-    Zap, Users, Target, Award, ArrowUpRight, Gavel, Star, LayoutDashboard
+import {
+    Search, Eye, CheckCircle, XCircle, ExternalLink, Github,
+    Play, FileText, MessageSquare, TrendingUp, Clock, Trophy,
+    Zap, Users, Target, Award, ArrowUpRight, Gavel, Star, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL, authHeaders } from '../../../apiConfig';
@@ -13,23 +13,13 @@ import { fetchSubmissionFileBlob } from '../../../utils/submissionFilePreview';
 const JudgeDashboard: React.FC = () => {
     const { user } = useAuth();
     const [assignments, setAssignments] = useState<any[]>([]);
-    const [stats, setStats] = useState({
-        pending: 0,
-        completed: 0,
-        avgScore: 0,
-        activeEvents: 0
-    });
+    const [stats, setStats] = useState({ pending: 0, completed: 0, avgScore: 0, activeEvents: 0 });
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [eventThresholds, setEventThresholds] = useState<Record<string, any>>({});
-    
-    // Invitation & Filtering State
     const [pendingInvites, setPendingInvites] = useState<any[]>([]);
     const [inviteBusy, setInviteBusy] = useState(false);
-    const [eventFilter, setEventFilter] = useState('');
-    
-    // Scoring Modal State (Bringing back original functionality)
     const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
     const [scoringCriteria, setScoringCriteria] = useState<any[]>([]);
     const [scores, setScores] = useState<Record<string, number>>({});
@@ -44,134 +34,77 @@ const JudgeDashboard: React.FC = () => {
             `${API_BASE_URL}/api/v1/institution/judge/submissions/${submissionId}/file/${encodeURIComponent(fieldId)}`,
             { headers: { ...authHeaders() }, cacheKey, filenameHint: filenameHint || fieldId },
         );
-        if (!entry) {
-            setPreviewAsset(null);
-            alert('Could not open file.');
-            return;
-        }
+        if (!entry) { setPreviewAsset(null); return; }
         setPreviewAsset({ ...entry, mime: entry.mime || mimeHint });
     };
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const q = eventFilter ? `?event_id=${encodeURIComponent(eventFilter)}` : '';
-            const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/my-assignments${q}`, {
+            const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/my-assignments`, {
                 headers: { ...authHeaders() }
             });
             if (res.ok) {
                 const data = await res.json();
                 setAssignments(data);
-                
-                // Calculate Stats
                 const completed = data.filter((a: any) => a.existing_scores).length;
                 const pending = data.length - completed;
-                
-                let totalScoreSum = 0;
-                let scoredAssignmentsCount = 0;
+                let totalScoreSum = 0, scoredCount = 0;
                 data.forEach((a: any) => {
-                    if (a.existing_scores && a.existing_scores.scores) {
-                        const scoresObj = a.existing_scores.scores;
-                        const scoreValues = Object.values(scoresObj) as number[];
-                        if (scoreValues.length > 0) {
-                            const avgAssignmentScore = scoreValues.reduce((sum, val) => sum + val, 0) / scoreValues.length;
-                            totalScoreSum += avgAssignmentScore;
-                            scoredAssignmentsCount++;
-                        }
+                    if (a.existing_scores?.scores) {
+                        const vals = Object.values(a.existing_scores.scores) as number[];
+                        if (vals.length > 0) { totalScoreSum += vals.reduce((s, v) => s + v, 0) / vals.length; scoredCount++; }
                     }
                 });
-                const avgScore = scoredAssignmentsCount > 0 ? Number((totalScoreSum / scoredAssignmentsCount).toFixed(1)) : 0;
-
                 setStats({
-                    pending,
-                    completed,
-                    avgScore,
+                    pending, completed,
+                    avgScore: scoredCount > 0 ? Number((totalScoreSum / scoredCount).toFixed(1)) : 0,
                     activeEvents: new Set(data.map((a: any) => a.event_id)).size
                 });
-                // Extract unique event thresholds
                 const tmap: Record<string, any> = {};
-                data.forEach((a: any) => {
-                    const eid = a.event_id || '';
-                    if (eid && a.event_thresholds && !tmap[eid]) {
-                        tmap[eid] = a.event_thresholds;
-                    }
-                });
+                data.forEach((a: any) => { if (a.event_id && a.event_thresholds && !tmap[a.event_id]) tmap[a.event_id] = a.event_thresholds; });
                 setEventThresholds(tmap);
             }
-        } catch (error) {
-            try { console.error("Failed to fetch assignments", error instanceof Error ? error.message : String(error)); } catch (_) {}
-        } finally {
-            setLoading(false);
-        }
+        } catch { /* silent */ } finally { setLoading(false); }
     };
 
     const fetchPendingInvites = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/my-invitations`, {
-                headers: { ...authHeaders() },
-            });
-            if (res.ok) {
-                setPendingInvites(await res.json());
-            }
-        } catch {
-            /* non-fatal */
-        }
+            const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/my-invitations`, { headers: { ...authHeaders() } });
+            if (res.ok) setPendingInvites(await res.json());
+        } catch { /* non-fatal */ }
     };
 
-    useEffect(() => {
-        fetchData();
-        fetchPendingInvites();
-    }, [eventFilter]);
+    useEffect(() => { fetchData(); fetchPendingInvites(); }, []);
 
-    const respondInvitation = async (accept: boolean, invite: { event_id?: string; invitation_token?: string }) => {
+    const respondInvitation = async (accept: boolean, invite: any) => {
         setInviteBusy(true);
         try {
             const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/respond-invitation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                body: JSON.stringify({
-                    accept,
-                    event_id: invite.event_id,
-                    token: invite.invitation_token,
-                }),
+                body: JSON.stringify({ accept, event_id: invite.event_id, token: invite.invitation_token }),
             });
-            if (res.ok) {
-                alert(accept ? 'Invitation accepted. The institution admin has been notified.' : 'Invitation declined.');
-                fetchPendingInvites();
-                fetchData();
-            } else {
-                const err = await res.json().catch(() => ({}));
-                alert(err.detail || 'No invitation found for your account email.');
-            }
-        } catch {
-            alert('Network error.');
-        } finally {
-            setInviteBusy(false);
-        }
+            if (res.ok) { fetchPendingInvites(); fetchData(); }
+        } catch { /* silent */ } finally { setInviteBusy(false); }
     };
 
     const handleOpenScoring = async (assignment: any) => {
         setSelectedAssignment(assignment);
         setComments(assignment.existing_scores?.comments || '');
         setScores(assignment.existing_scores?.scores || {});
-        
         try {
-            const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/criteria/${assignment.event_id}`, {
-                headers: { ...authHeaders() }
-            });
+            const res = await fetch(`${API_BASE_URL}/api/v1/institution/judge/criteria/${assignment.event_id}`, { headers: { ...authHeaders() } });
             if (res.ok) {
                 const data = await res.json();
                 setScoringCriteria(data);
-                // Initialize scores if not exists
                 if (!assignment.existing_scores) {
                     const initial: Record<string, number> = {};
                     data.forEach((c: any) => { initial[c.name] = 0; });
                     setScores(initial);
                 }
             }
-        } catch (error) {
-            try { console.error("Failed to fetch criteria", error instanceof Error ? error.message : String(error)); } catch (_) {}
-        }
+        } catch { /* silent */ }
     };
 
     const handleSaveScore = async () => {
@@ -184,98 +117,92 @@ const JudgeDashboard: React.FC = () => {
                     submission_id: selectedAssignment._id,
                     event_id: selectedAssignment.event_id,
                     team_id: selectedAssignment.team_id || selectedAssignment.teamId || '',
-                    scores,
-                    comments
+                    scores, comments
                 }),
             });
-            if (res.ok) {
-                alert('Score synchronized to blockchain.');
-                setSelectedAssignment(null);
-                fetchData();
-            } else {
-                const err = await res.json().catch(() => ({}));
-                try { console.error('Score submission failed:', err instanceof Error ? err.message : String(err)); } catch (_) {}
-            }
-        } catch (error) {
-            alert('Sync failed.');
-        } finally {
-            setIsSaving(false);
-        }
+            if (res.ok) { setSelectedAssignment(null); fetchData(); }
+        } catch { /* silent */ } finally { setIsSaving(false); }
     };
 
     const filteredAssignments = useMemo(() => {
         return assignments.filter(a => {
-            const matchesStatus = filterStatus === 'All' || 
-                (filterStatus === 'Completed' && a.existing_scores) || 
+            const matchesStatus = filterStatus === 'All' ||
+                (filterStatus === 'Completed' && a.existing_scores) ||
                 (filterStatus === 'Pending' && !a.existing_scores) ||
                 (filterStatus === 'Shortlisted' && (a.classification === 'Shortlisted' || a.classification === 'shortlisted')) ||
                 (filterStatus === 'Waitlisted' && (a.classification === 'Waitlisted' || a.classification === 'waitlisted')) ||
                 (filterStatus === 'Rejected' && (a.classification === 'Rejected' || a.classification === 'rejected'));
-            const matchesSearch = a.project_title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            const matchesSearch = !searchQuery ||
+                a.project_title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 a.team_name?.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesStatus && matchesSearch;
         });
     }, [assignments, filterStatus, searchQuery]);
 
-    const shortlistedCount = assignments.filter(a => a.classification === 'Shortlisted' || a.classification === 'shortlisted').length;
-    const waitlistedCount = assignments.filter(a => a.classification === 'Waitlisted' || a.classification === 'waitlisted').length;
-    const rejectedCount = assignments.filter(a => a.classification === 'Rejected' || a.classification === 'rejected').length;
+    const shortlistedCount = assignments.filter(a => a.classification?.toLowerCase() === 'shortlisted').length;
+    const waitlistedCount = assignments.filter(a => a.classification?.toLowerCase() === 'waitlisted').length;
+    const rejectedCount = assignments.filter(a => a.classification?.toLowerCase() === 'rejected').length;
 
     const statCards = [
-        { label: 'Pending', value: stats.pending, icon: <Clock size={20} />, iconColor: 'text-purple-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
-        { label: 'Completed', value: stats.completed, icon: <CheckCircle size={20} />, iconColor: 'text-emerald-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
-        { label: 'Shortlisted', value: shortlistedCount, icon: <Award size={20} />, iconColor: 'text-blue-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
-        { label: 'Waitlisted', value: waitlistedCount, icon: <Clock size={20} />, iconColor: 'text-amber-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
-        { label: 'Rejected', value: rejectedCount, icon: <XCircle size={20} />, iconColor: 'text-red-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
-        { label: 'Avg Score', value: stats.avgScore, icon: <TrendingUp size={20} />, iconColor: 'text-indigo-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
-        { label: 'Events', value: stats.activeEvents, icon: <Trophy size={20} />, iconColor: 'text-pink-400', bg: 'bg-slate-900/50', border: 'border-slate-800' },
+        { label: 'Pending', value: stats.pending, icon: Clock, color: 'from-amber-500 to-orange-600', iconColor: 'text-amber-400', glow: 'shadow-amber-500/10' },
+        { label: 'Completed', value: stats.completed, icon: CheckCircle, color: 'from-emerald-500 to-green-600', iconColor: 'text-emerald-400', glow: 'shadow-emerald-500/10' },
+        { label: 'Shortlisted', value: shortlistedCount, icon: Award, color: 'from-blue-500 to-indigo-600', iconColor: 'text-blue-400', glow: 'shadow-blue-500/10' },
+        { label: 'Waitlisted', value: waitlistedCount, icon: Clock, color: 'from-yellow-500 to-amber-600', iconColor: 'text-yellow-400', glow: 'shadow-yellow-500/10' },
+        { label: 'Rejected', value: rejectedCount, icon: XCircle, color: 'from-red-500 to-rose-600', iconColor: 'text-red-400', glow: 'shadow-red-500/10' },
+        { label: 'Avg Score', value: stats.avgScore, icon: TrendingUp, color: 'from-violet-500 to-purple-600', iconColor: 'text-violet-400', glow: 'shadow-violet-500/10' },
+        { label: 'Events', value: stats.activeEvents, icon: Trophy, color: 'from-pink-500 to-fuchsia-600', iconColor: 'text-pink-400', glow: 'shadow-pink-500/10' },
     ];
 
+    const classificationStyle = (c?: string, scored?: boolean) => {
+        const cls = c?.toLowerCase();
+        if (cls === 'shortlisted') return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        if (cls === 'waitlisted') return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        if (cls === 'rejected') return 'bg-red-500/10 text-red-400 border-red-500/20';
+        if (scored) return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+    };
+
     if (loading && assignments.length === 0) return (
-        <div className="h-96 flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        <div className="h-full flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-3 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Loading assignments</p>
+            </div>
         </div>
     );
 
     return (
-        <div className="space-y-12 pb-12 font-sans">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="min-h-full p-6 lg:p-8 space-y-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">Evaluator Command Center</h1>
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-1 flex items-center gap-2">
-                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                        Network Status: Synchronized • Welcome back, {user?.full_name || user?.name || 'Judge'}
+                    <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">Evaluator Dashboard</h1>
+                    <p className="text-sm text-slate-400 mt-1">
+                        Welcome back, <span className="text-white font-semibold">{user?.full_name || user?.name || 'Judge'}</span>
+                        {' '}&middot; {assignments.length} assignment{assignments.length !== 1 ? 's' : ''}
                     </p>
                 </div>
-                
             </div>
 
+            {/* Pending Invitations */}
             {pendingInvites.length > 0 && (
-                <div className="space-y-4">
-                    <h2 className="text-sm font-black text-amber-400 uppercase tracking-widest">Pending Invitations</h2>
+                <div className="space-y-3">
                     {pendingInvites.map((inv) => (
-                        <div key={inv._id} className="p-6 rounded-[2rem] border border-amber-500/30 bg-amber-500/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div key={inv._id} className="p-5 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/10 to-orange-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                                <p className="text-lg font-black text-white">{inv.event_name || 'Event invitation'}</p>
-                                <p className="text-xs text-amber-200/80 font-bold mt-1">
+                                <p className="text-base font-bold text-white">{inv.event_name || 'Event invitation'}</p>
+                                <p className="text-xs text-amber-300/70 mt-0.5">
                                     Invited {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : 'recently'}
-                                    {inv.expertise ? ` • ${inv.expertise}` : ''}
+                                    {inv.expertise ? ` · ${inv.expertise}` : ''}
                                 </p>
                             </div>
-                            <div className="flex gap-3">
-                                <button
-                                    disabled={inviteBusy}
-                                    onClick={() => respondInvitation(true, inv)}
-                                    className="px-5 py-3 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-500 disabled:opacity-50"
-                                >
+                            <div className="flex gap-2 shrink-0">
+                                <button disabled={inviteBusy} onClick={() => respondInvitation(true, inv)}
+                                    className="px-5 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-500 disabled:opacity-50 transition-colors">
                                     Accept
                                 </button>
-                                <button
-                                    disabled={inviteBusy}
-                                    onClick={() => respondInvitation(false, inv)}
-                                    className="px-5 py-3 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/20 disabled:opacity-50"
-                                >
+                                <button disabled={inviteBusy} onClick={() => respondInvitation(false, inv)}
+                                    className="px-5 py-2 bg-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/20 disabled:opacity-50 transition-colors">
                                     Decline
                                 </button>
                             </div>
@@ -285,46 +212,46 @@ const JudgeDashboard: React.FC = () => {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
                 {statCards.map((s, i) => (
-                    <motion.div 
-                        key={i}
-                        initial={{ opacity: 0, y: 20 }}
+                    <motion.div
+                        key={s.label}
+                        initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className={`p-6 ${s.bg} border ${s.border} rounded-3xl relative overflow-hidden group hover:bg-slate-800 transition-all cursor-default`}
+                        transition={{ delay: i * 0.05, duration: 0.3 }}
+                        className={`p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all group ${s.glow} hover:shadow-lg`}
                     >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className={`w-10 h-10 bg-slate-950/50 rounded-2xl flex items-center justify-center ${s.iconColor} border border-slate-800 shadow-inner`}>
-                                {s.icon}
+                        <div className="flex items-center justify-between mb-3">
+                            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-md`}>
+                                <s.icon size={16} className="text-white" />
                             </div>
                         </div>
-                        <div className="text-3xl font-black text-white mb-1 tracking-tight">{s.value}</div>
-                        <div className="text-xs font-bold uppercase tracking-widest text-slate-400">{s.label}</div>
+                        <div className="text-2xl font-extrabold text-white tracking-tight">{s.value}</div>
+                        <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
                     </motion.div>
                 ))}
             </div>
 
-            {/* Thresholds Info */}
+            {/* Thresholds */}
             {Object.keys(eventThresholds).length > 0 && (
-                <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-3xl">
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-6">
-                        <Target size={14} className="text-indigo-400" /> Evaluation Thresholds
+                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4">
+                        <Target size={14} className="text-violet-400" /> Evaluation Thresholds
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {Object.entries(eventThresholds).map(([eid, t]: [string, any]) => (
                             <React.Fragment key={eid}>
-                                <div className="p-5 bg-slate-950/50 border border-slate-800 rounded-2xl text-center hover:border-emerald-500/50 transition-colors">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Shortlist</p>
-                                    <p className="text-2xl font-black text-emerald-400 tracking-tight">{t.shortlist_min || 80}%+</p>
+                                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-center">
+                                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Shortlist</p>
+                                    <p className="text-xl font-extrabold text-emerald-400">{t.shortlist_min || 80}%+</p>
                                 </div>
-                                <div className="p-5 bg-slate-950/50 border border-slate-800 rounded-2xl text-center hover:border-amber-500/50 transition-colors">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Waitlist</p>
-                                    <p className="text-2xl font-black text-amber-400 tracking-tight">{t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%+</p>
+                                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-center">
+                                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">Waitlist</p>
+                                    <p className="text-xl font-extrabold text-amber-400">{t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%+</p>
                                 </div>
-                                <div className="p-5 bg-slate-950/50 border border-slate-800 rounded-2xl text-center hover:border-red-500/50 transition-colors">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Reject Below</p>
-                                    <p className="text-2xl font-black text-red-400 tracking-tight">&lt; {t.reject_below || t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%</p>
+                                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-center">
+                                    <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1">Reject Below</p>
+                                    <p className="text-xl font-extrabold text-red-400">&lt; {t.reject_below || t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%</p>
                                 </div>
                             </React.Fragment>
                         ))}
@@ -332,191 +259,187 @@ const JudgeDashboard: React.FC = () => {
                 </div>
             )}
 
-            {/* Assignments List Area */}
-            <div className="space-y-6">
+            {/* Filter Bar */}
+            <div className="space-y-4">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex items-center gap-4">
-                        <h2 className="text-xl font-black text-white flex items-center gap-3">
-                            <Zap size={20} className="text-purple-500" />
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Zap size={18} className="text-violet-400" />
                             Assigned Projects
                         </h2>
-                        <div className="flex gap-2 p-1 bg-white/5 border border-white/10 rounded-xl flex-wrap">
+                        <div className="flex gap-1 p-1 bg-white/[0.04] border border-white/[0.06] rounded-xl">
                             {['All', 'Pending', 'Completed', 'Shortlisted', 'Waitlisted', 'Rejected'].map(t => (
-                                <button 
+                                <button
                                     key={t}
                                     onClick={() => setFilterStatus(t)}
-                                    className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${filterStatus === t ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${
+                                        filterStatus === t
+                                            ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                                            : 'text-slate-500 hover:text-slate-300 border border-transparent'
+                                    }`}
                                 >
                                     {t}
                                 </button>
                             ))}
                         </div>
                     </div>
-                    
-                    <div className="relative group w-full md:w-80">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors" size={16} />
-                        <input 
-                            type="text" 
-                            placeholder="Filter by Team or Project..."
+                    <div className="relative w-full md:w-72">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
+                        <input
+                            type="text"
+                            placeholder="Search by project or team..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/5 rounded-2xl text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all placeholder:text-slate-600"
+                            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/40 transition-all placeholder:text-slate-600"
                         />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Project Cards */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {filteredAssignments.length > 0 ? filteredAssignments.map((sub, idx) => (
-                        <motion.div 
+                        <motion.div
                             key={sub._id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="group p-6 bg-slate-900/50 border border-slate-800 rounded-3xl hover:bg-slate-800/80 transition-all flex flex-col md:flex-row gap-6 justify-between items-start"
+                            transition={{ delay: idx * 0.04 }}
+                            className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all group"
                         >
-                            <div className="space-y-4 flex-1">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                        <div className="w-5 h-5 rounded-md bg-slate-800 flex items-center justify-center text-slate-400">
-                                            <Users size={12} />
+                            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
+                                <div className="flex-1 min-w-0 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                                            <Users size={12} className="text-violet-400" />
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{sub.team_name || 'Team'}</span>
+                                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{sub.team_name || 'Team'}</span>
                                     </div>
-                                    <h3 className="text-xl font-black text-slate-100 group-hover:text-white transition-colors">{sub.project_title || 'Untitled Project'}</h3>
+                                    <h3 className="text-base font-bold text-white group-hover:text-violet-300 transition-colors truncate">{sub.project_title || 'Untitled Project'}</h3>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {sub.github_link && (
+                                            <a href={sub.github_link} target="_blank" rel="noreferrer"
+                                                className="flex items-center gap-1.5 px-2.5 py-1 bg-white/[0.05] rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.1] transition-all border border-white/[0.06]">
+                                                <Github size={11} />
+                                                <span className="text-[10px] font-semibold uppercase">Code</span>
+                                            </a>
+                                        )}
+                                        {sub.demo_link && (
+                                            <a href={sub.demo_link} target="_blank" rel="noreferrer"
+                                                className="flex items-center gap-1.5 px-2.5 py-1 bg-white/[0.05] rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.1] transition-all border border-white/[0.06]">
+                                                <Play size={11} />
+                                                <span className="text-[10px] font-semibold uppercase">Demo</span>
+                                            </a>
+                                        )}
+                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase border ${classificationStyle(sub.classification, !!sub.existing_scores)}`}>
+                                            {sub.classification || (sub.existing_scores ? 'Evaluated' : 'Pending Review')}
+                                        </span>
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2">
-                                    {sub.github_link && (
-                                        <a href={sub.github_link} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-all border border-slate-700">
-                                            <Github size={12} />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Code</span>
-                                        </a>
-                                    )}
-                                    {sub.demo_link && (
-                                        <a href={sub.demo_link} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-all border border-slate-700">
-                                            <Play size={12} />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Demo</span>
-                                        </a>
-                                    )}
-                                    <div className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border flex items-center ${
-                                        sub.classification === 'Shortlisted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                        sub.classification === 'Waitlisted' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                                        sub.classification === 'Rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                        sub.existing_scores ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                        'bg-slate-800 text-slate-400 border-slate-700'
-                                    }`}>
-                                        {sub.classification || (sub.existing_scores ? 'Evaluated' : 'Awaiting Review')}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-4">
-                                {sub.existing_scores ? (
-                                    <div className="text-left md:text-right">
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Score</p>
-                                        <div className="text-3xl font-black text-emerald-400 tracking-tighter">
-                                            {((Object.values(sub.existing_scores.scores || {}) as number[]).reduce((a,b)=>a+b, 0) / Object.keys(sub.existing_scores.scores || {}).length).toFixed(1)}
+                                <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 shrink-0">
+                                    {sub.existing_scores ? (
+                                        <div className="text-left sm:text-right">
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Score</p>
+                                            <div className="text-2xl font-extrabold text-emerald-400 tracking-tight">
+                                                {((Object.values(sub.existing_scores.scores || {}) as number[]).reduce((a, b) => a + b, 0) / Object.keys(sub.existing_scores.scores || {}).length).toFixed(1)}
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="hidden md:flex w-12 h-12 bg-slate-800 border border-slate-700 rounded-xl items-center justify-center text-slate-500">
-                                        <TrendingUp size={20} />
-                                    </div>
-                                )}
-                                
-                                <button 
-                                    onClick={() => handleOpenScoring(sub)}
-                                    className={`w-full md:w-auto px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border ${sub.existing_scores ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white' : 'bg-purple-600 border-purple-500 text-white hover:bg-purple-500 shadow-lg shadow-purple-900/20'}`}
-                                >
-                                    {sub.existing_scores ? 'Edit Score' : 'Evaluate'}
-                                </button>
+                                    ) : (
+                                        <div className="hidden sm:flex w-10 h-10 bg-white/[0.04] border border-white/[0.06] rounded-xl items-center justify-center text-slate-600">
+                                            <TrendingUp size={18} />
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={() => handleOpenScoring(sub)}
+                                        className={`px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all ${
+                                            sub.existing_scores
+                                                ? 'bg-white/[0.06] border border-white/[0.08] text-slate-300 hover:bg-white/[0.1] hover:text-white'
+                                                : 'bg-violet-600 text-white hover:bg-violet-500 shadow-lg shadow-violet-500/20 border border-violet-500/30'
+                                        }`}
+                                    >
+                                        {sub.existing_scores ? 'Edit' : 'Evaluate'}
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     )) : (
-                        <div className="col-span-full py-32 text-center space-y-4">
-                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto text-slate-800">
-                                <Target size={40} />
+                        <div className="col-span-full py-24 text-center">
+                            <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-5">
+                                <Target size={32} className="text-slate-700" />
                             </div>
-                            <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.3em]">No project data found in current sector</p>
+                            <p className="text-base font-bold text-slate-500">No projects found</p>
+                            <p className="text-sm text-slate-600 mt-1">
+                                {searchQuery ? 'Try adjusting your search or filters' : 'No assignments have been assigned to you yet'}
+                            </p>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Detailed Scoring Modal (Re-integrating 320 lines worth of logic/UI) */}
+            {/* Scoring Modal */}
             <AnimatePresence>
                 {selectedAssignment && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl overflow-y-auto py-12">
-                        <motion.div 
-                            initial={{ scale: 0.95, opacity: 0, y: 30 }}
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 30 }}
-                            className="bg-[#020617] border border-white/10 rounded-[3rem] w-full max-w-4xl overflow-hidden shadow-2xl"
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-[#0c0a2a] border border-white/[0.08] rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl my-8"
                         >
                             <div className="grid grid-cols-1 lg:grid-cols-2">
-                                {/* Left Side: Project Context */}
-                                <div className="p-12 space-y-10 border-r border-white/5">
+                                {/* Left: Project Info */}
+                                <div className="p-8 space-y-8 border-r border-white/[0.06]">
                                     <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="text-purple-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Protocol Active</p>
-                                            <h2 className="text-3xl font-black text-white tracking-tight">{selectedAssignment.project_title}</h2>
-                                            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">Unit: {selectedAssignment.team_name}</p>
-                                            <div className={`mt-3 inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${
-                                                selectedAssignment.classification === 'Shortlisted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                                selectedAssignment.classification === 'Waitlisted' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                                                selectedAssignment.classification === 'Rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                                selectedAssignment.existing_scores ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                                'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                                            }`}>
-                                                {selectedAssignment.classification || (selectedAssignment.existing_scores ? 'Evaluated' : 'Awaiting Review')}
-                                            </div>
+                                        <div className="space-y-2">
+                                            <h2 className="text-xl font-extrabold text-white tracking-tight">{selectedAssignment.project_title}</h2>
+                                            <p className="text-sm text-slate-400 font-medium">{selectedAssignment.team_name}</p>
+                                            <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-bold uppercase border ${classificationStyle(selectedAssignment.classification, !!selectedAssignment.existing_scores)}`}>
+                                                {selectedAssignment.classification || (selectedAssignment.existing_scores ? 'Evaluated' : 'Pending Review')}
+                                            </span>
                                         </div>
-                                        <button 
-                                            onClick={() => setSelectedAssignment(null)}
-                                            className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-slate-500 hover:text-white"
-                                        >
-                                            <XCircle size={24} />
+                                        <button onClick={() => setSelectedAssignment(null)}
+                                            className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-all">
+                                            <X size={20} />
                                         </button>
                                     </div>
 
-                                    <div className="space-y-6">
-                                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Abstract</h3>
-                                        <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                                            {selectedAssignment.description || "The team has not provided a detailed abstract for this protocol yet."}
+                                    <div className="space-y-3">
+                                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Abstract</h3>
+                                        <p className="text-sm text-slate-300 leading-relaxed">
+                                            {selectedAssignment.description || "No abstract provided."}
                                         </p>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <div className="p-6 bg-white/5 border border-white/5 rounded-3xl space-y-3">
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Resources</p>
-                                            <div className="space-y-2">
-                                                {selectedAssignment.github_link && (
-                                                    <a href={selectedAssignment.github_link} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-xs font-bold text-slate-300 hover:text-purple-400 transition-colors">
-                                                        <Github size={16} /> Repository URL
-                                                    </a>
-                                                )}
-                                                {selectedAssignment.demo_link && (
-                                                    <a href={selectedAssignment.demo_link} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-xs font-bold text-slate-300 hover:text-purple-400 transition-colors">
-                                                        <Play size={16} /> Live Prototype
-                                                    </a>
-                                                )}
-                                            </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Resources</p>
+                                            {selectedAssignment.github_link && (
+                                                <a href={selectedAssignment.github_link} target="_blank" rel="noreferrer"
+                                                    className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-violet-400 transition-colors">
+                                                    <Github size={14} /> Repository
+                                                </a>
+                                            )}
+                                            {selectedAssignment.demo_link && (
+                                                <a href={selectedAssignment.demo_link} target="_blank" rel="noreferrer"
+                                                    className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-violet-400 transition-colors">
+                                                    <Play size={14} /> Live Demo
+                                                </a>
+                                            )}
                                         </div>
-                                        {/* Dynamic User-Submitted Data */}
+                                        {/* Submitted Data */}
                                         {(() => {
                                             const subData = selectedAssignment.data || {};
                                             const textFields = Object.entries(subData).filter(([k, v]) =>
-                                                typeof v === 'string' && !v.startsWith('data:') && !v.startsWith('http://') && !v.startsWith('https://') && !k.startsWith('_')
+                                                typeof v === 'string' && !v.startsWith('data:') && !v.startsWith('http') && !k.startsWith('_')
                                             );
                                             if (textFields.length === 0) return null;
                                             return (
-                                                <div className="p-6 bg-white/5 border border-white/5 rounded-3xl space-y-3">
-                                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Submitted Data</p>
-                                                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                                                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Submitted Data</p>
+                                                    <div className="space-y-1 max-h-36 overflow-y-auto">
                                                         {textFields.map(([key, val]) => (
                                                             <div key={key} className="text-xs">
-                                                                <span className="font-black text-slate-400 uppercase tracking-wider text-[9px]">{key.replace(/_/g, ' ')}: </span>
-                                                                <span className="text-slate-300 font-medium">{String(val)}</span>
+                                                                <span className="font-bold text-slate-500 uppercase text-[9px]">{key.replace(/_/g, ' ')}: </span>
+                                                                <span className="text-slate-300">{String(val)}</span>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -528,49 +451,38 @@ const JudgeDashboard: React.FC = () => {
                                             const subData = selectedAssignment.data || {};
                                             const fileEntries = Object.entries(subData).filter(([_, v]) =>
                                                 (typeof v === 'object' && v && (v as any)._stored_file) ||
-                                                (typeof v === 'string' && (v.startsWith('data:') || v.startsWith('http://') || v.startsWith('https://')) && !(v.includes('github.com') || v.includes('youtube.com') || v.includes('vimeo.com') || v.includes('drive.google.com')))
+                                                (typeof v === 'string' && (v.startsWith('data:') || v.startsWith('http')))
                                             );
                                             if (fileEntries.length === 0) return null;
                                             return (
-                                                <div className="p-6 bg-white/5 border border-white/5 rounded-3xl space-y-3">
-                                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Deliverable Files</p>
-                                                    <div className="space-y-2">
+                                                <div className="col-span-2 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Deliverable Files</p>
+                                                    <div className="flex flex-wrap gap-2">
                                                         {fileEntries.map(([key, value]) => {
                                                             const label = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
                                                             if (typeof value === 'object' && value && (value as any)._stored_file) {
                                                                 const f = value as any;
-                                                                const ext = (f.filename || '').split('.').pop()?.toUpperCase() || 'FILE';
-                                                                const isPdf = (f.mime || '').includes('pdf') || ext === 'PDF';
-                                                                const isPpt = (f.mime || '').includes('presentation') || ext === 'PPT' || ext === 'PPTX';
                                                                 return (
-                                                                    <button
-                                                                        key={key}
-                                                                        type="button"
+                                                                    <button key={key} type="button"
                                                                         onClick={() => openJudgeSubmissionFile(String(selectedAssignment._id), key, f.filename, f.mime)}
-                                                                        className="flex items-center gap-3 text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors"
-                                                                    >
-                                                                        <FileText size={16} />
-                                                                        {isPdf ? 'View PDF' : isPpt ? 'View PPT' : f.filename || 'View File'}
+                                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 text-violet-400 rounded-lg text-xs font-semibold hover:bg-violet-500/20 transition-colors border border-violet-500/20">
+                                                                        <FileText size={12} /> {f.filename || label}
                                                                     </button>
                                                                 );
                                                             }
-                                                            if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'))) {
+                                                            if (typeof value === 'string' && value.startsWith('http')) {
                                                                 return (
                                                                     <a key={key} href={value} target="_blank" rel="noreferrer"
-                                                                        className="flex items-center gap-3 text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors">
-                                                                        <ExternalLink size={16} /> {label}
+                                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 text-violet-400 rounded-lg text-xs font-semibold hover:bg-violet-500/20 transition-colors border border-violet-500/20">
+                                                                        <ExternalLink size={12} /> {label}
                                                                     </a>
                                                                 );
                                                             }
                                                             if (typeof value === 'string' && value.startsWith('data:')) {
-                                                                const mime = value.split(';')[0].split(':')[1] || '';
-                                                                const isPdf = mime.includes('pdf');
-                                                                const isPpt = mime.includes('presentation');
                                                                 return (
                                                                     <button key={key} onClick={() => window.open(value, '_blank')}
-                                                                        className="flex items-center gap-3 text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors">
-                                                                        <FileText size={16} />
-                                                                        {isPdf ? 'View PDF' : isPpt ? 'View PPT' : 'View File'}
+                                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 text-violet-400 rounded-lg text-xs font-semibold hover:bg-violet-500/20 transition-colors border border-violet-500/20">
+                                                                        <FileText size={12} /> {label}
                                                                     </button>
                                                                 );
                                                             }
@@ -580,100 +492,83 @@ const JudgeDashboard: React.FC = () => {
                                                 </div>
                                             );
                                         })()}
-                                        <div className="p-6 bg-white/5 border border-white/5 rounded-3xl space-y-3">
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Phase</p>
-                                            <div className="flex items-center gap-2 text-white font-black text-sm">
-                                                <Clock size={16} className="text-purple-500" /> Stage 01
-                                            </div>
-                                        </div>
                                     </div>
 
-                                    {/* Score Visualization */}
-                                    <div className="pt-8 border-t border-white/5 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aggregate Assessment</p>
-                                                <p className="text-4xl font-black text-white tracking-tighter">
-                                                    {(Object.values(scores).reduce((a,b)=>a+b, 0) / (scoringCriteria.length || 1)).toFixed(1)}
-                                                    <span className="text-lg text-slate-700 ml-1">/10</span>
-                                                </p>
-                                            </div>
-                                            <div className="w-20 h-20 relative">
-                                                <svg className="w-full h-full transform -rotate-90">
-                                                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
-                                                    <circle 
-                                                        cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="4" fill="transparent" 
-                                                        strokeDasharray={226.2}
-                                                        strokeDashoffset={226.2 - (226.2 * (Object.values(scores).reduce((a,b)=>a+b, 0) / (scoringCriteria.length || 1) / 10))}
-                                                        className="text-purple-500 transition-all duration-500"
-                                                    />
-                                                </svg>
-                                                <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-purple-400">Score</div>
+                                    {/* Score Ring */}
+                                    <div className="pt-6 border-t border-white/[0.06] flex items-center gap-6">
+                                        <div className="w-16 h-16 relative shrink-0">
+                                            <svg className="w-full h-full transform -rotate-90">
+                                                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-white/[0.05]" />
+                                                <circle
+                                                    cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="transparent"
+                                                    strokeDasharray={175.9}
+                                                    strokeDashoffset={175.9 - (175.9 * (Object.values(scores).reduce((a, b) => a + b, 0) / (scoringCriteria.length || 1) / 10))}
+                                                    className="text-violet-500 transition-all duration-500"
+                                                    strokeLinecap="round"
+                                                />
+                                            </svg>
+                                            <div className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-violet-400">
+                                                {(Object.values(scores).reduce((a, b) => a + b, 0) / (scoringCriteria.length || 1)).toFixed(1)}
                                             </div>
                                         </div>
-                                        {/* Threshold bars */}
-                                        {selectedAssignment.event_thresholds && (
-                                            <div className="grid grid-cols-3 gap-3">
-                                                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-center">
-                                                    <p className="text-[7px] font-black text-emerald-400 uppercase tracking-widest">Shortlist ≥</p>
-                                                    <p className="text-sm font-black text-white">{selectedAssignment.event_thresholds.shortlist_min || 80}</p>
-                                                </div>
-                                                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-center">
-                                                    <p className="text-[7px] font-black text-amber-400 uppercase tracking-widest">Waitlist ≥</p>
-                                                    <p className="text-sm font-black text-white">{selectedAssignment.event_thresholds.waitlist_min || Math.max((selectedAssignment.event_thresholds.shortlist_min || 80) * 0.75, (selectedAssignment.event_thresholds.shortlist_min || 80) - 15)}</p>
-                                                </div>
-                                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-center">
-                                                    <p className="text-[7px] font-black text-red-400 uppercase tracking-widest">Reject &lt;</p>
-                                                    <p className="text-sm font-black text-white">{selectedAssignment.event_thresholds.reject_below || selectedAssignment.event_thresholds.waitlist_min || Math.max((selectedAssignment.event_thresholds.shortlist_min || 80) * 0.75, (selectedAssignment.event_thresholds.shortlist_min || 80) - 15)}</p>
-                                                </div>
-                                            </div>
-                                        )}
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Aggregate Score</p>
+                                            <p className="text-2xl font-extrabold text-white tracking-tight">
+                                                {(Object.values(scores).reduce((a, b) => a + b, 0) / (scoringCriteria.length || 1)).toFixed(1)}
+                                                <span className="text-sm text-slate-600 ml-1">/ 10</span>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Right Side: Scoring Engine */}
-                                <div className="p-12 bg-white/5 space-y-10">
-                                    <h2 className="text-xl font-black text-white flex items-center gap-3">
-                                        <Gavel size={20} className="text-purple-500" />
-                                        Evaluation Matrix
+                                {/* Right: Scoring */}
+                                <div className="p-8 space-y-8 bg-white/[0.01]">
+                                    <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
+                                        <Gavel size={18} className="text-violet-400" />
+                                        Evaluation Criteria
                                     </h2>
 
-                                    <div className="space-y-8 max-h-[400px] overflow-y-auto pr-4 no-scrollbar">
+                                    <div className="space-y-6 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+                                        {scoringCriteria.length === 0 && (
+                                            <p className="text-sm text-slate-500 text-center py-8">No criteria defined for this event yet.</p>
+                                        )}
                                         {scoringCriteria.map((criterion, idx) => (
-                                            <div key={idx} className="space-y-4">
+                                            <div key={idx} className="space-y-3">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-xs font-black text-white uppercase tracking-widest">{criterion.name}</label>
-                                                    <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-[10px] font-black border border-purple-500/20">{scores[criterion.name] || 0}</span>
+                                                    <label className="text-xs font-bold text-white uppercase tracking-wider">{criterion.name}</label>
+                                                    <span className="px-2.5 py-1 bg-violet-500/10 text-violet-400 rounded-lg text-[11px] font-bold border border-violet-500/20">
+                                                        {scores[criterion.name] || 0} / {criterion.max_points || 10}
+                                                    </span>
                                                 </div>
-                                                <input 
+                                                <input
                                                     type="range" min="0" max={criterion.max_points || 10} step="0.5"
                                                     value={scores[criterion.name] || 0}
                                                     onChange={(e) => setScores({ ...scores, [criterion.name]: parseFloat(e.target.value) })}
-                                                    className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-purple-500"
+                                                    className="w-full h-1.5 bg-white/[0.06] rounded-full appearance-none cursor-pointer accent-violet-500"
                                                 />
-                                                <p className="text-[10px] text-slate-500 font-medium italic">Weight: {criterion.weight || 1}x</p>
+                                                <p className="text-[10px] text-slate-600 font-medium">Weight: {criterion.weight || 1}x</p>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                            <MessageSquare size={14} /> Evaluator Notes
+                                    <div className="space-y-3">
+                                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                            <MessageSquare size={13} /> Feedback Notes
                                         </h3>
-                                        <textarea 
+                                        <textarea
                                             value={comments}
                                             onChange={(e) => setComments(e.target.value)}
-                                            placeholder="Provide technical feedback for the team..."
-                                            className="w-full h-32 p-6 bg-[#020617] border border-white/5 rounded-[2rem] text-sm font-medium text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all placeholder:text-slate-700 resize-none"
+                                            placeholder="Provide feedback for the team..."
+                                            className="w-full h-28 p-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/40 transition-all placeholder:text-slate-600 resize-none"
                                         />
                                     </div>
 
-                                    <button 
+                                    <button
                                         onClick={handleSaveScore}
                                         disabled={isSaving}
-                                        className="w-full py-6 bg-white text-[#020617] rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs hover:bg-purple-400 transition-all shadow-2xl shadow-purple-500/20 disabled:opacity-50"
+                                        className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-2xl font-bold uppercase tracking-wider text-xs hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/20 disabled:opacity-50 border border-violet-500/30"
                                     >
-                                        {isSaving ? 'Synchronizing...' : 'Finalize Assessment'}
+                                        {isSaving ? 'Saving...' : 'Submit Evaluation'}
                                     </button>
                                 </div>
                             </div>
@@ -682,6 +577,7 @@ const JudgeDashboard: React.FC = () => {
                 )}
             </AnimatePresence>
 
+            {/* File Preview Modal */}
             <AnimatePresence>
                 {previewAsset && (
                     <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
@@ -689,18 +585,19 @@ const JudgeDashboard: React.FC = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-[#020617] border border-white/10 rounded-[2rem] w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden"
+                            className="bg-[#0c0a2a] border border-white/[0.08] rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden"
                         >
-                            <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                                <h3 className="text-lg font-black text-white">{previewAsset.filename}</h3>
-                                <button type="button" onClick={() => setPreviewAsset(null)} className="p-3 bg-white/5 rounded-xl text-slate-400 hover:text-white">
-                                    <XCircle size={20} />
+                            <div className="p-5 border-b border-white/[0.06] flex items-center justify-between">
+                                <h3 className="text-sm font-bold text-white">{previewAsset.filename}</h3>
+                                <button onClick={() => setPreviewAsset(null)}
+                                    className="p-2 rounded-xl bg-white/[0.05] text-slate-400 hover:text-white transition-colors">
+                                    <X size={18} />
                                 </button>
                             </div>
                             <div className="flex-1 p-4">
                                 {previewAsset.loading ? (
                                     <div className="h-full flex items-center justify-center">
-                                        <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                                        <div className="w-10 h-10 border-3 border-violet-500 border-t-transparent rounded-full animate-spin" />
                                     </div>
                                 ) : (
                                     <FilePreviewPanel url={previewAsset.url} filename={previewAsset.filename} mime={previewAsset.mime} />
@@ -715,4 +612,3 @@ const JudgeDashboard: React.FC = () => {
 };
 
 export default JudgeDashboard;
-

@@ -1,26 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-    Gavel, 
-    LayoutDashboard, 
-    LogOut, 
+import {
+    Gavel,
+    LayoutDashboard,
+    LogOut,
     Settings,
     Trophy,
-    User,
-    ChevronLeft
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../AuthContext';
 
-interface JudgeSidebarProps {
-    onLogout?: () => void;
-}
-
-const JudgeSidebar: React.FC<JudgeSidebarProps> = ({ onLogout }) => {
+const JudgeSidebar: React.FC = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
+    const [collapsed, setCollapsed] = useState(false);
 
     const handleLogout = () => {
-        if (onLogout) onLogout();
         logout();
         navigate('/login');
     };
@@ -29,62 +25,87 @@ const JudgeSidebar: React.FC<JudgeSidebarProps> = ({ onLogout }) => {
         { icon: LayoutDashboard, label: 'Dashboard', path: '/judge-portal' },
         { icon: Gavel, label: 'Assignments', path: '/judge-portal/assignments' },
         { icon: Trophy, label: 'Leaderboards', path: '/judge-portal/leaderboards' },
-        { icon: Settings, label: 'Profile Settings', path: '/judge-portal/settings' },
+        { icon: Settings, label: 'Settings', path: '/judge-portal/settings' },
     ];
 
     return (
-        <aside className="w-72 bg-white border-r border-slate-100 flex flex-col h-screen sticky top-0 shrink-0">
-            {/* Logo Area */}
-            <div className="p-8">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-slate-900/20">
-                        <Gavel size={20} />
-                    </div>
-                    <div>
-                        <h1 className="text-sm font-black text-slate-900 uppercase tracking-tighter">Judge Portal</h1>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Studlyf Network</p>
-                    </div>
+        <aside
+            className={`h-screen bg-gradient-to-b from-[#0c0a2a] via-[#0f0d2e] to-[#08071e] border-r border-white/[0.06] flex flex-col shrink-0 transition-all duration-300 ${
+                collapsed ? 'w-[72px]' : 'w-[260px]'
+            }`}
+        >
+            {/* Logo */}
+            <div className={`p-5 flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/25 shrink-0">
+                    <Gavel size={18} className="text-white" />
                 </div>
+                {!collapsed && (
+                    <div className="min-w-0">
+                        <h1 className="text-sm font-extrabold text-white tracking-tight">Judge Portal</h1>
+                        <p className="text-[10px] font-semibold text-violet-400/70 uppercase tracking-widest">StudLyf</p>
+                    </div>
+                )}
             </div>
 
+            {/* Collapse toggle */}
+            <button
+                onClick={() => setCollapsed(!collapsed)}
+                className="mx-4 mb-2 flex items-center justify-center p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-500 hover:text-slate-300 transition-colors"
+            >
+                {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            </button>
+
             {/* Navigation */}
-            <nav className="flex-1 px-4 space-y-1 mt-4">
+            <nav className="flex-1 px-3 mt-2 space-y-1">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
                         end={item.path === '/judge-portal'}
-                        className={({ isActive }) => `
-                            flex items-center gap-3 px-5 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all
-                            ${isActive 
-                                ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 translate-x-1' 
-                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1'}
-                        `}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all ${
+                                collapsed ? 'justify-center' : ''
+                            } ${
+                                isActive
+                                    ? 'bg-gradient-to-r from-violet-500/20 to-indigo-500/10 text-white shadow-md shadow-violet-500/10 border border-violet-500/20'
+                                    : 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-200 border border-transparent'
+                            }`
+                        }
+                        title={collapsed ? item.label : undefined}
                     >
                         <item.icon size={18} />
-                        {item.label}
+                        {!collapsed && <span>{item.label}</span>}
                     </NavLink>
                 ))}
             </nav>
 
-            {/* User Profile / Bottom Actions */}
-            <div className="p-6 mt-auto border-t border-slate-50">
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 mb-4">
-                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 font-bold">
-                        {user?.name?.charAt(0) || 'J'}
+            {/* User profile + logout */}
+            <div className={`p-4 border-t border-white/[0.06] ${collapsed ? 'px-2' : ''}`}>
+                <div
+                    className={`flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] mb-3 ${
+                        collapsed ? 'justify-center px-0' : ''
+                    }`}
+                >
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-500/20 flex items-center justify-center text-violet-300 font-bold text-sm shrink-0">
+                        {user?.name?.charAt(0)?.toUpperCase() || user?.full_name?.charAt(0)?.toUpperCase() || 'J'}
                     </div>
-                    <div className="min-w-0">
-                        <p className="text-xs font-black text-slate-900 truncate">{user?.name || 'Judge'}</p>
-                        <p className="text-[10px] font-bold text-slate-400 truncate">{user?.email}</p>
-                    </div>
+                    {!collapsed && (
+                        <div className="min-w-0">
+                            <p className="text-[13px] font-bold text-white truncate">{user?.full_name || user?.name || 'Judge'}</p>
+                            <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+                        </div>
+                    )}
                 </div>
 
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-all"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold text-slate-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all ${
+                        collapsed ? 'justify-center' : ''
+                    }`}
+                    title={collapsed ? 'Sign Out' : undefined}
                 >
                     <LogOut size={18} />
-                    Sign Out
+                    {!collapsed && <span>Sign Out</span>}
                 </button>
             </div>
         </aside>
@@ -92,4 +113,3 @@ const JudgeSidebar: React.FC<JudgeSidebarProps> = ({ onLogout }) => {
 };
 
 export default JudgeSidebar;
-

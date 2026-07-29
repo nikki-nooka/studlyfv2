@@ -90,7 +90,7 @@ async def create_team(
                     "joined_at": datetime.now(timezone.utc),
                 }
             ],
-            "status": "active",
+            "status": "forming",
             "size_min": event_min_size,
             "size_max": event_max_size,
             "invite_code": invite_code,

@@ -1602,6 +1602,31 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     setShowSaveSuccess(true);
                     setTimeout(() => setShowSaveSuccess(false), 2000);
                     setRefreshCounter(prev => prev + 1);
+
+                    if (item) {
+                        try {
+                            const stageInfo = getCurrentStageInfo();
+                            const resolvedTeamId = item.team_id || item.user_id || submissionId;
+                            const emailRes = await fetch(`${API_BASE_URL}/api/v1/institution/events/${eventId}/send-status-email`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                                body: JSON.stringify({
+                                    team_id: resolvedTeamId,
+                                    status: newStatus,
+                                    team_name: item.team_name,
+                                    emails: item.member_emails || [],
+                                    stage_context: stageInfo,
+                                    total_score: item.score || item.total_score || item.totalScore || 0,
+                                    judges_feedback: item.judges_feedback || []
+                                })
+                            });
+                            if (emailRes.ok) {
+                                setNotifiedItems(prev => new Set(prev).add(`${resolvedTeamId}_${newStatus}`));
+                            }
+                        } catch (emailErr) {
+                            try { console.error('Failed to send email:', emailErr instanceof Error ? emailErr.message : String(emailErr)); } catch (_) { }
+                        }
+                    }
                 }
             } catch (err) {
                 try { console.error('Failed to update stage submission status:', err instanceof Error ? err.message : String(err)); } catch (_) { }
@@ -1636,7 +1661,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                     status: newStatus,
                                     team_name: item.team_name,
                                     emails: item.member_emails || [],
-                                    stage_context: stageInfo
+                                    stage_context: stageInfo,
+                                    total_score: item.score || item.total_score || item.totalScore || 0,
+                                    judges_feedback: item.judges_feedback || []
                                 })
                             });
                             if (emailRes.ok) {
@@ -1669,6 +1696,31 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     setShowSaveSuccess(true);
                     setTimeout(() => setShowSaveSuccess(false), 2000);
                     setRefreshCounter(prev => prev + 1);
+
+                    if (item) {
+                        try {
+                            const stageInfo = getCurrentStageInfo();
+                            const resolvedTeamId = item.team_id || item.user_id || submissionId;
+                            const emailRes = await fetch(`${API_BASE_URL}/api/v1/institution/events/${eventId}/send-status-email`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                                body: JSON.stringify({
+                                    team_id: resolvedTeamId,
+                                    status: newStatus,
+                                    team_name: item.team_name,
+                                    emails: item.member_emails || [],
+                                    stage_context: stageInfo,
+                                    total_score: item.score || item.total_score || item.totalScore || 0,
+                                    judges_feedback: item.judges_feedback || []
+                                })
+                            });
+                            if (emailRes.ok) {
+                                setNotifiedItems(prev => new Set(prev).add(`${resolvedTeamId}_${newStatus}`));
+                            }
+                        } catch (emailErr) {
+                            try { console.error('Failed to send email:', emailErr instanceof Error ? emailErr.message : String(emailErr)); } catch (_) { }
+                        }
+                    }
                 }
             } catch (err) {
                 try { console.error('Failed to update submission status:', err instanceof Error ? err.message : String(err)); } catch (_) { }

@@ -372,15 +372,16 @@ async def finalize_existing_team(
     from datetime import datetime, timezone
     await teams_col.update_one(
         {"_id": team["_id"]},
-        {"$set": {"status": "finalized", "updated_at": datetime.now(timezone.utc)}}
+        {"$set": {
+            "status": "pending_admin_approval",
+            "updated_at": datetime.now(timezone.utc)
+        }}
     )
     
     return {"status": "success", "message": "Team has been finalized and locked successfully!"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SUBMISSION STAGE ENDPOINTS
-# ─────────────────────────────────────────────────────────────────────────────
-
 @router.get("/events/{event_id}/stages/{stage_id}/submission")
 async def get_existing_submission(
     event_id: str,

@@ -373,7 +373,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/v1/teams/requests/${requestId}/approve`, {
                 method: 'POST',
-                headers: { ...authHeaders() },
+                headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                body: JSON.stringify({}),
             });
             if (res.ok) {
                 await fetchJoinRequests();
@@ -605,7 +606,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                         </div>
                     )}
 
-                    {isLeader && isSoloTeam && (team as any).status === 'active' && (
+                    {isLeader && isSoloTeam && ((team as any).status === 'active' || (team as any).status === 'forming') && (
                         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-2xl p-6 text-center shadow-sm">
                             <p className="text-sm font-black text-amber-900 flex items-center justify-center gap-1.5">Solo Team Created</p>
                             <p className="text-xs text-amber-700 mt-1 font-semibold">Your solo team is ready. Submit it for admin approval to unlock event stages.</p>
@@ -624,7 +625,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                                         if (!res.ok) {
                                             throw new Error(data.detail || data.error || 'Failed to submit');
                                         }
-                                        setTeam((prev: any) => prev ? { ...prev, status: 'finalized' } : prev);
+                                        setTeam((prev: any) => prev ? { ...prev, status: 'pending_admin_approval' } : prev);
                                         setSuccessMsg('Team submitted for admin review!');
                                         setTimeout(() => setSuccessMsg(null), 4000);
                                     } catch (err: any) {
@@ -641,9 +642,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                         </div>
                     )}
 
-                    {isLeader && (team as any).status === 'finalized' && (
+                    {isLeader && ((team as any).status === 'finalized' || (team as any).status === 'pending_admin_approval') && (
                         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-inner relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
                             {isSoloTeam ? (
                                 <>
                                     <p className="text-sm font-black text-slate-100 flex items-center justify-center gap-1.5">Submitted for Review</p>
@@ -661,9 +662,29 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-sm font-black text-slate-100 flex items-center justify-center gap-1.5">🔒 Team Finalized & Locked</p>
-                                    <p className="text-xs text-slate-400 mt-1 font-semibold">Your team structure has been submitted and locked for the event. You are now ready to make submissions!</p>
+                                    <p className="text-sm font-black text-slate-100 flex items-center justify-center gap-1.5">🔒 Team Pending Admin Approval</p>
+                                    <p className="text-xs text-slate-400 mt-1 font-semibold">Your team structure has been submitted and locked. You are waiting for the admin to approve it.</p>
                                 </>
+                            )}
+                        </div>
+                    )}
+
+                    {isLeader && (team as any).status === 'approved' && (
+                        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-inner relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                            <p className="text-sm font-black text-emerald-400 flex items-center justify-center gap-1.5">✅ Team Approved & Locked</p>
+                            <p className="text-xs text-slate-400 mt-1 font-semibold">Your team has been approved by the admin. You are now ready to make submissions!</p>
+                            {isSoloTeam && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const oppPath = eventId ? `/opportunities/${encodeURIComponent(String(eventId))}` : '';
+                                        if (oppPath) navigate(`${oppPath}?tab=submissions`);
+                                    }}
+                                    className="mt-4 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm"
+                                >
+                                    Go to Submissions
+                                </button>
                             )}
                         </div>
                     )}
@@ -686,8 +707,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                         </div>
                     )}
 
-                    {/* Join Requests — leader can approve/reject (only if not finalized, hidden for solo) */}
-                    {isLeader && !isSoloTeam && (team as any).status !== 'finalized' && joinRequests.filter(r => r.status === 'PENDING').length > 0 && (
+                    {/* Join Requests — leader can approve/reject (only if forming/active) */}
+                    {isLeader && !isSoloTeam && ((team as any).status === 'forming' || (team as any).status === 'active') && joinRequests.filter(r => r.status === 'PENDING').length > 0 && (
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Pending Join Requests</p>
                             <div className="space-y-3">
@@ -722,8 +743,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                         </div>
                     )}
 
-                    {/* Finalize/Submit Button — leader only (hidden for solo — already finalized) */}
-                    {!isSoloTeam && (team as any).status !== 'finalized' && (
+                    {/* Finalize/Submit Button — leader only (hidden for solo) */}
+                    {!isSoloTeam && ((team as any).status === 'forming' || (team as any).status === 'active') && (
                         memberCount >= (minSize || 1) ? (
                             <button
                                 type="button"
@@ -745,8 +766,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                         )
                     )}
 
-                    {/* Leave team — only if not finalized (hidden for solo) */}
-                    {!isSoloTeam && (team as any).status !== 'finalized' && (
+                    {/* Leave team — only if forming/active (hidden for solo) */}
+                    {!isSoloTeam && ((team as any).status === 'forming' || (team as any).status === 'active') && (
                         <button
                             type="button"
                             onClick={handleLeaveTeam}

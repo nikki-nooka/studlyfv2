@@ -16,6 +16,11 @@ export type StageAccessState = {
     lock_detail?: string | null;
     status_badge: string;
     fields?: any[];
+    submission?: {
+        status?: string;
+        total_score?: number;
+        judges_feedback?: any[];
+    };
 };
 
 type StagesAccessResponse = {
@@ -123,6 +128,52 @@ const StageSubmissionsPanel: React.FC<Props> = ({ eventId, participationType, st
                     <p className="text-[10px] font-black uppercase tracking-wider text-purple-600 mb-1">Current stage</p>
                     <h3 className="text-lg font-black text-slate-900">{active.stage_name}</h3>
                     {active.description ? <p className="text-sm text-slate-500 mt-1">{active.description}</p> : null}
+
+                    {active.submission?.status && active.submission.status.toLowerCase() !== 'pending' && (
+                        <div className="mt-6 p-5 bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl shadow-sm">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                <h4 className="font-black text-purple-900 text-lg flex items-center gap-2">
+                                    <CheckCircle2 size={20} className="text-purple-600" />
+                                    Evaluation Results
+                                </h4>
+                                <span className="px-4 py-1.5 bg-white border border-purple-200 text-purple-700 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
+                                    Status: {active.submission.status}
+                                </span>
+                            </div>
+                            
+                            {active.submission.total_score !== undefined && active.submission.total_score !== null && (
+                                <div className="mb-5 flex items-baseline gap-2 bg-white px-4 py-3 rounded-xl border border-purple-100 shadow-sm w-fit">
+                                    <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Overall Score</span>
+                                    <span className="font-black text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+                                        {active.submission.total_score}
+                                    </span>
+                                </div>
+                            )}
+
+                            {active.submission.judges_feedback && active.submission.judges_feedback.length > 0 && (
+                                <div className="space-y-3">
+                                    <h5 className="text-xs font-bold uppercase text-slate-500 tracking-wider">Judges Feedback</h5>
+                                    <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                                        {active.submission.judges_feedback.map((fb: any, idx: number) => (
+                                            <div key={idx} className="bg-white p-4 rounded-xl border border-purple-100 shadow-sm text-sm">
+                                                <div className="flex justify-between items-start mb-2 pb-2 border-b border-slate-50">
+                                                    <span className="font-bold text-slate-800">{fb.judge_name || 'Judge'}</span>
+                                                    {fb.score !== undefined && fb.score !== null && (
+                                                        <span className="font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md text-xs">Score: {fb.score}</span>
+                                                    )}
+                                                </div>
+                                                {fb.comments ? (
+                                                    <p className="text-slate-600 mt-1 italic text-sm leading-relaxed">"{fb.comments}"</p>
+                                                ) : (
+                                                    <p className="text-slate-400 mt-1 italic text-xs">No comments provided.</p>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-5">

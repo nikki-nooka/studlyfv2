@@ -624,6 +624,7 @@ async def get_all_stages_access(event_id: str, user_id: str) -> Dict[str, Any]:
     event_ids_to_check = await _event_id_variants(event_id, resolved_id=resolved_id, event_doc=event)
     
     submitted_stage_ids: set = set()
+    submitted_stage_data = {}
     if participant:
         participant_team_id = str(participant.get("team_id") or "").strip()
         or_filters: List[Dict[str, Any]] = [{"user_id": str(user_id)}]
@@ -631,15 +632,57 @@ async def get_all_stages_access(event_id: str, user_id: str) -> Dict[str, Any]:
             or_filters.append({"team_id": participant_team_id})
         
         sub_start = time.time()
-        async for sub_doc in submission_data_col.find(
-            {"event_id": {"$in": event_ids_to_check}, "$or": or_filters},
-            {"stage_id": 1},
-        ):
-            sid = sub_doc.get("stage_id")
-            if sid:
-                submitted_stage_ids.add(str(sid))
+        subs_list = await submission_data_col.find(
+            {"event_id": {"$in": event_ids_to_check}, "$or": or_filters}
+        ).to_list(None)
+        
+        if subs_list:
+            from db import scores_col, users_col
+            from bson import ObjectId
+            sub_ids = [str(s["_id"]) for s in subs_list]
+            all_scores = await scores_col.find({"submission_id": {"$in": sub_ids}}).to_list(None)
+            
+            scores_by_sub = {}
+            judge_ids_to_fetch = set()
+            for sc in all_scores:
+                sub_id = sc.get("submission_id")
+                if sub_id not in scores_by_sub:
+                    scores_by_sub[sub_id] = []
+                scores_by_sub[sub_id].append(sc)
+                if sc.get("judge_id"):
+                    judge_ids_to_fetch.add(sc.get("judge_id"))
+                    
+            judge_map = {}
+            if judge_ids_to_fetch:
+                valid_jids = [ObjectId(jid) for jid in judge_ids_to_fetch if ObjectId.is_valid(jid)]
+                if valid_jids:
+                    async for j in users_col.find({"_id": {"$in": valid_jids}}):
+                        judge_map[str(j["_id"])] = j.get("name") or j.get("username") or "Judge"
+                        
+            for sub in subs_list:
+                sid = sub.get("stage_id")
+                if sid:
+                    sid_str = str(sid)
+                    submitted_stage_ids.add(sid_str)
+                    sub_id_str = str(sub["_id"])
+                    
+                    feedback = []
+                    for sc in scores_by_sub.get(sub_id_str, []):
+                        feedback.append({
+                            "judge_name": judge_map.get(sc.get("judge_id"), "Judge"),
+                            "score": sc.get("total_score"),
+                            "comments": sc.get("feedback", ""),
+                            "criteria_scores": sc.get("criteria_scores", {})
+                        })
+                    
+                    submitted_stage_data[sid_str] = {
+                        "status": sub.get("status") or sub.get("evaluation_recommendation") or "Pending",
+                        "total_score": sub.get("total_score") or sub.get("score"),
+                        "judges_feedback": feedback
+                    }
+
         sub_end = time.time()
-        logger.info(f"PERF: Submission bulk fetch took {sub_end - sub_start:.4f}s")
+        logger.info(f"PERF: Submission bulk fetch and metric enrichment took {sub_end - sub_start:.4f}s")
 
     # 3. Pre-fetch and map team if needed
     team_doc = None
@@ -692,6 +735,10 @@ async def get_all_stages_access(event_id: str, user_id: str) -> Dict[str, Any]:
         except Exception:
             state["fields"] = raw_fields
         state["type"] = stype
+        
+        if sid and sid in submitted_stage_data:
+            state["submission"] = submitted_stage_data[sid]
+            
         access_list.append(state)
 
         # Prefer the first unlocked stage that has NO submission yet (next action needed).

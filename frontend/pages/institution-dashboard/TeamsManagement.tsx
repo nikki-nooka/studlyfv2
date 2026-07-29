@@ -273,10 +273,11 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                                                     team.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                                                     team.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
+                                                    team.status === 'pending_admin_approval' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                                                     team.status === 'waitlisted' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
                                                     'bg-slate-50 text-slate-500 border-slate-100'
                                                 }`}>
-                                                    {team.status || 'Pending'}
+                                                    {team.status === 'pending_admin_approval' ? 'Pending Approval' : team.status || 'Pending'}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
@@ -331,9 +332,10 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
                                         <span className={`px-3 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border ${
                                             selectedTeam.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                                             selectedTeam.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
+                                            selectedTeam.status === 'pending_admin_approval' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                                             'bg-slate-50 text-slate-600 border-slate-100'
                                         }`}>
-                                            {selectedTeam.status || 'Pending'}
+                                            {selectedTeam.status === 'pending_admin_approval' ? 'Pending Approval' : selectedTeam.status || 'Pending'}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">

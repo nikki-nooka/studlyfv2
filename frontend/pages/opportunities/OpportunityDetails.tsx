@@ -1453,9 +1453,9 @@ const OpportunityDetails: React.FC = () => {
                         {hasSubmittableStages && (
                             <button
                                 type="button"
-                                onClick={() => scrollToSection('submissions')}
+                                onClick={() => navigate(`${oppPath}?tab=submissions`)}
                                 className={`pb-0.5 border-b-2 transition-colors ${
-                                    activeSection === 'submissions' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
+                                    activeTab === 'submissions' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
                                 }`}
                             >
                                 Submissions
@@ -2993,9 +2993,9 @@ const OpportunityDetails: React.FC = () => {
                                                             <button type="button" onClick={() => setShowRegistrationModal(true)} className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
                                                                 <CheckCircle2 size={20} /> Update Registration
                                                             </button>
-                                                            {allowsTeams && myTeam && (
+                                                            {allowsTeams && (
                                                                 <button type="button" onClick={() => navigate(`${oppPath}?tab=team`)} className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
-                                                                    <Users size={20} /> Manage Team
+                                                                    <Users size={20} /> {myTeam ? 'Manage Team' : 'Create / Join Team'}
                                                                 </button>
                                                             )}
                                                         </div>
@@ -3004,9 +3004,9 @@ const OpportunityDetails: React.FC = () => {
                                                             <button type="button" disabled className="w-full py-3.5 bg-emerald-500 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 opacity-80 cursor-not-allowed">
                                                                 <CheckCircle2 size={20} /> {regCTA.label}
                                                             </button>
-                                                            {allowsTeams && myTeam && (
+                                                            {allowsTeams && (
                                                                 <button type="button" onClick={() => navigate(`${oppPath}?tab=team`)} className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
-                                                                    <Users size={20} /> Manage Team
+                                                                    <Users size={20} /> {myTeam ? 'Manage Team' : 'Create / Join Team'}
                                                                 </button>
                                                             )}
                                                         </div>

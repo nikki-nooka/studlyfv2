@@ -37,8 +37,11 @@ async def submit_project(data: dict = Body(...), current_user: dict = Depends(ge
                 raise HTTPException(status_code=404, detail="Team not found")
 
             team_leader_id = team.get("team_leader_id") or team.get("leader_id")
-            if str(user_id) != team_leader_id:
-                raise HTTPException(status_code=403, detail="Only team leaders can submit projects")
+            members = team.get("members") or []
+            member_ids = [str(m.get("user_id") or "") for m in members]
+            
+            if str(user_id) != team_leader_id and str(user_id) not in member_ids:
+                raise HTTPException(status_code=403, detail="Only team members can submit projects")
             
             team_name = team.get("team_name") or team.get("name") or ""
             data["team_name"] = team_name

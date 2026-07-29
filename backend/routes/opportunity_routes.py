@@ -557,7 +557,7 @@ async def learner_upload_stage_file(
     if not p:
         raise HTTPException(status_code=403, detail="Not registered for this event")
         
-    # If in a team, ONLY team leader can submit
+    # If in a team, ANY team member can submit
     if p.get("team_id"):
         from db import teams_col
         from bson import ObjectId
@@ -569,8 +569,12 @@ async def learner_upload_stage_file(
                     if str(m.get("role", "")).upper() == "LEADER":
                         leader_id = m.get("user_id")
                         break
-            if str(leader_id) != uid:
-                raise HTTPException(status_code=403, detail="Only the team leader can submit files for the team")
+            
+            members = team.get("members") or []
+            member_ids = [str(m.get("user_id") or "") for m in members]
+            
+            if str(leader_id) != uid and uid not in member_ids:
+                raise HTTPException(status_code=403, detail="Only team members can submit files for the team")
 
     # 2. Basic file validation
     if not file or not file.filename:
@@ -1029,7 +1033,7 @@ async def learner_submit_stage_data(
                     detail=f"Your team has {member_count} member(s) but exceeds the maximum allowed size of {max_team}."
                 )
 
-    # If in a team, ONLY team leader can submit
+    # If in a team, ANY team member can submit
     if p.get("team_id"):
         from db import teams_col
         team = await teams_col.find_one({"_id": ObjectId(p["team_id"])})
@@ -1041,9 +1045,11 @@ async def learner_submit_stage_data(
                         leader_id = m.get("user_id")
                         break
 
-
-            if str(leader_id) != uid:
-                raise HTTPException(status_code=403, detail="Only the team leader can submit data for the team")
+            members = team.get("members") or []
+            member_ids = [str(m.get("user_id") or "") for m in members]
+            
+            if str(leader_id) != uid and uid not in member_ids:
+                raise HTTPException(status_code=403, detail="Only team members can submit data for the team")
 
     # 2. Verify stage exists
     stages = ev.get("stages") if isinstance(ev.get("stages"), list) else []

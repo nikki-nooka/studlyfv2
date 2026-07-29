@@ -196,7 +196,7 @@ const JudgeManagement: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {judge.invitation_token && ['INVITED', 'PENDING', 'PENDING_INVITATION'].includes(String(judge.status).toUpperCase()) && (
+                                {judge.invitation_token && (
                                     <button
                                         onClick={() => {
                                             const link = `${window.location.origin}/#/judge-invitation?token=${judge.invitation_token}`;

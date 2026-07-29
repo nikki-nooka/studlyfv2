@@ -36,6 +36,9 @@ async def get_all_judges():
     judges = []
     async for doc in cursor:
         doc["_id"] = str(doc["_id"])
+        if not doc.get("invitation_token"):
+            doc["invitation_token"] = secrets.token_urlsafe(24)
+            await judges_col.update_one({"_id": ObjectId(doc["_id"])}, {"$set": {"invitation_token": doc["invitation_token"]}})
         doc["assignment_count"] = await _count_judge_assignments(doc["_id"])
         judges.append(doc)
     return judges
@@ -154,9 +157,13 @@ async def respond_judge_invitation(*, token: str = "", judge_email: str = "", ev
     new_status = "ACCEPTED" if accept else "DECLINED"
     responded_at = datetime.now(timezone.utc).isoformat()
 
+    update_fields = {"status": new_status, "responded_at": responded_at}
+    if judge_email_norm and not judge.get("email"):
+        update_fields["email"] = judge_email_norm
+
     await judges_col.update_one(
         {"_id": judge_id},
-        {"$set": {"status": new_status, "responded_at": responded_at}},
+        {"$set": update_fields},
     )
 
     event_id = judge.get("event_id")

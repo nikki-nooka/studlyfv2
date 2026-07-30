@@ -42,6 +42,8 @@ import {
     AlertCircle,
     Copy,
     CalendarX,
+    Info,
+    Trash2,
 } from 'lucide-react';
 import { getStatusById, getStatusColor, getStatusLabel } from '../../utils/calendarStatuses';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,6 +57,7 @@ import SubmissionForm from '../../components/opportunities/SubmissionForm';
 import StageSubmissionsPanel from '../../components/opportunities/StageSubmissionsPanel';
 import AvatarImage from '../../components/AvatarImage';
 import TeamManager from '../../components/opportunities/TeamManager';
+import PostOpportunityModal from '../../components/institution/PostOpportunityModal';
 import {
     formatOpportunityLocation,
     plainTextFromRichContent,
@@ -133,6 +136,7 @@ const OpportunityDetails: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [justRegistered, setJustRegistered] = useState(false);
     const [isApplied, setIsApplied] = useState(false);
     const [timeLeftStr, setTimeLeftStr] = useState('');
     const [sidebarProfilePhoto, setSidebarProfilePhoto] = useState<string | null>(null);
@@ -147,6 +151,7 @@ const OpportunityDetails: React.FC = () => {
     const [uploadedFilenames, setUploadedFilenames] = useState<Record<string, string>>({});
     const [regFiles, setRegFiles] = useState<Record<string, File | null>>({});
     const [myApplication, setMyApplication] = useState<any>(null);
+    const [myTeam, setMyTeam] = useState<any>(null);
     const [related, setRelated] = useState<any[]>([]);
     const [favorited, setFavorited] = useState(false);
     const [reviews, setReviews] = useState<any[]>([]);
@@ -156,6 +161,8 @@ const OpportunityDetails: React.FC = () => {
     const [reviewExpanded, setReviewExpanded] = useState(false);
     const [descExpanded, setDescExpanded] = useState(false);
     const [activeSection, setActiveSection] = useState<'details' | 'dates' | 'prizes' | 'reviews' | 'faq' | 'submissions' | 'leaderboard'>('details');
+    const allowsTeams = String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase() === 'team' || String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase() === 'both';
+    const oppPath = id ? `/opportunities/${encodeURIComponent(String(id))}` : '';
     const getFieldAllowedExtensions = (field: RegField) => {
         const textToCheck = `${field.label} ${field.hint || ''}`.toLowerCase();
         const hasPdf = textToCheck.includes('pdf');
@@ -236,6 +243,25 @@ const OpportunityDetails: React.FC = () => {
         isLoading: !opportunity,
     });
 
+        const eventId = String(opportunity?.event_link_id || opportunity?.event_id || id || '');
+    // Fetch team info separately because application might not store it directly
+    useEffect(() => {
+        if (user?.user_id && eventId && (isApplied || effectiveRegStatus !== 'NOT_REGISTERED')) {
+            fetch(`${API_BASE_URL}/api/v1/stages/events/${eventId}/progress`, {
+                headers: { ...authHeaders() }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.team) {
+                    setMyTeam(data.team);
+                } else {
+                    setMyTeam(null);
+                }
+            })
+            .catch(() => setMyTeam(null));
+        }
+    }, [user, eventId, isApplied, effectiveRegStatus]);
+
     const [formConfig, setFormConfig] = useState<any>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [uploadingField, setUploadingField] = useState<string | null>(null);
@@ -243,7 +269,9 @@ const OpportunityDetails: React.FC = () => {
     const [teamName, setTeamName] = useState('');
     const [inviteCode, setInviteCode] = useState('');
     const [teamInviteCodeResponse, setTeamInviteCodeResponse] = useState<string | null>(null);
-    const eventId = String(opportunity?.event_link_id || opportunity?.event_id || id || '');
+    
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const computeStageStatus = (stage: any) => {
         const normalizeDate = (value: any, endOfDay = false) => {
@@ -769,6 +797,28 @@ const OpportunityDetails: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        const allowsTeams = String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase() === 'team' || String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase() === 'both';
+        
+        // Handle "Enter" key on the first step (Team)
+        if (allowsTeams && currentStepIndex === 0) {
+            let valid = true;
+            if (teamAction === 'create' && !teamName.trim()) {
+                alert('Please enter a team name.');
+                valid = false;
+            } else if (teamAction === 'join' && !inviteCode.trim()) {
+                alert('Please enter a team invite code.');
+                valid = false;
+            } else if (teamAction === null) {
+                alert('Please select how you would like to participate.');
+                valid = false;
+            }
+            if (valid) {
+                setCurrentStepIndex(1);
+            }
+            return;
+        }
+
         console.log("Submitting registration...", { useStageRegistration, eventId, regAnswers });
         
         if (!user) {
@@ -781,7 +831,8 @@ const OpportunityDetails: React.FC = () => {
             return;
         }
 
-        if (useStageRegistration) {
+        const isEvent = opportunity?.type === 'Hackathons & Coding Challenges' || opportunity?.type === 'Hackathon' || opportunity?.type === 'Workshops' || opportunity?.type === 'Workshop' || Boolean(opportunity?.event_link_id);
+        if (useStageRegistration || isEvent) {
             console.log("Using stage registration flow");
             // ... (rest of the logic)
 
@@ -796,7 +847,6 @@ const OpportunityDetails: React.FC = () => {
                 return false;
             };
 
-            // Populate core fields
             if (formConfig?.fields_definitions) {
                 for (const fd of formConfig.fields_definitions) {
                     const value = regAnswers[fd.id] ?? fd.prefilled_value ?? '';
@@ -847,12 +897,8 @@ const OpportunityDetails: React.FC = () => {
                         setTeamInviteCodeResponse(data.team_invite_code);
                     }
                     setSubmitted(true);
+                    setJustRegistered(true);
                     setIsApplied(true);
-                    // Don't close modal immediately so they can see their invite code
-                    if (teamAction !== 'create') {
-                        setShowRegistrationModal(false);
-                    }
-                    alert("Registration submitted successfully!");
                 } else {
                     alert(`Registration failed: ${data.detail || 'Unknown error'}`);
                 }
@@ -896,9 +942,13 @@ const OpportunityDetails: React.FC = () => {
                 if (data) setMyApplication(data);
                 setSubmitted(true);
                 setIsApplied(true);
+            } else {
+                const errData = await response.json().catch(() => ({ detail: 'Registration failed' }));
+                alert(`Registration failed: ${errData.detail || 'Unknown error'}`);
             }
         } catch (err) {
             console.error("Apply error:", err);
+            alert("An error occurred during registration. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -1042,22 +1092,28 @@ const OpportunityDetails: React.FC = () => {
     };
 
     const scrollToSection = (key: 'details' | 'dates' | 'prizes' | 'reviews' | 'faq' | 'submissions' | 'leaderboard') => {
+        if (activeTab) {
+            navigate(`${oppPath}`, { replace: true });
+        }
+        
         setActiveSection(key as any);
-        const ref =
-            key === 'details'
-                ? detailsRef
-                : key === 'dates'
-                  ? datesRef
-                  : key === 'prizes'
-                    ? prizesRef
-                    : key === 'reviews'
-                      ? reviewsRef
-                      : key === 'submissions'
-                        ? submissionsRef
-                        : key === 'leaderboard'
-                          ? leaderboardRef
-                          : faqRef;
-        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+            const ref =
+                key === 'details'
+                    ? detailsRef
+                    : key === 'dates'
+                      ? datesRef
+                      : key === 'prizes'
+                        ? prizesRef
+                        : key === 'reviews'
+                          ? reviewsRef
+                          : key === 'submissions'
+                            ? submissionsRef
+                            : key === 'leaderboard'
+                              ? leaderboardRef
+                              : faqRef;
+            ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     };
 
     const checkStageAuthorization = (s: any) => {
@@ -1072,7 +1128,7 @@ const OpportunityDetails: React.FC = () => {
         const requiresShortlist = stageVisibility.includes('shortlist');
         const pType = String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase();
         const isSoloEvent = pType === 'individual' || pType === 'both';
-        const isSoloParticipant = !myApplication?.team_id || myApplication?.is_solo_participant === true;
+        const isSoloParticipant = !myTeam || myApplication?.is_solo_participant === true;
 
         // Base status-based authorization
         let isAuthorized = false;
@@ -1375,23 +1431,35 @@ const OpportunityDetails: React.FC = () => {
             {/* Sub navigation — reference: Details / Reviews / FAQs */}
             <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
                 <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-                    <nav className="flex items-center gap-1 sm:gap-6 text-sm font-bold text-slate-500">
+                    <nav className="flex items-center gap-1 sm:gap-6 text-sm font-bold text-slate-500 overflow-x-auto whitespace-nowrap" style={{ scrollbarWidth: 'none' }}>
                         <button
                             type="button"
                             onClick={() => scrollToSection('details')}
                             className={`flex items-center gap-1.5 pb-0.5 border-b-2 transition-colors ${
-                                activeSection === 'details' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
+                                activeSection === 'details' && activeTab !== 'team' && activeTab !== 'submissions' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
                             }`}
                         >
                             <Home size={16} className="hidden sm:inline" />
                             Details
                         </button>
+                        {allowsTeams && (
+                            <button
+                                type="button"
+                                onClick={() => navigate(`${oppPath}?tab=team`)}
+                                className={`flex items-center gap-1.5 pb-0.5 border-b-2 transition-colors ${
+                                    activeTab === 'team' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
+                                }`}
+                            >
+                                <Users size={16} className="hidden sm:inline" />
+                                Team
+                            </button>
+                        )}
                         {hasSubmittableStages && (
                             <button
                                 type="button"
-                                onClick={() => scrollToSection('submissions')}
+                                onClick={() => navigate(`${oppPath}?tab=submissions`)}
                                 className={`pb-0.5 border-b-2 transition-colors ${
-                                    activeSection === 'submissions' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
+                                    activeTab === 'submissions' ? 'text-purple-600 border-purple-600' : 'border-transparent hover:text-slate-800'
                                 }`}
                             >
                                 Submissions
@@ -1487,7 +1555,7 @@ const OpportunityDetails: React.FC = () => {
                 {/* Hero card — reference layout */}
                 <article className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden mb-8">
                     {/* Premium Hero Banner Section */}
-                    <div className="relative w-full h-48 md:h-64 overflow-hidden bg-slate-900 group">
+                    <div className="relative w-full h-56 md:h-[22rem] overflow-hidden bg-[#0A0118] group">
                         {opportunity.banner_url ? (
                             <img 
                                 src={getImageUrl(opportunity.banner_url)} 
@@ -1496,18 +1564,25 @@ const OpportunityDetails: React.FC = () => {
                                 onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
+                                    if (fallback) fallback.style.display = 'block';
                                 }}
                             />
                         ) : null}
                         <div 
-                            className="absolute inset-0 w-full h-full bg-gradient-to-tr from-purple-900 via-indigo-950 to-slate-900 flex items-center justify-center"
-                            style={{ display: opportunity.banner_url ? 'none' : 'flex' }}
+                            className="absolute inset-0 w-full h-full bg-[#0A0118] overflow-hidden"
+                            style={{ display: opportunity.banner_url ? 'none' : 'block' }}
                         >
-                            <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_30%_20%,#6C3BFF_0%,transparent_50%),radial-gradient(circle_at_70%_60%,#FF3B9A_0%,transparent_50%)]"></div>
-                            <div className="relative z-10 flex flex-col items-center text-center px-6">
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-300 mb-2">Interactive Event Onboarding</span>
-                                <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider">{opportunity.title}</h2>
+                            {/* Animated Grid Background */}
+                            <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDBoMXY0MEgweiIgZmlsbD0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA1KSIvPjxwYXRoIGQ9Ik0wIDBoNDB2MUgweiIgZmlsbD0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA1KSIvPjwvc3ZnPg==')] animate-[spin_180s_linear_infinite] opacity-40"></div>
+                            
+                            {/* Glowing Orbs */}
+                            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-600/40 mix-blend-screen blur-[80px] animate-[pulse_6s_ease-in-out_infinite]"></div>
+                            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-600/40 mix-blend-screen blur-[80px] animate-[pulse_6s_ease-in-out_infinite_1s]"></div>
+                            <div className="absolute top-[20%] right-[10%] w-[50%] h-[50%] rounded-full bg-pink-600/30 mix-blend-screen blur-[80px] animate-[pulse_8s_ease-in-out_infinite_2s]"></div>
+
+                            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
+                                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-purple-300 mb-3 bg-purple-900/30 px-4 py-1.5 rounded-full border border-purple-500/30 backdrop-blur-md">Interactive Event Onboarding</span>
+                                <h2 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-indigo-200 tracking-wider uppercase drop-shadow-lg">{opportunity.title}</h2>
                             </div>
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent pointer-events-none"></div>
@@ -1524,6 +1599,47 @@ const OpportunityDetails: React.FC = () => {
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
+                                {user && opportunity && (user.user_id === opportunity.institution_id || user.user_id === opportunity.createdBy) && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsEditModalOpen(true)}
+                                            className="p-2.5 rounded-xl border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors"
+                                            title="Edit Opportunity"
+                                        >
+                                            <Settings2 size={20} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                if (!window.confirm("Are you sure you want to delete this opportunity? This cannot be undone.")) return;
+                                                setIsDeleting(true);
+                                                try {
+                                                    const delId = opportunity.event_link_id || id;
+                                                    const res = await fetch(`${API_BASE_URL}/api/v1/events/${delId}`, {
+                                                        method: 'DELETE',
+                                                        headers: authHeaders()
+                                                    });
+                                                    if (res.ok) {
+                                                        alert("Opportunity deleted successfully.");
+                                                        navigate('/dashboard/institution');
+                                                    } else {
+                                                        alert("Failed to delete opportunity.");
+                                                    }
+                                                } catch (e) {
+                                                    alert("An error occurred while deleting.");
+                                                } finally {
+                                                    setIsDeleting(false);
+                                                }
+                                            }}
+                                            disabled={isDeleting}
+                                            className="p-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                                            title="Delete Opportunity"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    </>
+                                )}
                                 <button
                                     type="button"
                                     onClick={addToCalendar}
@@ -1560,7 +1676,7 @@ const OpportunityDetails: React.FC = () => {
                                     <Link to="/opportunities" className="hover:text-purple-600 transition-colors">Opportunities</Link>
                                     <span className="text-slate-300">/</span>
                                     <span className="text-slate-600">{opportunity.type || 'Listing'}</span>
-                                    {opportunity.category ? (
+                                    {opportunity.category && opportunity.category !== opportunity.type ? (
                                         <>
                                             <span className="text-slate-300">/</span>
                                             <span className="text-slate-800">{opportunity.category}</span>
@@ -1579,30 +1695,32 @@ const OpportunityDetails: React.FC = () => {
                                     <meta name="twitter:description" content={opportunity.seo?.description || opportunity.description?.slice(0, 160) || ''} />
                                     {opportunity.banner_url && <meta name="twitter:image" content={getImageUrl(opportunity.banner_url)} />}
                                 </Helmet>
-                                <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 tracking-tight leading-tight uppercase relative mb-3">
                                     {opportunity.title}
                                 </h1>
-                                <p className="mt-3 text-lg font-bold text-slate-600 flex items-center gap-2">
-                                    <Building2 size={20} className="text-purple-600 shrink-0" />
+                                <p className="text-lg font-bold text-slate-700 flex items-center gap-2 mb-4">
+                                    <span className="p-1.5 rounded-lg bg-purple-100 text-purple-600 shrink-0">
+                                        <Building2 size={18} />
+                                    </span>
                                     {orgDisplay}
                                 </p>
 
                                 {/* Hashtag tags — dynamically derived from event data */}
-                                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                                <div className="flex flex-wrap items-center gap-2">
                                     {opportunity.type ? (
-                                        <span className="text-[12px] font-bold text-[#6C3BFF] bg-purple-50 px-2.5 py-1 rounded-full">#{opportunity.type.replace(/\s+/g, '')}</span>
+                                        <span className="text-[12px] font-bold text-purple-700 bg-purple-100/80 px-3 py-1.5 rounded-full border border-purple-200 shadow-sm backdrop-blur-sm">#{opportunity.type.replace(/\s+/g, '')}</span>
                                     ) : null}
-                                    {opportunity.category ? (
-                                        <span className="text-[12px] font-bold text-[#6C3BFF] bg-purple-50 px-2.5 py-1 rounded-full">#{opportunity.category.replace(/\s+/g, '')}</span>
+                                    {opportunity.category && opportunity.category !== opportunity.type ? (
+                                        <span className="text-[12px] font-bold text-blue-700 bg-blue-100/80 px-3 py-1.5 rounded-full border border-blue-200 shadow-sm backdrop-blur-sm">#{opportunity.category.replace(/\s+/g, '')}</span>
                                     ) : null}
-                                    {opportunity.sub_type ? (
-                                        <span className="text-[12px] font-bold text-[#6C3BFF] bg-purple-50 px-2.5 py-1 rounded-full">#{opportunity.sub_type.replace(/\s+/g, '')}</span>
+                                    {opportunity.sub_type && opportunity.sub_type !== opportunity.type && opportunity.sub_type !== opportunity.category ? (
+                                        <span className="text-[12px] font-bold text-indigo-700 bg-indigo-100/80 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm backdrop-blur-sm">#{opportunity.sub_type.replace(/\s+/g, '')}</span>
                                     ) : null}
                                     {opportunity.skills && String(opportunity.skills).trim() ? (
                                         (() => {
                                             const skills = plainTextFromRichContent(opportunity.skills);
                                             return skills.split(/[,;]/).slice(0, 3).map((s: string, i: number) => (
-                                                <span key={i} className="text-[12px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">#{s.trim().replace(/\s+/g, '')}</span>
+                                                <span key={i} className="text-[12px] font-bold text-slate-600 bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-200 shadow-sm backdrop-blur-sm">#{s.trim().replace(/\s+/g, '')}</span>
                                             ));
                                         })()
                                     ) : null}
@@ -1627,7 +1745,7 @@ const OpportunityDetails: React.FC = () => {
                                             <p className="text-xs font-black uppercase tracking-widest text-purple-600 mb-1 flex items-center gap-2">
                                                 <MapPin size={14} /> Location
                                             </p>
-                                            <p className="text-slate-700 font-semibold leading-snug">{venueLine}</p>
+                                            <p className="text-slate-700 font-semibold leading-snug break-all">{venueLine}</p>
                                         </div>
                                     ) : null}
                                     {teamSize ? (
@@ -1664,15 +1782,14 @@ const OpportunityDetails: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="shrink-0 mx-auto md:mx-0 flex flex-col items-center gap-4">
-                                <div className="w-28 h-28 md:w-36 md:h-36 rounded-3xl border border-slate-200 shadow-sm overflow-hidden bg-white flex items-center justify-center relative">
+                            <div className="shrink-0 mx-auto md:mx-0 flex flex-col items-center gap-4 relative z-20">
+                                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-[4px] border-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden bg-white/80 backdrop-blur-xl flex items-center justify-center relative transform hover:scale-105 transition-transform duration-500">
                                     {logoSrc ? (
                                         <img 
                                             src={logoSrc} 
                                             alt="" 
-                                            className="w-full h-full object-contain p-2"
+                                            className="w-full h-full object-cover"
                                             onError={(e) => {
-                                                // Log failing URL for diagnostics
                                                 try { console.warn('[LogoLoadError] failed to load', (e.currentTarget && e.currentTarget.src) || logoSrc); } catch (err) {}
                                                 e.currentTarget.style.display = 'none';
                                                 const sibling = e.currentTarget.nextElementSibling as HTMLElement;
@@ -1681,7 +1798,7 @@ const OpportunityDetails: React.FC = () => {
                                         />
                                     ) : null}
                                     <div 
-                                        className="w-full h-full bg-purple-50 text-[#6C3BFF] font-black text-3xl md:text-4xl flex items-center justify-center uppercase"
+                                        className="w-full h-full bg-gradient-to-br from-purple-50 to-indigo-50 text-[#6C3BFF] font-black text-4xl md:text-5xl flex items-center justify-center uppercase drop-shadow-sm"
                                         style={{ display: logoSrc ? 'none' : 'flex' }}
                                     >
                                         {orgDisplay.charAt(0)}
@@ -1746,6 +1863,18 @@ const OpportunityDetails: React.FC = () => {
                                                 <p className="font-black text-emerald-900">{dec.title}</p>
                                                 <p className="text-sm text-emerald-800/90 mt-0.5">{dec.sub || ''}</p>
                                             </div>
+                                            {allowsTeams && (
+                                                <div className="ml-auto mt-4 sm:mt-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigate(`${oppPath}?tab=team`)}
+                                                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all flex items-center gap-2"
+                                                    >
+                                                        <Users size={16} />
+                                                        Manage Team
+                                                    </button>
+                                                </div>
+                                            )}
                                         </>
                                     );
                                 })()}
@@ -1757,9 +1886,11 @@ const OpportunityDetails: React.FC = () => {
 
                         <div ref={detailsRef}>
                             {elig.length > 0 ? (
-                                <section className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
-                                    <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 mb-4">
-                                        <span className="w-1 h-7 bg-purple-600 rounded-full" />
+                                <section className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white/50 p-6 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300">
+                                    <h2 className="text-xl font-black text-slate-900 flex items-center gap-3 mb-5">
+                                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 shadow-inner">
+                                            <CheckCircle2 size={20} />
+                                        </div>
                                         Eligibility
                                     </h2>
                                     <div className="flex flex-wrap gap-x-3 gap-y-2 text-slate-700 font-medium text-sm">
@@ -1773,12 +1904,14 @@ const OpportunityDetails: React.FC = () => {
                                 </section>
                             ) : null}
 
-                            <section className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-4">
-                                <h2 className="text-lg font-black text-slate-900 flex items-center gap-3">
-                                    <span className="w-1 h-7 bg-purple-600 rounded-full" />
+                            <section className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white/50 p-6 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 space-y-6 mt-8">
+                                <h2 className="text-xl font-black text-slate-900 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
+                                        <Info size={20} />
+                                    </div>
                                     All that you need to know about {opportunity.title}
                                 </h2>
-                                <div className="border-t border-slate-100 pt-6">
+                                <div className="border-t border-slate-100/60 pt-6">
                                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-3">
                                         About the opportunity
                                     </h3>
@@ -2857,20 +2990,62 @@ const OpportunityDetails: React.FC = () => {
                                                 </button>
                                             );
                                         case 'registered':
-                                            return canEditSubmittedRegistration ? (
-                                                <button type="button" onClick={() => setShowRegistrationModal(true)} className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
-                                                    <CheckCircle2 size={20} /> Update Registration
-                                                </button>
-                                            ) : (
-                                                <button type="button" disabled className="w-full py-3.5 bg-emerald-500 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 opacity-80 cursor-not-allowed">
-                                                    <CheckCircle2 size={20} /> {regCTA.label}
-                                                </button>
+                                            return (
+                                                <div className="flex flex-col gap-3">
+                                                    {canEditSubmittedRegistration ? (
+                                                        <div className="flex flex-col gap-2">
+                                                            <button type="button" onClick={() => setShowRegistrationModal(true)} className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
+                                                                <CheckCircle2 size={20} /> Update Registration
+                                                            </button>
+                                                            {allowsTeams && (
+                                                                <button type="button" onClick={() => navigate(`${oppPath}?tab=team`)} className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
+                                                                    <Users size={20} /> {myTeam ? 'Manage Team' : 'Create / Join Team'}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col gap-2">
+                                                            <button type="button" disabled className="w-full py-3.5 bg-emerald-500 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 opacity-80 cursor-not-allowed">
+                                                                <CheckCircle2 size={20} /> {regCTA.label}
+                                                            </button>
+                                                            {allowsTeams && (
+                                                                <button type="button" onClick={() => navigate(`${oppPath}?tab=team`)} className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-base font-bold tracking-wide shadow-md flex justify-center items-center gap-2 transition-all cursor-pointer">
+                                                                    <Users size={20} /> {myTeam ? 'Manage Team' : 'Create / Join Team'}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    {eventId ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={async () => {
+                                                                if (window.confirm("Are you sure you want to cancel your registration? This action cannot be undone.")) {
+                                                                    try {
+                                                                        const res = await fetch(`${API_BASE_URL}/api/v1/stages/events/${eventId}/register`, {
+                                                                            method: 'DELETE',
+                                                                            headers: { ...authHeaders() }
+                                                                        });
+                                                                        if (!res.ok) throw new Error('Failed to cancel registration');
+                                                                        alert("Registration cancelled successfully.");
+                                                                        window.location.reload();
+                                                                    } catch (err: any) {
+                                                                        alert(err.message || 'Error cancelling registration');
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="w-full py-2.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full text-sm font-bold tracking-wide transition-all"
+                                                        >
+                                                            Cancel Registration
+                                                        </button>
+                                                    ) : null}
+                                                </div>
                                             );
                                         case 'register':
                                         default:
                                             return (
-                                                <button type="button" onClick={() => setShowRegistrationModal(true)} className="w-full py-3.5 bg-[#0070F3] hover:bg-blue-600 text-white rounded-full text-base font-bold tracking-wide transition-all shadow-md flex justify-center items-center">
-                                                    {regCTA.label}
+                                                <button type="button" onClick={() => setShowRegistrationModal(true)} className="group relative w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-full text-base md:text-lg font-black tracking-widest uppercase shadow-[0_4px_20px_rgba(108,59,255,0.4)] hover:shadow-[0_8px_30px_rgba(108,59,255,0.6)] transform hover:-translate-y-1 transition-all duration-300 flex justify-center items-center overflow-hidden">
+                                                    <div className="absolute inset-0 w-full h-full bg-white/20 blur-xl group-hover:scale-150 transition-transform duration-500 rounded-full scale-0"></div>
+                                                    <span className="relative z-10">{regCTA.label}</span>
                                                 </button>
                                             );
                                     }
@@ -2885,7 +3060,7 @@ const OpportunityDetails: React.FC = () => {
                         {/* Dynamic Refer Banner */}
                         <div 
                             onClick={() => setShowReferModal(true)}
-                            className="w-full relative rounded-[1.5rem] overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all group border border-slate-200"
+                            className="w-full relative rounded-[1.5rem] overflow-hidden cursor-pointer shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 group border border-slate-100 transform hover:-translate-y-1 mt-4"
                         >
                             {opportunity?.refer_banner_url || opportunity?.refer_banner_image ? (
                                 <img 
@@ -2894,17 +3069,19 @@ const OpportunityDetails: React.FC = () => {
                                     className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                             ) : (
-                                <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-4 flex items-center justify-between">
-                                    <div className="flex flex-col gap-1 pr-4">
-                                        <div className="font-black italic text-slate-800 text-xl leading-tight">
+                                <div className="bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900 p-6 flex items-center justify-between relative overflow-hidden">
+                                    <div className="absolute -right-4 -top-4 w-32 h-32 bg-purple-500/40 blur-3xl rounded-full mix-blend-screen"></div>
+                                    <div className="absolute -left-4 -bottom-4 w-24 h-24 bg-blue-500/30 blur-2xl rounded-full mix-blend-screen"></div>
+                                    <div className="flex flex-col gap-1 pr-4 relative z-10">
+                                        <div className="font-black italic text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500 text-2xl leading-tight drop-shadow-sm">
                                             Refer & Win
                                         </div>
-                                        <div className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">
+                                        <div className="text-[10px] text-purple-200 font-bold uppercase tracking-widest mt-0.5">
                                             Win Exciting Prizes
                                         </div>
                                     </div>
-                                    <button className="px-5 py-2.5 bg-[#002244] text-white rounded-full text-xs font-black tracking-wider flex items-center gap-2 group-hover:bg-blue-600 transition-colors shadow-md">
-                                        <Share2 size={14} /> Refer now
+                                    <button className="px-5 py-2.5 bg-white text-indigo-950 rounded-full text-xs font-black tracking-wider flex items-center gap-2 group-hover:bg-purple-50 group-hover:scale-105 transition-all shadow-lg relative z-10">
+                                        <Share2 size={14} /> Refer
                                     </button>
                                 </div>
                             )}
@@ -2945,19 +3122,23 @@ const OpportunityDetails: React.FC = () => {
                             <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100">
                                 <div>
                                     <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">
-                                        {submitted && canEditSubmittedRegistration ? 'Update Registration' : 'Decoupled Event Onboarding'}
+                                        {submitted && canEditSubmittedRegistration && !justRegistered ? 'Update Registration' : 'Decoupled Event Onboarding'}
                                     </h2>
                                     <p className="text-xs text-slate-500 mt-1">{opportunity?.title}</p>
                                 </div>
                                 <button
-                                    onClick={() => setShowRegistrationModal(false)}
+                                    onClick={() => {
+                                        setShowRegistrationModal(false);
+                                        setJustRegistered(false);
+                                        setCurrentStepIndex(0);
+                                    }}
                                     className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
                                 >
                                     <span className="text-slate-500 font-bold">✕</span>
                                 </button>
                             </div>
 
-                            {submitted && !canEditSubmittedRegistration ? (
+                            {justRegistered || (submitted && !canEditSubmittedRegistration) ? (
                                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                                     <CheckCircle2 size={48} className="text-emerald-500 mb-4" />
                                     <h3 className="text-lg font-black text-slate-900">Registration Submitted!</h3>
@@ -2983,6 +3164,8 @@ const OpportunityDetails: React.FC = () => {
                                     <button
                                         onClick={() => {
                                             setShowRegistrationModal(false);
+                                            setJustRegistered(false);
+                                            setCurrentStepIndex(0);
                                             scrollToSection('details');
                                         }}
                                         className="mt-6 px-6 py-3 bg-[#6C3BFF] text-white rounded-xl font-black text-xs uppercase tracking-wider"
@@ -3028,11 +3211,11 @@ const OpportunityDetails: React.FC = () => {
                                             return a.index - b.index;
                                         })
                                         .map((item) => item.field);
-
-                                    const pType = String(opportunity?.participationType || opportunity?.participation_type || 'individual').toLowerCase();
-                                    const allowsTeams = pType === 'team' || pType === 'both';
-
-                                    const activeSteps = orderedFields.length > 0 ? [{ id: 'registration', title: 'Registration', fields: orderedFields, type: 'core' }] : (allowsTeams ? [{ id: 'team_details', title: 'Team', fields: [], type: 'team' }] : []);
+                                        
+                                    const allowsTeams = String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase() === 'team' || String(opportunity?.participationType || opportunity?.participation_type || '').toLowerCase() === 'both';
+                                    const activeSteps = [];
+                                    if (allowsTeams) activeSteps.push({ id: 'team_details', title: 'Team', fields: [], type: 'team' });
+                                    if (orderedFields.length > 0) activeSteps.push({ id: 'registration', title: 'Registration', fields: orderedFields, type: 'core' });
 
                                     if (activeSteps.length === 0) {
                                         return (
@@ -3043,7 +3226,11 @@ const OpportunityDetails: React.FC = () => {
                                                 <div className="flex gap-3 pt-4 border-t border-slate-100 justify-end">
                                                     <button
                                                         type="button"
-                                                        onClick={() => setShowRegistrationModal(false)}
+                                                        onClick={() => {
+                                                            setShowRegistrationModal(false);
+                                                            setJustRegistered(false);
+                                                            setCurrentStepIndex(0);
+                                                        }}
                                                         className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-colors"
                                                     >
                                                         Cancel
@@ -3090,8 +3277,30 @@ const OpportunityDetails: React.FC = () => {
                                                 <div className="space-y-4">
                                                     {currentStep.type === 'team' ? (
                                                         <div className="space-y-6">
-                                                            <label className="text-sm font-black text-slate-900">How would you like to participate?</label>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                            {myTeam ? (
+                                                                <div className="p-6 bg-purple-50 border border-purple-100 rounded-xl text-center space-y-4">
+                                                                    <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto">
+                                                                        <Users size={24} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h3 className="font-black text-purple-900 text-lg">You are in a team</h3>
+                                                                        <p className="text-sm text-purple-700/80 font-medium mt-1">You cannot create or join another team for this event.</p>
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setShowRegistrationModal(false);
+                                                                            navigate(`${oppPath}?tab=team`);
+                                                                        }}
+                                                                        className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-md transition-all inline-flex items-center gap-2"
+                                                                    >
+                                                                        Manage Team
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    <label className="text-sm font-black text-slate-900">How would you like to participate?</label>
+                                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                                                 {String(opportunity?.participationType || opportunity?.participation_type || 'individual').toLowerCase() === 'both' && (
                                                                     <button type="button" onClick={() => setTeamAction('individual')} className={`p-4 rounded-xl border-2 text-left transition-all ${teamAction === 'individual' ? 'border-[#6C3BFF] bg-purple-50' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
                                                                         <div className="font-black text-slate-800 text-sm">Individual</div>
@@ -3120,6 +3329,8 @@ const OpportunityDetails: React.FC = () => {
                                                                     <label className="text-xs font-bold text-slate-700">Team Invite Code <span className="text-rose-500">*</span></label>
                                                                     <input type="text" value={inviteCode} onChange={e => setInviteCode(e.target.value)} placeholder="Enter 12-character code" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all uppercase" />
                                                                 </div>
+                                                            )}
+                                                                </>
                                                             )}
                                                         </div>
                                                     ) : (
@@ -3296,11 +3507,24 @@ const OpportunityDetails: React.FC = () => {
                                                             onClick={() => {
                                                                 const activeStep = activeSteps[currentStepIndex];
                                                                 let valid = true;
-                                                                for (const fd of activeStep.fields) {
-                                                                    if (fd.required && !regAnswers[fd.id]) {
-                                                                        alert(`${fd.label} is required.`);
+                                                                if (activeStep.type === 'team') {
+                                                                    if (teamAction === 'create' && !teamName.trim()) {
+                                                                        alert('Please enter a team name.');
                                                                         valid = false;
-                                                                        break;
+                                                                    } else if (teamAction === 'join' && !inviteCode.trim()) {
+                                                                        alert('Please enter a team invite code.');
+                                                                        valid = false;
+                                                                    } else if (teamAction === null) {
+                                                                        alert('Please select how you would like to participate.');
+                                                                        valid = false;
+                                                                    }
+                                                                } else {
+                                                                    for (const fd of activeStep.fields) {
+                                                                        if (fd.required && !regAnswers[fd.id]) {
+                                                                            alert(`${fd.label} is required.`);
+                                                                            valid = false;
+                                                                            break;
+                                                                        }
                                                                     }
                                                                 }
                                                                 if (valid) {
@@ -3414,6 +3638,16 @@ const OpportunityDetails: React.FC = () => {
                     </div>
                 )}
             </AnimatePresence>
+            {isEditModalOpen && (
+                <PostOpportunityModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        window.location.reload();
+                    }}
+                    eventId={opportunity?.event_link_id || id}
+                />
+            )}
         </div>
     );
 };

@@ -199,12 +199,16 @@ async def approve_join_request(
         if join_request.get("status") != JoinRequestStatus.PENDING:
             return {"error": f"Request is already {join_request.get('status')}"}
         
-        if datetime.now(timezone.utc) > join_request.get("expires_at"):
-            await find_join_requests_collection().update_one(
-                {"_id": ObjectId(request_id)},
-                {"$set": {"status": JoinRequestStatus.EXPIRED}}
-            )
-            return {"error": "Request has expired"}
+        expires_at = join_request.get("expires_at")
+        if expires_at:
+            if expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > expires_at:
+                await find_join_requests_collection().update_one(
+                    {"_id": ObjectId(request_id)},
+                    {"$set": {"status": JoinRequestStatus.EXPIRED}}
+                )
+                return {"error": "Request has expired"}
         
         # Add member to team
         requester_id = str(join_request["requester_user_id"])

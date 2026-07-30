@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, Filter, Briefcase, Calendar, MapPin, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, X, Globe, Users, DollarSign, Star, Sparkles, Building2, ArrowRight, Clock, TrendingUp, Target, ShieldCheck, Zap, Plus } from 'lucide-react';
+import { Search, Filter, Briefcase, Calendar, MapPin, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, X, Globe, Users, DollarSign, Star, Sparkles, Building2, ArrowRight, Clock, TrendingUp, Target, ShieldCheck, Zap, Plus, Trophy, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL, authHeaders } from '../../apiConfig';
@@ -528,169 +528,168 @@ const OpportunitiesList: React.FC = () => {
             <div className="max-w-7xl mx-auto px-6 mt-8">
                 {loading ? (
                     <div className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {Array.from({ length: 6 }).map((_, idx) => (
-                                <div key={idx} className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm overflow-hidden relative">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-slate-50/50 to-transparent z-10" />
-                                    <div className="flex items-start justify-between gap-4 mb-6">
-                                        <div className="flex items-center gap-4 min-w-0 flex-1">
-                                            <div className="w-14 h-14 rounded-2xl bg-slate-100 animate-pulse shrink-0" />
-                                            <div className="space-y-3 flex-1">
-                                                <div className="h-4 w-3/4 rounded-full bg-slate-100 animate-pulse" />
-                                                <div className="h-3 w-1/2 rounded-full bg-slate-100 animate-pulse" />
-                                            </div>
+                        {['Hackathons', 'Jobs', 'Internships'].map((section) => (
+                            <div key={section}>
+                                <div className="h-6 w-40 bg-slate-100 rounded-lg animate-pulse mb-4" />
+                                <div className="flex gap-4 overflow-hidden">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="w-80 shrink-0 bg-white rounded-2xl border border-slate-100 p-5 animate-pulse">
+                                            <div className="h-5 w-3/4 bg-slate-100 rounded mb-3" />
+                                            <div className="h-4 w-1/2 bg-slate-100 rounded mb-4" />
+                                            <div className="h-3 w-full bg-slate-100 rounded mb-2" />
+                                            <div className="h-3 w-2/3 bg-slate-100 rounded" />
                                         </div>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 mb-6">
-                                        <div className="h-7 w-20 rounded-lg bg-slate-100 animate-pulse" />
-                                        <div className="h-7 w-24 rounded-lg bg-slate-100 animate-pulse" />
-                                    </div>
-                                    <div className="space-y-3 mb-8">
-                                        <div className="h-3 rounded-full bg-slate-100 animate-pulse" />
-                                        <div className="h-3 rounded-full bg-slate-100 animate-pulse w-5/6" />
-                                    </div>
-                                    <div className="pt-5 border-t border-slate-100 flex items-center justify-between">
-                                        <div className="h-4 w-24 rounded-full bg-slate-100 animate-pulse" />
-                                        <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse" />
-                                    </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 ) : filteredOpportunities.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredOpportunities.map((opp, idx) => {
-                            const isApplied = appliedIds.includes(opp._id);
-                            const eventId = String(opp.event_link_id || opp.event_id || opp._id || '');
-                            const serverEligibility = eligibilityMap[eventId];
-                            const locationText = formatOpportunityLocation(opp.location);
-                            const isRemote = locationText.toLowerCase().includes('remote') || locationText.toLowerCase().includes('online');
-                            const isEvent = ['Hackathon', 'Competition', 'Conference', 'Workshop', 'Challenge'].includes(opp.type);
-                            const likelyEligible = clientSideEligible(opp, user);
+                    <div className="space-y-10">
+                        {(() => {
+                            const categoryConfig: { key: string; label: string; icon: React.ReactNode; color: string; match: (t: string) => boolean }[] = [
+                                { key: 'hackathon', label: 'Hackathons & Coding Challenges', icon: <Trophy size={20} />, color: 'text-purple-600', match: (t) => /hackathon|coding challenge|challenge/i.test(t) },
+                                { key: 'job', label: 'Jobs & Careers', icon: <Briefcase size={20} />, color: 'text-emerald-600', match: (t) => /job|role|career|hiring/i.test(t) },
+                                { key: 'internship', label: 'Internships & Training', icon: <Target size={20} />, color: 'text-blue-600', match: (t) => /internship|trainee|apprentice/i.test(t) },
+                                { key: 'competition', label: 'Competitions & Ideathons', icon: <Award size={20} />, color: 'text-orange-600', match: (t) => /competition|case competition|ideathon/i.test(t) },
+                                { key: 'workshop', label: 'Workshops & Bootcamps', icon: <Sparkles size={20} />, color: 'text-pink-600', match: (t) => /workshop|bootcamp|masterclass/i.test(t) },
+                                { key: 'conference', label: 'Conferences & Summits', icon: <Globe size={20} />, color: 'text-cyan-600', match: (t) => /conference|summit|expo|forum/i.test(t) },
+                            ];
 
-                            // Improved colors for types
-                            const getPremiumTypeStyle = (type: string) => {
-                                switch (type.toLowerCase()) {
-                                    case 'hackathon': return 'text-purple-700 bg-purple-50 ring-1 ring-purple-200/60';
-                                    case 'internship': return 'text-blue-700 bg-blue-50 ring-1 ring-blue-200/60';
-                                    case 'job': return 'text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200/60';
-                                    case 'competition': return 'text-orange-700 bg-orange-50 ring-1 ring-orange-200/60';
-                                    case 'conference': return 'text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60';
-                                    case 'workshop': return 'text-pink-700 bg-pink-50 ring-1 ring-pink-200/60';
-                                    default: return 'text-slate-700 bg-slate-50 ring-1 ring-slate-200/60';
+                            const grouped: Record<string, any[]> = {};
+                            const other: any[] = [];
+                            categoryConfig.forEach((c) => { grouped[c.key] = []; });
+
+                            filteredOpportunities.forEach((opp) => {
+                                const t = String(opp.type || '').toLowerCase();
+                                const matched = categoryConfig.find((c) => c.match(t));
+                                if (matched) {
+                                    grouped[matched.key].push(opp);
+                                } else {
+                                    other.push(opp);
                                 }
-                            };
+                            });
 
-                            return (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05, duration: 0.4, ease: 'easeOut' }}
-                                    key={opp._id}
-                                    onClick={() => { checkEligibilityThenNavigate(opp); }}
-                                    className={`group flex flex-col bg-white rounded-[24px] border border-slate-200/80 transition-all duration-300 relative overflow-hidden ${likelyEligible ? 'hover:shadow-xl hover:shadow-purple-900/5 hover:-translate-y-1 hover:border-purple-300/60 cursor-pointer' : 'opacity-80 cursor-not-allowed'}`}
-                                >
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            const sections = categoryConfig
+                                .map((c) => ({ ...c, items: grouped[c.key] }))
+                                .filter((s) => s.items.length > 0);
 
-                                    <div className="p-6 flex flex-col flex-grow relative z-10">
-                                        <div className="flex items-start justify-between mb-5 gap-4">
-                                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                                                <div className="w-14 h-14 bg-white rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 shadow-sm shrink-0 overflow-hidden group-hover:shadow-md transition-shadow">
-                                                    {opp.logo_url || opp.image_url || opp.institution_logo_url ? (
-                                                        <img src={opp.logo_url || opp.image_url || opp.institution_logo_url} alt={opp.organization} className="w-full h-full object-cover" />
-                                                    ) : opp.organization ? (
-                                                        <span className="text-xl font-black text-slate-300">{opp.organization.charAt(0).toUpperCase()}</span>
-                                                    ) : (
-                                                        <Building2 size={24} strokeWidth={1.5} />
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <h4 className="text-lg font-black text-slate-900 truncate leading-tight group-hover:text-purple-700 transition-colors">{opp.title}</h4>
-                                                    <span className="text-sm font-bold text-slate-500 truncate mt-1 flex items-center gap-1.5">
-                                                        <Building2 size={14} className="text-slate-400" />
-                                                        {opp.organization}
-                                                    </span>
-                                                </div>
+                            if (other.length > 0) {
+                                sections.push({
+                                    key: 'other',
+                                    label: 'Other Opportunities',
+                                    icon: <Zap size={20} />,
+                                    color: 'text-slate-600',
+                                    match: () => false,
+                                    items: other,
+                                });
+                            }
+
+                            return sections.map((section) => (
+                                <div key={section.key}>
+                                    <div className="flex items-center justify-between mb-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center ${section.color} shadow-sm`}>
+                                                {section.icon}
                                             </div>
-                                            {isApplied && (
-                                                <span className="shrink-0 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white shadow-sm flex items-center gap-1">
-                                                    Applied
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <div className="flex flex-wrap items-center gap-2 mb-5">
-                                            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${getPremiumTypeStyle(opp.type)}`}>
-                                                {opp.type}
-                                            </span>
-
-                                            <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-sky-50 text-sky-700 ring-1 ring-sky-200/60 flex items-center gap-1.5">
-                                                <Globe size={12} /> {opp.opportunityMode || 'Online'}
-                                            </span>
-
-                                            {opp.applicantCount !== undefined && (
-                                                <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-50 text-purple-700 ring-1 ring-purple-200/60">
-                                                    {opp.applicantCount > 0 ? `+${opp.applicantCount}` : '0'}
-                                                </span>
-                                            )}
-
-                                            {serverEligibility ? (
-                                                serverEligibility.eligible ? (
-                                                    <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60">
-                                                        Can apply
-                                                    </span>
-                                                ) : (
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setIneligibleModal({ visible: true, reason: serverEligibility?.reason || 'You are not eligible for this event.', eventId, opp }); }}
-                                                        className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 ring-1 ring-rose-200/60 hover:bg-rose-100 transition-colors"
-                                                    >
-                                                        Not eligible
-                                                    </button>
-                                                )
-                                            ) : !likelyEligible ? (
-                                                <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 ring-1 ring-rose-200/60">
-                                                    Not eligible
-                                                </span>
-                                            ) : null}
-                                        </div>
-
-                                        <p className="text-sm font-medium text-slate-600 line-clamp-2 leading-relaxed mb-6 flex-grow">
-                                            {plainTextFromRichContent(opp.description)}
-                                        </p>
-
-                                        {Array.isArray(opp.candidateTypes) && opp.candidateTypes.length > 0 && !opp.candidateTypes.includes('Everyone can apply') && (
-                                            <div className="mb-4 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                                                <span className="text-slate-400 uppercase tracking-widest text-[9px] mr-2">Eligibility:</span>
-                                                {opp.candidateTypes.join(', ')}
-                                            </div>
-                                        )}
-
-                                        <div className="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-1.5 text-xs font-black text-slate-400 uppercase tracking-widest">
-                                                    <Clock size={12} />
-                                                    Deadline
-                                                </div>
-                                                <div className="text-sm font-black text-slate-900">
-                                                    {new Date(opp.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                {opp.applicantsCount > 0 && (
-                                                    <div className="flex -space-x-2">
-                                                        <div className="w-8 h-8 rounded-full bg-purple-50 border-2 border-white flex items-center justify-center text-[10px] font-black text-purple-700 z-10 shadow-sm">
-                                                            +{opp.applicantsCount > 99 ? '99' : opp.applicantsCount}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                <button className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-purple-600 group-hover:border-purple-600 group-hover:text-white transition-all shadow-sm">
-                                                    <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                                                </button>
+                                            <div>
+                                                <h2 className="text-lg font-black text-slate-900 tracking-tight">{section.label}</h2>
+                                                <p className="text-xs text-slate-400 font-semibold">{section.items.length} available</p>
                                             </div>
                                         </div>
+                                        <button
+                                            onClick={() => {
+                                                const typeMap: Record<string, string> = {
+                                                    hackathon: 'Hackathon', job: 'Job', internship: 'Internship',
+                                                    competition: 'Competition', workshop: 'Workshop', conference: 'Conference',
+                                                };
+                                                setSelectedType(typeMap[section.key] || 'All');
+                                                setIsFilterDropdownOpen(false);
+                                            }}
+                                            className="text-xs font-bold text-purple-600 hover:text-purple-800 transition-colors flex items-center gap-1"
+                                        >
+                                            View all <ChevronRight size={14} />
+                                        </button>
                                     </div>
-                                </motion.div>
-                            );
-                        })}
+
+                                    <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
+                                        {section.items.map((opp: any, idx: number) => {
+                                            const isApplied = appliedIds.includes(opp._id);
+                                            const likelyEligible = clientSideEligible(opp, user);
+                                            const deadlineStr = getOpportunityDeadline(opp);
+                                            const daysLeft = deadlineStr ? Math.max(0, Math.ceil((new Date(deadlineStr).getTime() - Date.now()) / 86400000)) : null;
+
+                                            return (
+                                                <motion.div
+                                                    key={opp._id}
+                                                    initial={{ opacity: 0, y: 16 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: idx * 0.05, duration: 0.3 }}
+                                                    onClick={() => checkEligibilityThenNavigate(opp)}
+                                                    className={`w-80 shrink-0 snap-start bg-white rounded-2xl border border-slate-200/80 p-5 transition-all duration-300 flex flex-col ${likelyEligible ? 'hover:shadow-lg hover:shadow-purple-900/5 hover:-translate-y-1 hover:border-purple-300/60 cursor-pointer' : 'opacity-70'}`}
+                                                >
+                                                    <div className="flex items-start justify-between mb-3">
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="w-11 h-11 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shrink-0 overflow-hidden">
+                                                                {opp.logo_url || opp.image_url || opp.institution_logo_url ? (
+                                                                    <img src={opp.logo_url || opp.image_url || opp.institution_logo_url} alt="" className="w-full h-full object-cover" />
+                                                                ) : opp.organization ? (
+                                                                    <span className="text-sm font-black text-slate-300">{opp.organization.charAt(0).toUpperCase()}</span>
+                                                                ) : (
+                                                                    <Building2 size={18} />
+                                                                )}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <h3 className="text-sm font-bold text-slate-900 truncate leading-tight">{opp.title}</h3>
+                                                                <p className="text-xs text-slate-500 truncate mt-0.5">{opp.organization}</p>
+                                                            </div>
+                                                        </div>
+                                                        {isApplied && (
+                                                            <span className="shrink-0 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-900 text-white">Applied</span>
+                                                        )}
+                                                    </div>
+
+                                                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4 flex-grow">
+                                                        {plainTextFromRichContent(opp.description)}
+                                                    </p>
+
+                                                    <div className="flex flex-wrap gap-1.5 mb-4">
+                                                        {opp.location && (
+                                                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-slate-50 text-slate-600 border border-slate-100 flex items-center gap-1">
+                                                                <Globe size={10} /> {opp.location}
+                                                            </span>
+                                                        )}
+                                                        {opp.prize_pool && (
+                                                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1">
+                                                                <DollarSign size={10} /> {opp.prize_pool}
+                                                            </span>
+                                                        )}
+                                                        {opp.participation_type && (
+                                                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1">
+                                                                <Users size={10} /> {opp.participation_type}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                                        <div className="text-xs font-bold text-slate-500">
+                                                            {deadlineStr ? (
+                                                                daysLeft !== null && daysLeft <= 3 ? (
+                                                                    <span className="text-red-500">{daysLeft}d left</span>
+                                                                ) : (
+                                                                    <span>{daysLeft}d left</span>
+                                                                )
+                                                            ) : 'No deadline'}
+                                                        </div>
+                                                        <ArrowRight size={16} className="text-slate-300 group-hover:text-purple-500 transition-colors" />
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ));
+                        })()}
                     </div>
                 ) : (
                     <motion.div

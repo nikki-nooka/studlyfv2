@@ -65,6 +65,7 @@ async def post_opportunity(data: dict = Body(...), user: dict = Depends(get_auth
                     )
                 except ValueError as ve:
                     raise HTTPException(status_code=400, detail=str(ve))
+        data["_creator_role"] = role
         return await create_opportunity(data)
     except HTTPException:
         raise
@@ -178,6 +179,22 @@ async def get_saved_opportunities(user: dict = Depends(get_auth_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.get("/admin/all")
+async def get_all_opportunities_admin(user: dict = Depends(get_auth_user)):
+    """Fetch ALL opportunities for admin (all statuses)."""
+    role = str(user.get("role") or "").lower()
+    if role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    try:
+        cursor = opportunities_col.find().sort("createdAt", -1)
+        items = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            items.append(doc)
+        return items
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/admin/pending")
 async def get_pending_opportunities(user: dict = Depends(get_auth_user)):

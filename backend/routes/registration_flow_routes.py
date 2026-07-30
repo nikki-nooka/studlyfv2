@@ -584,8 +584,20 @@ async def get_registration_form_config(event_id: str, user: dict = Depends(get_a
             ev_id = event_id
         
         event = await events_col.find_one({"_id": ev_id}) if isinstance(ev_id, ObjectId) else await events_col.find_one({"event_id": event_id})
+        
+        # Fallback: if no event in events_col, check opportunities collection
         if not event:
-            raise HTTPException(status_code=404, detail="Event not found")
+            opp = None
+            if isinstance(ev_id, ObjectId):
+                opp = await opportunities_col.find_one({"_id": ev_id})
+            if not opp:
+                opp = await opportunities_col.find_one({"event_link_id": event_id})
+            if not opp:
+                opp = await opportunities_col.find_one({"_id": ObjectId(event_id)}) if ObjectId.is_valid(event_id) else None
+            if opp:
+                event = opp
+            else:
+                raise HTTPException(status_code=404, detail="Event not found")
 
         legacy, new_profile, reg, participant = await asyncio.gather(
             fetch_legacy_profile(user["user_id"]),
@@ -954,8 +966,22 @@ async def submit_event_registration(event_id: str, request: ApplyRegistrationReq
             ev_id = event_id
         
         event = await events_col.find_one({"_id": ev_id}) if isinstance(ev_id, ObjectId) else await events_col.find_one({"event_id": event_id})
+        
+        # Fallback: if no event found in events_col, check opportunities collection
+        is_opportunity_fallback = False
         if not event:
-            raise HTTPException(status_code=404, detail="Event not found")
+            opp = None
+            if isinstance(ev_id, ObjectId):
+                opp = await opportunities_col.find_one({"_id": ev_id})
+            if not opp:
+                opp = await opportunities_col.find_one({"event_link_id": event_id})
+            if not opp:
+                opp = await opportunities_col.find_one({"_id": ObjectId(event_id)}) if ObjectId.is_valid(event_id) else None
+            if opp:
+                is_opportunity_fallback = True
+                event = opp
+            else:
+                raise HTTPException(status_code=404, detail="Event not found")
             
         settings = event.get("registration_settings") or {}
         profile_fields_config = normalize_profile_fields_config(settings.get("profile_fields_config") or {})

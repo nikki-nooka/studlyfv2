@@ -604,6 +604,10 @@ async def get_all_stages_access(event_id: str, user_id: str) -> Dict[str, Any]:
             res = await events_col.find_one({"_id": ObjectId(resolved_id)})
             if not res:
                 res = await events_col.find_one({"event_id": resolved_id}) or await events_col.find_one({"event_link_id": str(resolved_id)})
+            if not res:
+                # Fallback: check opportunities collection
+                from db import opportunities_col
+                res = await opportunities_col.find_one({"_id": ObjectId(resolved_id)}) if ObjectId.is_valid(resolved_id) else None
             logger.info(f"PERF: Event fetch took {time.time() - start_ev:.4f}s")
             return res
         except:
@@ -943,7 +947,8 @@ async def check_stage_deadline(event_id: str, stage_index: int = None, stage_nam
     stages = opportunity.get("stages", [])
     
     if not stages:
-        raise HTTPException(status_code=404, detail="No stages configured for this event")
+        # No stages configured — skip deadline check, allow the action
+        return None
     
     # Find the target stage
     target_stage = None
@@ -960,7 +965,8 @@ async def check_stage_deadline(event_id: str, stage_index: int = None, stage_nam
                 break
     
     if not target_stage:
-        raise HTTPException(status_code=404, detail=f"Stage not found (index: {stage_index}, name: {stage_name})")
+        # If stage is not configured, skip deadline check (don't block the action)
+        return None
     
     # Check if current time is within stage window
     now = datetime.now(timezone.utc)

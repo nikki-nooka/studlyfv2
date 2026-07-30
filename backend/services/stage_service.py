@@ -3,7 +3,7 @@ Stage Management Service - Dynamic Stage Rendering & Progression
 Handles: Registration, Team Formation, Submissions, Final stages with dynamic fields
 """
 
-from db import db, events_col, participants_col, teams_col, submission_data_col, users_col
+from db import db, events_col, participants_col, teams_col, submission_data_col, users_col, opportunities_col
 from bson import ObjectId
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
@@ -156,7 +156,12 @@ async def get_event_stages(event_id: str) -> List[dict]:
     try:
         event = await events_col.find_one({"_id": ObjectId(event_id)})
         if not event:
-            return []
+            # Fallback: check opportunities collection
+            opp = await opportunities_col.find_one({"_id": ObjectId(event_id)}) if ObjectId.is_valid(event_id) else None
+            if opp:
+                event = opp
+            else:
+                return []
         
         stages = event.get("stages", [])
         if not isinstance(stages, list):

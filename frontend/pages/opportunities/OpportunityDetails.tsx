@@ -831,7 +831,7 @@ const OpportunityDetails: React.FC = () => {
             return;
         }
 
-        const isEvent = opportunity?.type === 'Hackathons & Coding Challenges' || opportunity?.type === 'Workshops' || Boolean(opportunity?.event_link_id);
+        const isEvent = opportunity?.type === 'Hackathons & Coding Challenges' || opportunity?.type === 'Hackathon' || opportunity?.type === 'Workshops' || opportunity?.type === 'Workshop' || Boolean(opportunity?.event_link_id);
         if (useStageRegistration || isEvent) {
             console.log("Using stage registration flow");
             // ... (rest of the logic)
@@ -942,9 +942,13 @@ const OpportunityDetails: React.FC = () => {
                 if (data) setMyApplication(data);
                 setSubmitted(true);
                 setIsApplied(true);
+            } else {
+                const errData = await response.json().catch(() => ({ detail: 'Registration failed' }));
+                alert(`Registration failed: ${errData.detail || 'Unknown error'}`);
             }
         } catch (err) {
             console.error("Apply error:", err);
+            alert("An error occurred during registration. Please try again.");
         } finally {
             setSubmitting(false);
         }

@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from db import db, events_col, users_col, notifications_col, institutions_col
 from domain_models import Opportunity, OpportunityApplication
@@ -415,7 +416,13 @@ async def create_opportunity(data: dict) -> dict:
     # Ensure applicantsCount is 0 for new opportunities
     data["applicantsCount"] = 0
     data["createdAt"] = datetime.utcnow()
-    data["status"] = str(data.get("status") or "active").strip().lower()
+    # Institutions need admin approval; admins can publish directly
+    requested_status = str(data.get("status") or "").strip().lower()
+    creator_role = str(data.get("_creator_role") or "").strip().lower()
+    if creator_role in ("admin", "super_admin"):
+        data["status"] = requested_status or "active"
+    else:
+        data["status"] = requested_status if requested_status in ("active", "draft") else "pending_approval"
     
     # Handle deadline if it's a string
     if isinstance(data.get("deadline"), str):
@@ -423,6 +430,25 @@ async def create_opportunity(data: dict) -> dict:
         
     result = await opportunities_col.insert_one(data)
     data["_id"] = str(result.inserted_id)
+
+    # Notify admins when opportunity needs approval
+    if data["status"] == "pending_approval":
+        try:
+            admin_emails = [e.strip() for e in (os.environ.get("SUPER_ADMIN_EMAILS") or "").split(",") if e.strip()]
+            if admin_emails:
+                admins = await users_col.find({"email": {"$in": admin_emails}}).to_list(length=10)
+                for admin in admins:
+                    await notifications_col.insert_one({
+                        "user_id": admin.get("user_id") or admin.get("email"),
+                        "type": "opportunity_pending_approval",
+                        "message": f'New opportunity "{data.get("title", "Untitled")}" submitted by {data.get("organization", "an institution")} needs your approval.',
+                        "is_read": False,
+                        "created_at": datetime.utcnow().isoformat(),
+                        "meta": {"opportunity_id": data["_id"], "title": data.get("title"), "type": data.get("type")},
+                    })
+        except Exception:
+            pass
+
     return data
 
 async def get_all_opportunities(filters: dict = None) -> List[dict]:

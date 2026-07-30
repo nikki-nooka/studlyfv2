@@ -334,7 +334,12 @@ async def complete_registration(
         # Get event info
         event = await events_col.find_one({"_id": ObjectId(event_id)})
         if not event:
-            return {"error": "Event not found"}
+            # Fallback: check opportunities collection
+            opp = await opportunities_col.find_one({"_id": ObjectId(event_id)}) if ObjectId.is_valid(event_id) else None
+            if opp:
+                event = opp
+            else:
+                return {"error": "Event not found"}
 
         # Enforce event eligibility restrictions (candidateTypes, college, gender)
         restriction_error = await validate_event_restrictions(event, user_id)

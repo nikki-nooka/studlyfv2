@@ -9,7 +9,7 @@ from typing import Optional
 
 from bson import ObjectId
 
-from db import teams_col, participants_col, users_col, events_col
+from db import teams_col, participants_col, users_col, events_col, opportunities_col
 
 async def create_team(
     event_id: str,
@@ -31,6 +31,11 @@ async def create_team(
         
         # Check participation type - block team creation for 'individual' events
         event = await events_col.find_one({"_id": ObjectId(event_id)})
+        if not event:
+            # Fallback: check opportunities collection
+            opp = await opportunities_col.find_one({"_id": ObjectId(event_id)}) if ObjectId.is_valid(event_id) else None
+            if opp:
+                event = opp
         if event:
             ptype = str(event.get("participationType") or "").lower().strip()
             if ptype == "individual":

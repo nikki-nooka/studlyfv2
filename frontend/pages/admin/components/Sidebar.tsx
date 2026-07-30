@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -27,6 +27,7 @@ import {
 import { motion } from 'framer-motion';
 import { useAuth } from '../../../AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL, authHeaders } from '../../../apiConfig';
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -57,6 +58,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
+    const [pendingCount, setPendingCount] = useState(0);
+
+    useEffect(() => {
+        const fetchPending = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/opportunities/admin/pending`, { headers: authHeaders() });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) setPendingCount(data.length);
+                }
+            } catch {}
+        };
+        fetchPending();
+        const interval = setInterval(fetchPending, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <motion.aside
@@ -105,6 +122,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
                                 <item.icon size={20} className={isActive ? 'text-[#7C3AED]' : 'text-inherit'} />
                                 {!isCollapsed && (
                                     <span className="font-medium text-sm">{item.name}</span>
+                                )}
+
+                                {!isCollapsed && item.name === 'Opportunities' && pendingCount > 0 && (
+                                    <span className="ml-auto px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg shadow-red-500/30">
+                                        {pendingCount}
+                                    </span>
                                 )}
 
                                 {isActive && (

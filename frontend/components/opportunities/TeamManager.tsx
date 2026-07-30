@@ -64,6 +64,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
     const [codeRequestSent, setCodeRequestSent] = useState<string | null>(null);
     const [pendingSentRequests, setPendingSentRequests] = useState<any[]>([]);
 
+    const isLeader = !!(team && String(team.team_leader_id || '') === String(user?.user_id || ''));
+    const memberCount = team?.members?.length || 0;
+
     const minSizeRaw = opportunity?.minTeamSize ?? opportunity?.min_team_size;
     const maxSizeRaw = opportunity?.maxTeamSize ?? opportunity?.max_team_size;
     const teamSizeConfigured = minSizeRaw != null && maxSizeRaw != null;
@@ -125,7 +128,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setPendingSentRequests((data.requests || []).filter((r: any) => r.status === 'PENDING'));
+                setPendingSentRequests((data.requests || []).filter((r: any) => (r.status || '').toUpperCase() === 'PENDING'));
             }
         } catch { }
     };
@@ -142,6 +145,20 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
             fetchJoinRequests();
         }
     }, [team?._id]);
+
+    // Auto-poll for new join requests every 15s (leader only)
+    useEffect(() => {
+        if (!team?._id || !isLeader || isSoloTeam) return;
+        const teamId = team._id;
+        const interval = setInterval(() => {
+            fetch(`${API_BASE_URL}/api/v1/teams/requests/teams/${teamId}/requests`, {
+                headers: { ...authHeaders() },
+            }).then(r => r.ok ? r.json() : null).then(data => {
+                if (data?.requests) setJoinRequests(data.requests);
+            }).catch(() => {});
+        }, 15000);
+        return () => clearInterval(interval);
+    }, [team?._id, isSoloTeam]);
 
     useEffect(() => {
         const codeFromUrl = searchParams.get('invite');
@@ -419,8 +436,6 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
         } catch { }
     };
 
-    const isLeader = team && String(team.team_leader_id || '') === String(user?.user_id || '');
-    const memberCount = team?.members?.length || 0;
 
     const handleBack = () => {
         const idx = window.history.state?.idx ?? 0;
@@ -708,38 +723,47 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId, opportunity }) => {
                     )}
 
                     {/* Join Requests — leader can approve/reject (only if forming/active) */}
-                    {isLeader && !isSoloTeam && ((team as any).status === 'forming' || (team as any).status === 'active') && joinRequests.filter(r => r.status === 'PENDING').length > 0 && (
+                    {isLeader && !isSoloTeam && ((team as any).status === 'forming' || (team as any).status === 'active') && (
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Pending Join Requests</p>
-                            <div className="space-y-3">
-                                {joinRequests.filter(r => r.status === 'PENDING').map(req => (
-                                    <div key={req._id} className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-slate-900">{req.requester_name || req.requester_email}</p>
-                                            <p className="text-xs text-slate-500 truncate">{req.requester_email}{req.requester_college ? ` · ${req.requester_college}` : ''}</p>
-                                            {req.message && <p className="text-xs text-slate-400 mt-1 italic">"{req.message}"</p>}
-                                        </div>
-                                        <div className="flex gap-2 ml-3">
-                                            <button
-                                                onClick={() => handleApproveRequest(req._id)}
-                                                disabled={actionLoading || !teamSizeConfigured || memberCount >= (maxSize as number)}
-                                                className="p-2 bg-emerald-100 text-emerald-700 rounded-xl hover:bg-emerald-200 transition-colors disabled:opacity-50"
-                                                title="Approve"
-                                            >
-                                                <ThumbsUp size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleRejectRequest(req._id)}
-                                                disabled={actionLoading}
-                                                className="p-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors disabled:opacity-50"
-                                                title="Reject"
-                                            >
-                                                <ThumbsDown size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="flex items-center justify-between mb-4">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Join Requests</p>
+                                {joinRequests.filter(r => (r.status || '').toUpperCase() === 'PENDING').length > 0 && (
+                                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full">
+                                        {joinRequests.filter(r => (r.status || '').toUpperCase() === 'PENDING').length} pending
+                                    </span>
+                                )}
                             </div>
+                            {joinRequests.filter(r => (r.status || '').toUpperCase() === 'PENDING').length > 0 ? (
+                                <div className="space-y-3">
+                                    {joinRequests.filter(r => (r.status || '').toUpperCase() === 'PENDING').map(req => (
+                                        <div key={req._id} className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-bold text-slate-900">{req.requester_name || req.requester_email}</p>
+                                                <p className="text-xs text-slate-500 truncate">{req.requester_email}{req.requester_college ? ` · ${req.requester_college}` : ''}</p>
+                                                {req.message && <p className="text-xs text-slate-400 mt-1 italic">"{req.message}"</p>}
+                                            </div>
+                                            <div className="flex gap-2 ml-3">
+                                                <button
+                                                    onClick={() => handleApproveRequest(req._id)}
+                                                    disabled={actionLoading || !teamSizeConfigured || memberCount >= (maxSize as number)}
+                                                    className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors disabled:opacity-50 text-xs font-bold"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRejectRequest(req._id)}
+                                                    disabled={actionLoading}
+                                                    className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 text-xs font-bold"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-slate-400 text-center py-2">No pending join requests. Share your invite code to get team members.</p>
+                            )}
                         </div>
                     )}
 

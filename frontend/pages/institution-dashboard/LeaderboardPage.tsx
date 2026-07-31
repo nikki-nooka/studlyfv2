@@ -292,6 +292,11 @@ const renderRank = (rank: number) => {
   return <span className="font-semibold text-slate-600 ml-3">{rank}</span>;
 };
 
+const getStageId = (s: any): string => {
+  if (!s) return '';
+  return String(s.id || s._id || s.stage_id || '');
+};
+
 export default function LiveResultsDashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(() => loadPersistedState('activeTab', 'All'));
@@ -329,10 +334,19 @@ export default function LiveResultsDashboard() {
             const match = eventsArray.find((e: any) => e._id === savedEvent._id);
             if (match) {
               setSelectedEvent(match);
-              if (savedStage?.id) {
-                const stageMatch = (match.stages || []).find((s: any) => s.id === savedStage.id);
+              if (savedStage) {
+                const savedId = getStageId(savedStage);
+                const stageMatch = (match.stages || []).find((s: any) => getStageId(s) === savedId);
                 if (stageMatch) setSelectedStage(stageMatch);
+                else if (match.stages && match.stages.length > 0) setSelectedStage(match.stages[0]);
+              } else if (match.stages && match.stages.length > 0) {
+                setSelectedStage(match.stages[0]);
               }
+            }
+          } else if (eventsArray.length > 0) {
+            setSelectedEvent(eventsArray[0]);
+            if (eventsArray[0].stages && eventsArray[0].stages.length > 0) {
+              setSelectedStage(eventsArray[0].stages[0]);
             }
           }
         }
@@ -344,24 +358,33 @@ export default function LiveResultsDashboard() {
   }, [user?.institution_id]);
 
   useEffect(() => {
-    // Only set stage if not already set, or if selected event changed
-    if (selectedEvent && (!selectedStage || selectedStage.id === '')) {
-      setSelectedStage(selectedEvent.stages && selectedEvent.stages.length > 0 ? selectedEvent.stages[0] : null);
+    if (selectedEvent) {
+      const stages = selectedEvent.stages || [];
+      const currentId = getStageId(selectedStage);
+      const isCurrentValid = stages.some((s: any) => getStageId(s) === currentId);
+      if (!isCurrentValid) {
+        setSelectedStage(stages.length > 0 ? stages[0] : null);
+      }
+    } else {
+      setSelectedStage(null);
     }
   }, [selectedEvent]);
 
   useEffect(() => {
-    if (!selectedEvent || !selectedStage) return;
+    if (!selectedEvent) return;
     const fetchBoard = async () => {
       setLoading(true);
       
+      const stageId = getStageId(selectedStage);
       const params = new URLSearchParams({
-        stage_id: selectedStage.id,
         institution_id: user?.institution_id || '',
         page: String(currentPage),
         limit: String(pageSize),
         status: activeTab,
       });
+      if (stageId) {
+        params.set('stage_id', stageId);
+      }
       if (searchTerm.trim()) {
         params.set('search', searchTerm.trim());
       }
@@ -393,7 +416,7 @@ export default function LiveResultsDashboard() {
     persistState('currentPage', currentPage);
     persistState('pageSize', pageSize);
     persistState('selectedEvent', selectedEvent ? { _id: selectedEvent._id, title: selectedEvent.title, status: selectedEvent.status, stages: selectedEvent.stages } : null);
-    persistState('selectedStage', selectedStage ? { id: selectedStage.id, name: selectedStage.name, type: selectedStage.type } : null);
+    persistState('selectedStage', selectedStage ? { id: getStageId(selectedStage), name: selectedStage.name, type: selectedStage.type } : null);
   }, [activeTab, searchTerm, currentPage, pageSize, selectedEvent, selectedStage]);
 
   const counts = leaderboardData?.counts || {};
@@ -429,19 +452,21 @@ export default function LiveResultsDashboard() {
 
   const handleExportPDF = () => {
     if (!selectedEvent) return;
+    const stageId = getStageId(selectedStage);
     window.open(
-      `${API_BASE_URL}/api/v1/institution/leaderboard/${selectedEvent._id}/export-pdf?stage_id=${selectedStage?.id}`,
+      `${API_BASE_URL}/api/v1/institution/leaderboard/${selectedEvent._id}/export-pdf${stageId ? `?stage_id=${stageId}` : ''}`,
       '_blank'
     );
   };
 
   const handleVerifyResults = async () => {
-    if (!selectedEvent || !selectedStage) return;
+    if (!selectedEvent) return;
     try {
+      const stageId = getStageId(selectedStage);
       const res = await fetch(`${API_BASE_URL}/api/v1/institution/events/${selectedEvent._id}/leaderboard/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ stage_id: selectedStage.id }),
+        body: JSON.stringify({ stage_id: stageId }),
       });
       if (res.ok) {
         showToast('Results verified successfully!', 'success');
@@ -518,6 +543,9 @@ export default function LiveResultsDashboard() {
                 onChange={(e) => {
                   const ev = events.find((ev) => ev._id === e.target.value);
                   setSelectedEvent(ev || null);
+                  const firstStage = (ev?.stages && ev.stages.length > 0) ? ev.stages[0] : null;
+                  setSelectedStage(firstStage);
+                  setCurrentPage(1);
                 }}
               >
                 {events.map((ev) => (
@@ -533,18 +561,27 @@ export default function LiveResultsDashboard() {
             <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Select Stage</label>
             <div className="relative">
               <select
-                className="w-full appearance-none bg-white border border-slate-200 text-sm font-medium rounded-lg py-2.5 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                value={selectedStage?.id || ''}
+                className="w-full appearance-none bg-white border border-slate-200 text-sm font-medium rounded-lg py-2.5 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm disabled:opacity-50"
+                value={getStageId(selectedStage)}
+                disabled={!selectedEvent || !(selectedEvent.stages && selectedEvent.stages.length > 0)}
                 onChange={(e) => {
-                  const stage = selectedEvent?.stages?.find((s) => s.id === e.target.value);
+                  const stage = selectedEvent?.stages?.find((s) => getStageId(s) === e.target.value);
                   setSelectedStage(stage || null);
+                  setCurrentPage(1);
                 }}
               >
-                {(selectedEvent?.stages || []).map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
+                {(selectedEvent?.stages || []).length === 0 ? (
+                  <option value="">No stages available</option>
+                ) : (
+                  (selectedEvent?.stages || []).map((s, idx) => {
+                    const sId = getStageId(s) || `stage-${idx}`;
+                    return (
+                      <option key={sId} value={sId}>
+                        {s.name}
+                      </option>
+                    );
+                  })
+                )}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
             </div>

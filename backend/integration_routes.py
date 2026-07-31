@@ -4092,7 +4092,7 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
             criteria_scores = {}
             
     if criteria_scores:
-        total_score = round(sum(criteria_scores.values()) / len(criteria_scores), 1)
+        total_score = round(sum(criteria_scores.values()), 1)
     else:
         total_score = round(float(score_data.get("total_score", 0)), 1)
 

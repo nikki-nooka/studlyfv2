@@ -266,14 +266,6 @@ const EvaluationPage: React.FC = () => {
                     {error && <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">{error}</div>}
                     {success && <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg">{success}</div>}
 
-                    {submission.thresholds && (
-                        <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-center text-xs">
-                            <div className="p-3 bg-emerald-50 rounded-xl"><span className="font-black text-emerald-700">Shortlist ≥ {submission.thresholds.shortlist_min}</span></div>
-                            <div className="p-3 bg-amber-50 rounded-xl"><span className="font-black text-amber-700">Waitlist ≥ {submission.thresholds.waitlist_min}</span></div>
-                            <div className="p-3 bg-red-50 rounded-xl"><span className="font-black text-red-700">Reject &lt; {submission.thresholds.reject_below}</span></div>
-                        </div>
-                    )}
-
                     <div className="space-y-6">
                         {submission.criteria?.length > 0 ? submission.criteria.map((criterion: any, idx: number) => (
                             <div key={idx} className="space-y-2">

@@ -232,33 +232,6 @@ const JudgeDashboard: React.FC = () => {
                 ))}
             </div>
 
-            {/* Thresholds */}
-            {Object.keys(eventThresholds).length > 0 && (
-                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4">
-                        <Target size={14} className="text-violet-400" /> Evaluation Thresholds
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {Object.entries(eventThresholds).map(([eid, t]: [string, any]) => (
-                            <React.Fragment key={eid}>
-                                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-center">
-                                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Shortlist</p>
-                                    <p className="text-xl font-extrabold text-emerald-400">{t.shortlist_min || 80}%+</p>
-                                </div>
-                                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-center">
-                                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">Waitlist</p>
-                                    <p className="text-xl font-extrabold text-amber-400">{t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%+</p>
-                                </div>
-                                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-center">
-                                    <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1">Reject Below</p>
-                                    <p className="text-xl font-extrabold text-red-400">&lt; {t.reject_below || t.waitlist_min || Math.max((t.shortlist_min || 80) * 0.75, (t.shortlist_min || 80) - 15)}%</p>
-                                </div>
-                            </React.Fragment>
-                        ))}
-                    </div>
-                </div>
-            )}
-
             {/* Filter Bar */}
             <div className="space-y-4">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

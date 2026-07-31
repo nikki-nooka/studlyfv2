@@ -437,9 +437,9 @@ export default function LiveResultsDashboard() {
 
   const summaryCards = [
     { title: 'Total Teams', value: String(getCount('Total')), subtext: 'Registered', icon: <Trophy className="w-5 h-5 text-yellow-600" />, bgColor: 'bg-yellow-50', iconBg: 'bg-yellow-100' },
-    { title: 'Shortlisted', value: String(getCount('Shortlisted')), subtext: `Min. ${shortlistMin}`, icon: <CheckCircle className="w-5 h-5 text-emerald-600" />, bgColor: 'bg-emerald-50', iconBg: 'bg-emerald-100' },
-    { title: 'Waitlisted', value: String(getCount('Waitlisted')), subtext: `Min. ${waitlistMin}`, icon: <Clock className="w-5 h-5 text-blue-600" />, bgColor: 'bg-blue-50', iconBg: 'bg-blue-100' },
-    { title: 'Rejected', value: String(getCount('Rejected')), subtext: `Below ${rejectBelow}`, icon: <XCircle className="w-5 h-5 text-red-600" />, bgColor: 'bg-red-50', iconBg: 'bg-red-100' },
+    { title: 'Shortlisted', value: String(getCount('Shortlisted')), subtext: '', icon: <CheckCircle className="w-5 h-5 text-emerald-600" />, bgColor: 'bg-emerald-50', iconBg: 'bg-emerald-100' },
+    { title: 'Waitlisted', value: String(getCount('Waitlisted')), subtext: '', icon: <Clock className="w-5 h-5 text-blue-600" />, bgColor: 'bg-blue-50', iconBg: 'bg-blue-100' },
+    { title: 'Rejected', value: String(getCount('Rejected')), subtext: '', icon: <XCircle className="w-5 h-5 text-red-600" />, bgColor: 'bg-red-50', iconBg: 'bg-red-100' },
   ];
 
   const tabs = [

@@ -3280,7 +3280,7 @@ async def download_certificate(certificate_id: str):
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     buf = io.BytesIO()
-    img.save(buf, format="PNG")
+    img.save(buf)
     qr_blob = b64.b64encode(buf.getvalue()).decode()
 
     participant_name = cert.get("participant_name") or cert.get("recipient_name") or "Participant"

@@ -53,7 +53,11 @@ const JudgeDashboard: React.FC = () => {
                 data.forEach((a: any) => {
                     if (a.existing_scores?.scores) {
                         const vals = Object.values(a.existing_scores.scores) as number[];
-                        if (vals.length > 0) { totalScoreSum += vals.reduce((s, v) => s + v, 0) / vals.length; scoredCount++; }
+                        if (vals.length > 0) {
+                            const tot = typeof a.existing_scores.total_score === 'number' ? a.existing_scores.total_score : vals.reduce((s, v) => s + v, 0);
+                            totalScoreSum += tot;
+                            scoredCount++;
+                        }
                     }
                 });
                 setStats({
@@ -313,7 +317,10 @@ const JudgeDashboard: React.FC = () => {
                                         <div className="text-left sm:text-right">
                                             <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Score</p>
                                             <div className="text-2xl font-extrabold text-emerald-400 tracking-tight">
-                                                {((Object.values(sub.existing_scores.scores || {}) as number[]).reduce((a, b) => a + b, 0) / Object.keys(sub.existing_scores.scores || {}).length).toFixed(1)}
+                                                {(typeof sub.existing_scores.total_score === 'number'
+                                                    ? sub.existing_scores.total_score
+                                                    : (Object.values(sub.existing_scores.scores || {}) as number[]).reduce((a, b) => a + b, 0)
+                                                ).toFixed(1)}
                                             </div>
                                         </div>
                                     ) : (
@@ -468,30 +475,37 @@ const JudgeDashboard: React.FC = () => {
                                     </div>
 
                                     {/* Score Ring */}
-                                    <div className="pt-6 border-t border-white/[0.06] flex items-center gap-6">
-                                        <div className="w-16 h-16 relative shrink-0">
-                                            <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-white/[0.05]" />
-                                                <circle
-                                                    cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="transparent"
-                                                    strokeDasharray={175.9}
-                                                    strokeDashoffset={175.9 - (175.9 * (Object.values(scores).reduce((a, b) => a + b, 0) / (scoringCriteria.length || 1) / 10))}
-                                                    className="text-violet-500 transition-all duration-500"
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
-                                            <div className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-violet-400">
-                                                {(Object.values(scores).reduce((a, b) => a + b, 0) / (scoringCriteria.length || 1)).toFixed(1)}
+                                    {(() => {
+                                        const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+                                        const maxPossiblePoints = (scoringCriteria || []).reduce((acc: number, c: any) => acc + (c.max_points || 10), 0) || (scoringCriteria.length * 10) || 100;
+                                        const scorePct = maxPossiblePoints > 0 ? Math.min(1, Math.max(0, totalScore / maxPossiblePoints)) : 0;
+                                        return (
+                                            <div className="pt-6 border-t border-white/[0.06] flex items-center gap-6">
+                                                <div className="w-16 h-16 relative shrink-0">
+                                                    <svg className="w-full h-full transform -rotate-90">
+                                                        <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-white/[0.05]" />
+                                                        <circle
+                                                            cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="3" fill="transparent"
+                                                            strokeDasharray={175.9}
+                                                            strokeDashoffset={175.9 - (175.9 * scorePct)}
+                                                            className="text-violet-500 transition-all duration-500"
+                                                            strokeLinecap="round"
+                                                        />
+                                                    </svg>
+                                                    <div className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-violet-400">
+                                                        {totalScore.toFixed(1)}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Score</p>
+                                                    <p className="text-2xl font-extrabold text-white tracking-tight">
+                                                        {totalScore.toFixed(1)}
+                                                        <span className="text-sm text-slate-500 ml-1">/ {maxPossiblePoints}</span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Aggregate Score</p>
-                                            <p className="text-2xl font-extrabold text-white tracking-tight">
-                                                {(Object.values(scores).reduce((a, b) => a + b, 0) / (scoringCriteria.length || 1)).toFixed(1)}
-                                                <span className="text-sm text-slate-600 ml-1">/ 10</span>
-                                            </p>
-                                        </div>
-                                    </div>
+                                        );
+                                    })()}
                                 </div>
 
                                 {/* Right: Scoring */}

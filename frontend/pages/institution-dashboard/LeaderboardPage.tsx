@@ -229,15 +229,6 @@ function resolveScoreDisplay(
     if (band) return { score, label: band.label, color: band.color || 'text-slate-600' };
   }
 
-  if (thresholds) {
-    const shortlistMin = thresholds.shortlist_min ?? 70;
-    const waitlistMin = thresholds.waitlist_min ?? 50;
-    if (score >= shortlistMin) return { score, label: 'Outstanding', color: 'text-emerald-600' };
-    if (score >= (shortlistMin + waitlistMin) / 2) return { score, label: 'Very Good', color: 'text-blue-600' };
-    if (score >= waitlistMin) return { score, label: 'Good', color: 'text-amber-600' };
-    return { score, label: 'Needs Improvement', color: 'text-red-600' };
-  }
-
   return { score, label: null, color: '' };
 }
 

@@ -175,7 +175,7 @@ export default function SubmitProject() {
 
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white pt-24">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
@@ -187,7 +187,7 @@ export default function SubmitProject() {
           <h1 className="text-2xl font-bold">Submit Project</h1>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
           {/* Form */}
           <div className="flex-1 min-w-0 space-y-6">
             {/* Title */}
@@ -392,7 +392,7 @@ export default function SubmitProject() {
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/10 hover:border-purple-500/50 rounded-lg p-8 text-center cursor-pointer transition-colors"
+                  className="border-2 border-dashed border-white/10 hover:border-purple-500/50 rounded-lg p-4 sm:p-8 text-center cursor-pointer transition-colors"
                 >
                   <ImageIcon className="mx-auto mb-3 text-gray-600" size={32} />
                   <p className="text-sm text-gray-400">

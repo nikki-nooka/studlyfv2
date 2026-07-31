@@ -262,17 +262,17 @@ const JudgeDashboard: React.FC = () => {
             {/* Filter Bar */}
             <div className="space-y-4">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-3 flex-col sm:flex-row w-full">
                         <h2 className="text-lg font-bold text-white flex items-center gap-2">
                             <Zap size={18} className="text-violet-400" />
                             Assigned Projects
                         </h2>
-                        <div className="flex gap-1 p-1 bg-white/[0.04] border border-white/[0.06] rounded-xl">
+                        <div className="flex gap-1 p-1 bg-white/[0.04] border border-white/[0.06] rounded-xl overflow-x-auto w-full sm:w-auto scrollbar-none">
                             {['All', 'Pending', 'Completed', 'Shortlisted', 'Waitlisted', 'Rejected'].map(t => (
                                 <button
                                     key={t}
                                     onClick={() => setFilterStatus(t)}
-                                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${
+                                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap ${
                                         filterStatus === t
                                             ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                                             : 'text-slate-500 hover:text-slate-300 border border-transparent'
@@ -378,16 +378,16 @@ const JudgeDashboard: React.FC = () => {
             {/* Scoring Modal */}
             <AnimatePresence>
                 {selectedAssignment && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="bg-[#0c0a2a] border border-white/[0.08] rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl my-8"
+                            className="bg-[#0c0a2a] border border-white/[0.08] rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl my-4 sm:my-8"
                         >
                             <div className="grid grid-cols-1 lg:grid-cols-2">
                                 {/* Left: Project Info */}
-                                <div className="p-8 space-y-8 border-r border-white/[0.06]">
+                                <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 border-b lg:border-b-0 lg:border-r border-white/[0.06]">
                                     <div className="flex justify-between items-start">
                                         <div className="space-y-2">
                                             <h2 className="text-xl font-extrabold text-white tracking-tight">{selectedAssignment.project_title}</h2>
@@ -522,7 +522,7 @@ const JudgeDashboard: React.FC = () => {
                                 </div>
 
                                 {/* Right: Scoring */}
-                                <div className="p-8 space-y-8 bg-white/[0.01]">
+                                <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 bg-white/[0.01]">
                                     <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
                                         <Gavel size={18} className="text-violet-400" />
                                         Evaluation Criteria

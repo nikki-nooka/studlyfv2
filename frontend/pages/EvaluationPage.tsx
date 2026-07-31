@@ -185,20 +185,20 @@ const EvaluationPage: React.FC = () => {
     const isDone = !!submission.existing_evaluation;
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4">
+        <div className="min-h-screen bg-slate-50 py-6 sm:py-12 px-3 sm:px-4">
             <div className="max-w-4xl mx-auto">
-                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-                    <div className="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Gavel size={40} />
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8 sm:mb-12">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <Gavel size={32} className="sm:hidden" /><Gavel size={40} className="hidden sm:block" />
                     </div>
-                    <h1 className="text-3xl font-bold text-slate-900 mb-4">Project Evaluation</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 sm:mb-4">Project Evaluation</h1>
                     <p className="text-slate-600">Review and score this submission using the admin rubric</p>
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-                    <div className="flex items-center justify-between mb-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 mb-6 sm:mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                         <div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">{submission.title}</h2>
+                            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">{submission.title}</h2>
                             <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
                                 <span className="flex items-center gap-2"><Users size={16} />{submission.team_name}</span>
                                 {submission.judge_name && (
@@ -226,8 +226,8 @@ const EvaluationPage: React.FC = () => {
                                 if (val && typeof val === 'object' && val._stored_file) {
                                     const badge = getFileTypeBadge(val.filename || key, val.mime || '');
                                     return (
-                                        <div key={key} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                                            <FileText size={20} className="text-slate-500" />
+                                        <div key={key} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 bg-slate-50 rounded-xl">
+                                            <FileText size={20} className="text-slate-500 shrink-0" />
                                             <div className="flex-1">
                                                 <p className="font-medium text-slate-900">{val.filename || key}</p>
                                                 <p className="text-sm text-slate-500">{badge} · Uploaded deliverable</p>
@@ -261,13 +261,13 @@ const EvaluationPage: React.FC = () => {
                     )}
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-lg p-8">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-lg p-4 sm:p-8">
                     <h3 className="text-xl font-bold text-slate-900 mb-6">Evaluation</h3>
                     {error && <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">{error}</div>}
                     {success && <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg">{success}</div>}
 
                     {submission.thresholds && (
-                        <div className="mb-6 grid grid-cols-3 gap-3 text-center text-xs">
+                        <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-center text-xs">
                             <div className="p-3 bg-emerald-50 rounded-xl"><span className="font-black text-emerald-700">Shortlist ≥ {submission.thresholds.shortlist_min}</span></div>
                             <div className="p-3 bg-amber-50 rounded-xl"><span className="font-black text-amber-700">Waitlist ≥ {submission.thresholds.waitlist_min}</span></div>
                             <div className="p-3 bg-red-50 rounded-xl"><span className="font-black text-red-700">Reject &lt; {submission.thresholds.reject_below}</span></div>
@@ -340,14 +340,14 @@ const EvaluationPage: React.FC = () => {
             <AnimatePresence>
                 {previewAsset && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-slate-900/60 backdrop-blur-sm">
                         <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
-                            className="bg-white w-full max-w-6xl h-[90vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden">
-                            <div className="p-8 border-b flex items-center justify-between">
-                                <h3 className="text-xl font-black">{previewAsset.filename}</h3>
-                                <button onClick={() => setPreviewAsset(null)} className="p-4 bg-slate-50 rounded-2xl"><X size={20} /></button>
+                            className="bg-white w-full max-w-6xl h-[95vh] sm:h-[90vh] rounded-2xl sm:rounded-[3rem] shadow-2xl flex flex-col overflow-hidden">
+                            <div className="p-4 sm:p-8 border-b flex items-center justify-between">
+                                <h3 className="text-base sm:text-xl font-black truncate mr-2">{previewAsset.filename}</h3>
+                                <button onClick={() => setPreviewAsset(null)} className="p-2 sm:p-4 bg-slate-50 rounded-xl sm:rounded-2xl shrink-0"><X size={20} /></button>
                             </div>
-                            <div className="flex-1 p-8 bg-slate-100">
+                            <div className="flex-1 p-2 sm:p-8 bg-slate-100">
                                 {previewAsset.loading ? (
                                     <div className="h-full flex items-center justify-center"><div className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" /></div>
                                 ) : (

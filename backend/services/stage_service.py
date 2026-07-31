@@ -3,7 +3,7 @@ Stage Management Service - Dynamic Stage Rendering & Progression
 Handles: Registration, Team Formation, Submissions, Final stages with dynamic fields
 """
 
-from db import db, events_col, participants_col, teams_col, submission_data_col, users_col, opportunities_col
+from db import db, events_col, participants_col, teams_col, submission_data_col, users_col, opportunities_col, parse_dt_ist as _parse_dt, IST
 from bson import ObjectId
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
@@ -166,17 +166,6 @@ async def get_event_stages(event_id: str) -> List[dict]:
         stages = event.get("stages", [])
         if not isinstance(stages, list):
             return []
-        
-        def _parse_dt(value):
-            if isinstance(value, str):
-                try:
-                    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-                    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
-                except Exception:
-                    return None
-            if isinstance(value, datetime):
-                return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
-            return None
 
         # Look up subscription-based deadline extension
         inst_id = event.get("institution_id")

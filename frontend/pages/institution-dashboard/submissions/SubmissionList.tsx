@@ -388,12 +388,12 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
     );
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700 pb-20">
+            <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-700 pb-20">
             {/* Unified Command Center Banner */}
-            <div className="p-12 bg-slate-950 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
+                    <div className="p-6 sm:p-12 bg-slate-950 rounded-[2rem] sm:rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
-                    <div className="space-y-6 max-w-2xl text-center md:text-left">
-                        <div className="flex flex-col md:flex-row items-center gap-4">
+                        <div className="space-y-4 sm:space-y-6 max-w-2xl text-center md:text-left">
+                            <div className="flex flex-col md:flex-row items-center gap-4">
                             <div className="px-5 py-2 bg-[#6C3BFF] text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(108,59,255,0.4)]">
                                 Global Command
                             </div>
@@ -402,12 +402,12 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-5xl font-black tracking-tighter leading-tight">Submissions Command Center</h3>
+                            <h3 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tighter leading-tight">Submissions Command Center</h3>
                             <p className="text-slate-400 text-lg font-medium leading-relaxed opacity-90">
                                 Dynamically aggregate and approve candidate bundles across all institutional opportunities. View deliverables or dispatch final authorizations.
                             </p>
                         </div>
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4">
                             <button 
                                 onClick={async () => {
                                     try {
@@ -473,16 +473,16 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
 
             {/* View Selection Toggle */}
             <div className="flex justify-center">
-                <div className="flex bg-slate-100 p-2 rounded-[2rem] shadow-inner border border-slate-200/50">
+                <div className="flex bg-slate-100 p-2 rounded-[2rem] shadow-inner border border-slate-200/50 overflow-x-auto">
                     <button 
                         onClick={() => setSubmissionSubTab('projects')}
-                        className={`px-10 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${submissionSubTab === 'projects' ? 'bg-slate-900 text-white shadow-2xl shadow-black/20' : 'text-slate-500 hover:text-slate-800'}`}
+                        className={`px-6 sm:px-10 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${submissionSubTab === 'projects' ? 'bg-slate-900 text-white shadow-2xl shadow-black/20' : 'text-slate-500 hover:text-slate-800'}`}
                     >
                         Candidate Selection Bundles
                     </button>
                     <button 
                         onClick={() => setSubmissionSubTab('assets')}
-                        className={`px-10 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${submissionSubTab === 'assets' ? 'bg-slate-900 text-white shadow-2xl shadow-black/20' : 'text-slate-500 hover:text-slate-800'}`}
+                        className={`px-6 sm:px-10 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${submissionSubTab === 'assets' ? 'bg-slate-900 text-white shadow-2xl shadow-black/20' : 'text-slate-500 hover:text-slate-800'}`}
                     >
                         Phase Deliverables (PPT/PDF)
                     </button>
@@ -491,8 +491,8 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
 
             {submissionSubTab === 'projects' ? (
                 <>
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                        <div className="flex items-center gap-10 border-b border-slate-100 px-6 w-full lg:w-auto">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
+                        <div className="flex items-center gap-6 sm:gap-10 border-b border-slate-100 px-4 sm:px-6 w-full lg:w-auto overflow-x-auto no-scrollbar">
                             {['shortlisted', 'accepted', 'pending', 'rejected'].map((tab) => (
                                 <button
                                     key={tab}
@@ -545,6 +545,7 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
 
 
                                         <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
+                                            <div className="overflow-x-auto">
                                             <table className="w-full text-left table-fixed border-collapse">
                                                 <colgroup>
                                                     <col className="w-[30%]" /> {/* Team Detail */}
@@ -643,11 +644,13 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                                                     )}
                                                 </tbody>
                                             </table>
+                                            </div>
                                         </div>
                 </>
             ) : (
                 /* Global Phase Deliverables View */
                 <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50">
@@ -716,6 +719,7 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                             )}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
 
@@ -732,17 +736,17 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="w-full max-w-4xl bg-white rounded-[3.5rem] shadow-2xl overflow-hidden relative"
+                            className="w-full max-w-4xl bg-white rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl overflow-hidden relative mx-2 sm:mx-4"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="p-12 space-y-8">
-                                <div className="flex justify-between items-start">
+                            <div className="p-4 sm:p-6 md:p-12 space-y-6 sm:space-y-8">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-3">
                                             <div className="px-4 py-1 bg-purple-50 text-[#6C3BFF] rounded-full text-[9px] font-black uppercase tracking-widest">Submission Bundle</div>
                                             <span className="text-slate-300">•</span>
                                         </div>
-                                        <h2 className="text-4xl font-black text-slate-900 tracking-tight">{selectedSubmission.project_title || selectedSubmission.team_name}</h2>
+                                        <h2 className="text-xl sm:text-2xl md:text-4xl font-black text-slate-900 tracking-tight">{selectedSubmission.project_title || selectedSubmission.team_name}</h2>
                                         <p className="text-slate-500 font-bold text-lg">{selectedSubmission.team_name} • {selectedSubmission.event_title}</p>
                                     </div>
                                     <button 
@@ -753,8 +757,8 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                                     </button>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    <div className="p-8 bg-slate-50 rounded-[2.5rem] space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+                                    <div className="p-5 sm:p-8 bg-slate-50 rounded-[1.5rem] sm:rounded-[2.5rem] space-y-4">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Metrics</p>
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-end">
@@ -767,7 +771,7 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                                         </div>
                                     </div>
                                     
-                                    <div className="col-span-2 p-8 bg-white border border-slate-100 rounded-[2.5rem] space-y-4">
+                                    <div className="col-span-1 md:col-span-2 p-5 sm:p-8 bg-white border border-slate-100 rounded-[1.5rem] sm:rounded-[2.5rem] space-y-4">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Project Narrative</p>
                                         <p className="text-slate-600 leading-relaxed font-medium line-clamp-4">{selectedSubmission.project_description || "No description provided for this deliverable."}</p>
                                     </div>
@@ -821,7 +825,7 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="bg-white w-full max-w-5xl h-[85vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden"
+                            className="bg-white w-full max-w-5xl h-[85vh] rounded-[2rem] sm:rounded-[3rem] shadow-2xl flex flex-col overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
@@ -883,9 +887,9 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
                             className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden border border-slate-100"
                         >
-                            <div className="p-10 border-b border-slate-50 flex items-center justify-between">
+                            <div className="p-6 sm:p-10 border-b border-slate-50 flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Assign Evaluator</h3>
+                                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Assign Evaluator</h3>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Select a verified expert to review this bundle</p>
                                 </div>
                                 <button onClick={() => setJudgeAssignmentModal({ isOpen: false, submissionId: null })} className="p-4 bg-slate-50 text-slate-400 hover:text-rose-500 rounded-2xl transition-all">
@@ -893,7 +897,7 @@ const SubmissionList: React.FC<SubmissionListProps> = ({ institutionId }) => {
                                 </button>
                             </div>
                             
-                            <div className="p-10 space-y-6 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                            <div className="p-6 sm:p-10 space-y-6 max-h-[50vh] overflow-y-auto custom-scrollbar">
                                 {availableJudges.length > 0 ? [...availableJudges]
                                     .sort((a: any, b: any) => (a.assignment_count ?? 0) - (b.assignment_count ?? 0))
                                     .map((judge) => {

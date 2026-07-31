@@ -482,14 +482,14 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
       ];
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] p-8 font-sans text-slate-800">
+    <div className="min-h-screen bg-[#f8f9fa] p-4 sm:p-8 font-sans text-slate-800">
       {/* Header */}
-      <div className="flex justify-between items-start mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Achievement Registry</h1>
           <p className="text-sm text-slate-500 mt-1">Create, manage and issue certificates for events and participants.</p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex flex-wrap space-x-3">
           <button
             onClick={() => setShowTemplateBuilder(true)}
             className="flex items-center px-4 py-2 border border-indigo-600 text-indigo-600 bg-white rounded-md hover:bg-indigo-50 font-medium text-sm"
@@ -517,7 +517,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-slate-500 mb-1">Select Event</label>
           <div className="relative">
@@ -592,7 +592,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
             <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2 top-2.5 pointer-events-none" />
           </div>
         </div>
-        <div className="col-span-5 flex justify-end space-x-3 mt-2">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-5 flex flex-col sm:flex-row justify-end gap-3 sm:gap-2 sm:space-x-3 mt-2">
           <div className="relative w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input type="text" placeholder="Search recipient, team or ID..."
@@ -634,7 +634,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
       ) : (
         <>
           {/* 3 Cards */}
-          <div className="grid grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             {/* Eligibility */}
             <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center mb-4">
@@ -750,7 +750,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
           </div>
 
           {/* Table + Preview */}
-          <div className="flex gap-6">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
             <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between border-b border-slate-200 p-2">
                 <div className="flex space-x-1">
@@ -764,7 +764,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
                 </button>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
                       <th className="py-3 px-4">#</th>
@@ -852,7 +852,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
             </div>
 
             {/* Preview Panel */}
-            <div className="w-[300px] flex flex-col space-y-4">
+            <div className="w-full lg:w-[300px] flex flex-col space-y-4">
               <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
                 <h3 className="text-sm font-semibold text-indigo-600 mb-3">Certificate Preview</h3>
                 {(() => {
@@ -943,7 +943,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
           </div>
 
           {/* Features */}
-          <div className="mt-8 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex justify-between">
+          <div className="mt-8 bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
             {[
               { icon: <CheckCircle className="w-6 h-6 text-indigo-600" />, title: 'QR Verification', desc: 'Every certificate has a unique QR code for instant verification.' },
               { icon: <CheckCircle className="w-6 h-6 text-indigo-600" />, title: 'Secure & Verifiable', desc: 'All certificates are digitally signed and tamper-proof.' },
@@ -951,7 +951,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
               { icon: <FileText className="w-6 h-6 text-indigo-600" />, title: 'Custom Templates', desc: 'Create beautiful certificate templates for your events.' },
               { icon: <Clock className="w-6 h-6 text-indigo-600" />, title: 'Audit Trail', desc: 'Track issuance, verification and revocation history.' },
             ].map((feature, idx) => (
-              <div key={idx} className="flex space-x-3 max-w-[200px]">
+              <div key={idx} className="flex space-x-3 max-w-full sm:max-w-[200px]">
                 <div className="mt-0.5">{feature.icon}</div>
                 <div><h4 className="text-sm font-semibold text-indigo-600 mb-1">{feature.title}</h4><p className="text-[10px] text-slate-500 leading-tight">{feature.desc}</p></div>
               </div>
@@ -961,14 +961,14 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
           {/* Issue Certificates Modal */}
           {showIssueModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => { if (!issuing) setShowIssueModal(false); }}>
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-2 sm:mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200">
                   <h3 className="text-lg font-bold text-slate-900">Issue Certificates</h3>
                   <button onClick={() => { if (!issuing) setShowIssueModal(false); }} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
                     <XCircle className="w-5 h-5 text-slate-500" />
                   </button>
                 </div>
-                <div className="p-6 space-y-3">
+                <div className="p-4 sm:p-6 space-y-3">
                   <p className="text-sm text-slate-600 mb-2">Select which certificates to issue for <strong>{selectedEvent?.title}</strong> - stage: <strong>{selectedStage?.name}</strong>:</p>
                   
                   {/* Template Selector */}
@@ -1065,7 +1065,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
                     </div>
                   )}
                 </div>
-                <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
                   <button
                     onClick={() => { setShowIssueModal(false); setIssueResult(null); }}
                     disabled={issuing}
@@ -1081,15 +1081,15 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
           {/* View Eligible Recipients Modal */}
           {showEligibleModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowEligibleModal(false)}>
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-2 sm:mx-4 overflow-hidden flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200">
                   <h3 className="text-lg font-bold text-slate-900">Eligible Recipients Preview</h3>
                   <button onClick={() => setShowEligibleModal(false)} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
                     <XCircle className="w-5 h-5 text-slate-500" />
                   </button>
                 </div>
                 
-                <div className="p-6 overflow-y-auto space-y-6 flex-1">
+                <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
                   {loadingEligible ? (
                     <div className="flex items-center justify-center py-16 flex-col gap-2">
                       <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
@@ -1110,7 +1110,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
                         </div>
                         
                         {category.recipients && category.recipients.length > 0 ? (
-                          <div className="max-h-48 overflow-y-auto border border-slate-100 bg-white rounded-lg">
+                          <div className="max-h-48 overflow-y-auto overflow-x-auto border border-slate-100 bg-white rounded-lg">
                             <table className="w-full text-left text-xs border-collapse">
                               <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-semibold">
@@ -1145,7 +1145,7 @@ const CertificatesPage: React.FC<{ institutionId: string; onNavigate?: (tab: str
                   )}
                 </div>
                 
-                <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
+                <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
                   <button
                     onClick={() => setShowEligibleModal(false)}
                     className="px-5 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors"
@@ -1305,7 +1305,7 @@ const CertificateRulesManager: React.FC<{ institutionId: string; onClose: () => 
 
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-8 py-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight">Certificate Rules Management</h2>
@@ -1343,7 +1343,7 @@ const CertificateRulesManager: React.FC<{ institutionId: string; onClose: () => 
         )}
 
         {showForm && (
-          <div className="bg-white rounded-2xl p-8 border border-slate-200 space-y-6 mb-6 shadow-sm">
+          <div className="bg-white rounded-2xl p-4 sm:p-8 border border-slate-200 space-y-6 mb-6 shadow-sm">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-800">{editingRule ? 'Edit Rule' : 'New Rule'}</h3>
               <button onClick={() => { setShowForm(false); setEditingRule(null); }} className="p-2 hover:bg-slate-100 rounded-xl transition-all">

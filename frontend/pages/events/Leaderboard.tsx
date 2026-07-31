@@ -101,14 +101,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
     };
 
     return (
-        <div className="space-y-8 max-w-5xl mx-auto py-12 px-6">
+        <div className="space-y-8 max-w-5xl mx-auto py-12 px-3 sm:px-6">
             {/* Header */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="text-center md:text-left">
                     <div className="flex items-center justify-center md:justify-start gap-3 text-purple-400 text-xs font-black uppercase tracking-[0.2em] mb-2">
                         <Trophy size={16} /> Championship Rankings
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight">Event Leaderboard</h1>
+                    <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">Event Leaderboard</h1>
                     <p className="text-slate-500 text-sm font-medium mt-2">Real-time rankings calculated from evaluator protocols.</p>
                 </div>
                 
@@ -128,15 +128,15 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
 
             {/* Remaining Rankings */}
             <div className="bg-white/5 border border-white/5 rounded-[3rem] overflow-hidden backdrop-blur-xl">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scrollbar-none">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white/5 border-b border-white/5">
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Rank</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Contender</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Project</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Score</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Status</th>
+                                <th className="px-4 sm:px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Rank</th>
+                                <th className="px-4 sm:px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Contender</th>
+                                <th className="px-4 sm:px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Project</th>
+                                <th className="px-4 sm:px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Score</th>
+                                <th className="px-4 sm:px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -147,7 +147,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
                                     animate={{ opacity: 1 }}
                                     className="hover:bg-white/5 transition-colors group"
                                 >
-                                    <td className="px-10 py-8">
+                                    <td className="px-4 sm:px-10 py-6 sm:py-8">
                                         {(() => {
                                             const style = getRankStyle(entry.rank);
                                             if (entry.rank <= 3) {
@@ -163,7 +163,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
                                             return <span className="text-lg font-black text-slate-600 group-hover:text-white transition-colors">#{entry.rank}</span>;
                                         })()}
                                     </td>
-                                    <td className="px-10 py-8">
+                                    <td className="px-4 sm:px-10 py-6 sm:py-8">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center font-black text-slate-400 border border-white/5">
                                                 {entry.team_name.charAt(0)}
@@ -171,10 +171,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
                                             <span className="font-bold text-white text-sm">{entry.team_name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-10 py-8">
+                                    <td className="px-4 sm:px-10 py-6 sm:py-8">
                                         <span className="text-xs font-bold text-slate-400 group-hover:text-slate-300 transition-colors">{entry.project_title}</span>
                                     </td>
-                                    <td className="px-10 py-8 text-center">
+                                    <td className="px-4 sm:px-10 py-6 sm:py-8 text-center">
                                         <div className="flex flex-col items-center gap-1">
                                             <span className="text-sm font-black text-white">{entry.score}</span>
                                             <div className="w-12 h-1 bg-white/5 rounded-full overflow-hidden">
@@ -182,7 +182,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-10 py-8 text-right">
+                                    <td className="px-4 sm:px-10 py-6 sm:py-8 text-right">
                                         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${entry.status === 'Scored' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-white/5 text-slate-500 border-white/5'}`}>
                                             {entry.status}
                                         </span>
@@ -191,7 +191,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ eventId }) => {
                             ))}
                             {entries.length === 0 && !loading && (
                                 <tr>
-                                    <td colSpan={5} className="px-10 py-24 text-center">
+                                    <td colSpan={5} className="px-4 sm:px-10 py-16 sm:py-24 text-center">
                                         <Zap size={32} className="text-slate-800 mx-auto mb-4" />
                                         <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Data not yet available in current sector</p>
                                     </td>

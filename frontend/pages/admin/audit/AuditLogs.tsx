@@ -43,12 +43,12 @@ const AuditLogs: React.FC = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header section with Stats */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight uppercase">System Audit Logs</h1>
+                    <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase">System Audit Logs</h1>
                     <p className="text-zinc-400 text-sm mt-1">Immutable trace of institutional administrative actions and system modifications.</p>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                     <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-3xl flex items-center gap-4 group">
                         <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 group-hover:bg-blue-400 group-hover:text-black transition-all">
                             <History size={20} />

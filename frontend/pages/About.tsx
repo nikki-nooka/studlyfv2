@@ -7,7 +7,7 @@ const About: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="pt-24 pb-24 px-6 bg-white min-h-screen">
+    <div className="pt-24 pb-24 px-3 sm:px-6 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto">
         <header className="mb-20 text-center lg:text-left relative overflow-visible">
           <div className="absolute -top-16 right-8 hidden md:block">
@@ -16,19 +16,19 @@ const About: React.FC = () => {
 
           <span className="text-[#7C3AED] font-bold uppercase tracking-[0.6em] text-[10px]">Institutional Profile</span>
           <div className="flex flex-col items-center lg:items-start gap-6 mt-6">
-            <h1 className="text-5xl sm:text-7xl md:text-9xl font-extrabold text-[#111827] leading-none tracking-tight">About</h1>
-            <h2 className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">Studlyf</h2>
+            <h1 className="text-4xl sm:text-7xl md:text-9xl font-extrabold text-[#111827] leading-none tracking-tight">About</h1>
+            <h2 className="text-3xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">Studlyf</h2>
           </div>
 
           <div className="h-[2px] w-32 bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] my-8 mx-auto lg:mx-0"></div>
-          <p className="text-lg sm:text-xl text-[#475569] leading-relaxed font-medium max-w-4xl mx-auto lg:mx-0">We help learners build real skills and help companies hire based on verified ability, not resumes — through role-ready training, hands-on projects, and institutional verification.</p>
+          <p className="text-base sm:text-xl text-[#475569] leading-relaxed font-medium max-w-4xl mx-auto lg:mx-0">We help learners build real skills and help companies hire based on verified ability, not resumes — through role-ready training, hands-on projects, and institutional verification.</p>
         </header>
 
-        <section className="grid md:grid-cols-2 gap-12 mb-24">
+        <section className="grid md:grid-cols-2 gap-6 sm:gap-12 mb-24">
           <div className="space-y-10">
             <div>
               <h2 className="text-xs font-bold text-[#7C3AED] uppercase tracking-[0.4em] mb-6">Our Mission</h2>
-              <motion.p className="text-2xl font-extrabold text-[#111827] leading-relaxed mb-4" initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <motion.p className="text-xl sm:text-2xl font-extrabold text-[#111827] leading-relaxed mb-4" initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 We bridge the gap between abstract learning and high-stakes engineering skills through clinical verification.
               </motion.p>
               <p className="text-[#6B7280] text-base leading-relaxed">
@@ -62,7 +62,7 @@ const About: React.FC = () => {
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-gradient-to-br from-white to-[#FBFCFF] border border-gray-100 p-8 shadow-2xl">
+          <div className="rounded-[2rem] bg-gradient-to-br from-white to-[#FBFCFF] border border-gray-100 p-4 sm:p-8 shadow-2xl">
             <h3 className="font-bold text-[#111827] uppercase tracking-[0.3em] text-xs mb-6">Our Core Approach</h3>
             <div className="space-y-6">
               <div className="flex items-center gap-4">
@@ -92,14 +92,14 @@ const About: React.FC = () => {
           </div>
         </section>
 
-        <div className="p-16 sm:p-24 bg-[#F9FAFB] rounded-[4rem] text-center border border-gray-100 shadow-xl relative overflow-hidden group">
+        <div className="p-8 sm:p-16 md:p-24 bg-[#F9FAFB] rounded-2xl sm:rounded-[4rem] text-center border border-gray-100 shadow-xl relative overflow-hidden group">
           <div className="absolute inset-0 bg-[#7C3AED]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative z-10">
-            <h2 className="text-4xl sm:text-5xl font-bold text-[#111827] mb-12 uppercase tracking-tighter">Ready to join the standard?</h2>
-            <p className="text-[#6B7280] text-xl mb-16 max-w-xl mx-auto font-medium leading-relaxed">Connect your capability to real opportunities. Build skills. Create a career.</p>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#111827] mb-12 uppercase tracking-tighter">Ready to join the standard?</h2>
+            <p className="text-[#6B7280] text-base sm:text-xl mb-16 max-w-xl mx-auto font-medium leading-relaxed">Connect your capability to real opportunities. Build skills. Create a career.</p>
             <button
               onClick={() => navigate('/dashboard')}
-              className="px-16 py-8 bg-[#7C3AED] text-white font-bold text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-3xl shadow-[#7C3AED]/20 hover:scale-[1.02] transition-transform"
+              className="px-8 sm:px-16 py-6 sm:py-8 bg-[#7C3AED] text-white font-bold text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-3xl shadow-[#7C3AED]/20 hover:scale-[1.02] transition-transform"
             >
               Join Our Platform
             </button>

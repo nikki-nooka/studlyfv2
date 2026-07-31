@@ -109,7 +109,7 @@ const PublicProfile: React.FC = () => {
   const preference = profile?.preferredWork;
 
   return (
-    <div className="min-h-screen bg-[#F4F4F6] px-4 py-8 sm:px-6 lg:px-10">
+      <div className="min-h-screen bg-[#F4F4F6] px-3 py-6 sm:px-4 sm:py-8 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link to="/" className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-[0.2em] text-gray-700 shadow-sm transition hover:border-[#7C3AED]/30 hover:text-[#7C3AED]">
@@ -121,17 +121,17 @@ const PublicProfile: React.FC = () => {
         </div>
 
         {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-[3rem] border border-gray-100 bg-white p-8 sm:p-10 shadow-[0_20px_60px_rgba(15,23,42,0.06)] w-full mb-8">
+        <section className="relative overflow-hidden rounded-[3rem] border border-gray-100 bg-white p-4 sm:p-8 sm:p-10 shadow-[0_20px_60px_rgba(15,23,42,0.06)] w-full mb-8">
           <div className="absolute inset-0 bg-gradient-to-br from-[#7C3AED]/5 via-transparent to-[#06B6D4]/10 pointer-events-none" />
 
           <div className="relative flex flex-col gap-8 md:flex-row md:items-start md:justify-between w-full">
             <div className="flex items-start gap-5 flex-1 w-full">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[2rem] border border-white bg-gray-50 shadow-xl ring-4 ring-[#7C3AED]/10">
+              <div className="flex h-16 w-16 sm:h-24 sm:w-24 shrink-0 items-center justify-center overflow-hidden rounded-[2rem] border border-white bg-gray-50 shadow-xl ring-4 ring-[#7C3AED]/10">
                 {profile.profilePhoto ? <AvatarImage src={profile.profilePhoto} alt={name} className="h-full w-full object-cover" /> : <User className="h-10 w-10 text-gray-300" />}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2 flex-wrap">
-                  <h1 className="break-words text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">{name}</h1>
+                  <h1 className="break-words text-2xl sm:text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">{name}</h1>
                   {/* Social Links */}
                   <div className="flex items-center gap-2 mt-2 sm:mt-0">
                     {typeof profile.github === 'string' && profile.github.trim() && <a href={profile.github.startsWith('http') ? profile.github : `https://${profile.github}`} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition"><Github className="w-5 h-5" /></a>}
@@ -167,7 +167,7 @@ const PublicProfile: React.FC = () => {
         </section>
 
         {/* Describe Yourself Section */}
-        <section className="mb-8 rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-all">
+        <section className="mb-8 rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-8 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-50">
             <div className="bg-[#7C3AED]/10 p-2 rounded-xl text-[#7C3AED]">
               <User className="w-5 h-5" />
@@ -206,13 +206,13 @@ const PublicProfile: React.FC = () => {
         </section>
 
         {/* Detailed Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
           {/* Left Column */}
           <div className="space-y-8 lg:col-span-1">
 
             {/* Resume Section */}
-            <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-50">
                 <div className="bg-[#7C3AED]/10 p-2 rounded-xl text-[#7C3AED]">
                   <FileText className="w-5 h-5" />
@@ -224,7 +224,7 @@ const PublicProfile: React.FC = () => {
                   <div>
                     <p className="text-sm font-bold text-gray-900 break-words" title={resume.fileName}>{resume.fileName}</p>
                     {resume.atsScore > 0 && <p className="text-xs text-gray-500 mt-1">ATS Score: {resume.atsScore}%</p>}
-                    <div className="flex items-center gap-3 mt-5">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-5">
                       <a
                         href={resume.filePath ? `${API_BASE_URL}${resume.filePath}` : '#'}
                         target="_blank"
@@ -251,7 +251,7 @@ const PublicProfile: React.FC = () => {
             </section>
 
             {/* Experience Section */}
-            <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-50">
                 <div className="bg-emerald-100 p-2 rounded-xl text-emerald-600">
                   <Briefcase className="w-5 h-5" />
@@ -261,7 +261,7 @@ const PublicProfile: React.FC = () => {
               <div className="space-y-5">
                 {experience.length > 0 ? (
                   experience.map((exp: any, idx: number) => (
-                    <div key={idx} className="bg-emerald-50/30 p-5 rounded-2xl border border-emerald-50">
+                    <div key={idx} className="bg-emerald-50/30 p-4 sm:p-5 rounded-2xl border border-emerald-50">
                       <h4 className="text-base font-black text-gray-900">{exp.role || exp.title}</h4>
                       <p className="text-sm font-bold text-emerald-700 mt-1">{exp.company}</p>
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -285,7 +285,7 @@ const PublicProfile: React.FC = () => {
             </section>
 
             {/* Skills Section */}
-            <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-50">
                 <div className="flex items-center gap-3">
                   <div className="bg-rose-100 p-2 rounded-xl text-rose-600">
@@ -314,7 +314,7 @@ const PublicProfile: React.FC = () => {
           <div className="space-y-8 lg:col-span-2">
 
             {/* Education Section */}
-            <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-50">
                 <div className="bg-sky-100 p-2 rounded-xl text-sky-600">
                   <GraduationCap className="w-5 h-5" />
@@ -343,7 +343,7 @@ const PublicProfile: React.FC = () => {
             </section>
 
             {/* Projects Section */}
-            <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
                 <div className="flex items-center gap-3">
                   <div className="bg-amber-100 p-2 rounded-xl text-amber-600">
@@ -377,10 +377,10 @@ const PublicProfile: React.FC = () => {
             </section>
 
             {/* Two columns for Certs & Accomplishments */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
 
               {/* Certificates Section */}
-              <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+              <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
                   <div className="flex items-center gap-3">
                     <div className="bg-cyan-100 p-2 rounded-xl text-cyan-600">
@@ -419,7 +419,7 @@ const PublicProfile: React.FC = () => {
               </section>
 
               {/* Accomplishments Section */}
-              <section className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+              <section className="rounded-[2rem] border border-gray-100 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
                   <div className="flex items-center gap-3">
                     <div className="bg-violet-100 p-2 rounded-xl text-violet-600">

@@ -129,7 +129,7 @@ const DashboardOverview: React.FC = () => {
     };
 
     return (
-        <div className="p-8 space-y-8 max-w-[1600px] mx-auto custom-scrollbar overflow-y-auto h-screen pb-20">
+        <div className="p-4 sm:p-8 space-y-8 max-w-[1600px] mx-auto custom-scrollbar overflow-y-auto h-screen pb-20">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -150,7 +150,7 @@ const DashboardOverview: React.FC = () => {
             </div>
 
             {/* KPI Grid — each card is now clickable */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
                 {kpis.map((kpi, i) => (
                     <motion.div
                         key={i}
@@ -158,7 +158,7 @@ const DashboardOverview: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                         onClick={() => navigate(kpi.path)}
-                        className="bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/[0.07] transition-all group cursor-pointer active:scale-[0.97]"
+                        className="bg-white/5 border border-white/10 p-4 sm:p-6 rounded-2xl hover:bg-white/[0.07] transition-all group cursor-pointer active:scale-[0.97]"
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div className={`p-2 rounded-lg bg-white/5 ${kpi.color}`}>
@@ -176,9 +176,9 @@ const DashboardOverview: React.FC = () => {
             </div>
 
             {/* Main Content Sections */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
                 {/* Enrollment Chart */}
-                <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-8">
+                <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-8">
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h3 className="text-lg font-bold text-white">Student Enrollment & Growth</h3>
@@ -218,9 +218,9 @@ const DashboardOverview: React.FC = () => {
             </div>
 
             {/* Secondary Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
                 {/* Hiring Success Funnel */}
-                <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-8">
+                <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-8">
                     <div className="flex items-center justify-between mb-8">
                         <h3 className="text-lg font-bold text-white">Hiring Success Funnel</h3>
                         <div className="p-2 rounded-lg bg-white/5 text-purple-500">
@@ -248,7 +248,7 @@ const DashboardOverview: React.FC = () => {
                 </div>
 
                 {/* Course Completion Meter */}
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center text-center">
                     <div className="relative w-32 h-32 mb-6">
                         <svg className="w-full h-full -rotate-90">
                             <circle
@@ -282,7 +282,7 @@ const DashboardOverview: React.FC = () => {
                 </div>
 
                 {/* Goal Achievement Card */}
-                <div className="bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] rounded-3xl p-8 text-white flex flex-col justify-between shadow-2xl shadow-purple-500/20 relative overflow-hidden group">
+                <div className="bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] rounded-3xl p-4 sm:p-8 text-white flex flex-col justify-between shadow-2xl shadow-purple-500/20 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16 group-hover:bg-white/20 transition-all" />
                     <div>
                         <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-6">

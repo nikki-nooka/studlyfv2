@@ -21,7 +21,7 @@ const OurPartners: React.FC = () => {
     const allPartners = [...partners, ...partners, ...partners];
 
     return (
-        <section className="bg-white py-16 overflow-hidden relative">
+        <section className="bg-white py-10 sm:py-16 overflow-hidden relative">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes scroll-marquee {

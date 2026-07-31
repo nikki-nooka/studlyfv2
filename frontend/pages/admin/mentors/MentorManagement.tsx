@@ -68,9 +68,9 @@ const MentorManagement: React.FC = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header section with Stats */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight uppercase">Mentor Network</h1>
+                    <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase">Mentor Network</h1>
                     <p className="text-zinc-400 text-sm mt-1">Manage institutional mentors and their student assignment protocols.</p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -104,7 +104,7 @@ const MentorManagement: React.FC = () => {
                         />
                         <motion.div 
                             initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl p-8 overflow-hidden shadow-2xl"
+                            className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl p-4 sm:p-8 overflow-hidden shadow-2xl"
                         >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-3xl -mr-16 -mt-16" />
                             
@@ -129,7 +129,7 @@ const MentorManagement: React.FC = () => {
                                         onChange={(e) => setNewMentor({...newMentor, expertise: e.target.value})}
                                     />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest pl-1">Load (Students)</label>
                                         <input 

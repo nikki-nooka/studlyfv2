@@ -202,10 +202,10 @@ const ParticipantsManagement: React.FC<{ institutionId?: string }> = ({ institut
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex pt-0">
             <div className="flex-1 flex flex-col min-h-screen">
-                <main className="p-8 pt-10 flex-1">
-                    <div className="mb-8 flex justify-between items-center">
+                <main className="px-3 sm:px-8 py-4 sm:py-8 pt-10 flex-1">
+                    <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Participants Management</h1>
+                            <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Participants Management</h1>
                             <p className="text-gray-500 mt-2">Manage, filter, and review event participants.</p>
                         </div>
                         <button
@@ -276,11 +276,11 @@ const ParticipantsManagement: React.FC<{ institutionId?: string }> = ({ institut
                                     <thead>
                                         <tr className="bg-gray-50 text-left text-[10px] font-black uppercase tracking-widest text-gray-500">
                                             <th className="px-6 py-4">Name</th>
-                                            <th className="px-6 py-4">Email</th>
+                                            <th className="px-6 py-4 hidden sm:table-cell">Email</th>
                                             <th className="px-6 py-4">Event</th>
-                                            <th className="px-6 py-4">Team</th>
+                                            <th className="px-6 py-4 hidden md:table-cell">Team</th>
                                             <th className="px-6 py-4">Status</th>
-                                            <th className="px-6 py-4">Stage</th>
+                                            <th className="px-6 py-4 hidden lg:table-cell">Stage</th>
                                             <th className="px-6 py-4">Actions</th>
                                         </tr>
                                     </thead>
@@ -291,15 +291,15 @@ const ParticipantsManagement: React.FC<{ institutionId?: string }> = ({ institut
                                                     <p className="font-bold text-gray-900">{p.name}</p>
                                                     <p className="text-[10px] text-gray-400">{p.regDate}</p>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-600">{p.email}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">{p.email}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-600">{p.event}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-600">{p.team}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell">{p.team}</td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusBadgeClass(p.status)}`}>
                                                         {p.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-600">{p.current_stage || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 hidden lg:table-cell">{p.current_stage || 'N/A'}</td>
                                                 <td className="px-6 py-4">{statusActions(p)}</td>
                                             </tr>
                                         ))}

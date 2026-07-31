@@ -83,7 +83,7 @@ const AITools: React.FC = () => {
     }, [searchQuery, tools, filterTab, bookmarkedTools]);
 
     return (
-        <div className="min-h-screen bg-white text-[#111827] pt-32 pb-20 px-6 sm:px-12 relative overflow-hidden">
+        <div className="min-h-screen bg-white text-[#111827] pt-32 pb-20 px-3 sm:px-6 lg:px-12 relative overflow-hidden">
             {/* Design Accents */}
             <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[#7C3AED]/5 to-transparent pointer-events-none" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#7C3AED]/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none" />
@@ -95,7 +95,7 @@ const AITools: React.FC = () => {
                     <motion.h1
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter leading-tight text-[#111827] uppercase"
+                        className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tighter leading-tight text-[#111827] uppercase"
                     >
                         AI DISCOVERY <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">HUB.</span>
                     </motion.h1>
@@ -124,7 +124,7 @@ const AITools: React.FC = () => {
                 </motion.div>
 
                 {/* Custom Tab Filters */}
-                <div className="flex justify-center gap-3 mb-10 mt-8">
+                <div className="flex flex-wrap justify-center gap-3 mb-10 mt-8">
                     <button
                         onClick={() => setFilterTab('all')}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all border ${

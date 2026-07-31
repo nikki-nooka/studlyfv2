@@ -110,13 +110,13 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
     );
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
-            <div className="flex justify-between items-end">
+        <div className="space-y-6 sm:space-y-8 pb-12 font-sans px-3 sm:px-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-[#0f172a] tracking-tight">Reports & Analytics</h1>
+                    <h1 className="text-2xl sm:text-4xl font-black text-[#0f172a] tracking-tight">Reports & Analytics</h1>
                     <p className="text-gray-500 mt-1 font-medium">Real-time performance metrics and institutional insights.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <div className="relative" ref={filterRef}>
                         <button 
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -184,7 +184,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
             </div>
 
             {/* Date Range Picker */}
-            <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-slate-200/20 flex items-center gap-4 flex-wrap">
+            <div className="bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-xl shadow-slate-200/20 flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-wrap">
                 <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
                     <Calendar size={20} />
                 </div>
@@ -192,11 +192,11 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
                 <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="px-4 py-2 border border-gray-100 rounded-xl text-sm font-medium focus:ring-4 focus:ring-purple-50 focus:border-purple-600 focus:outline-none transition-all" />
                 <span className="text-gray-400 font-bold text-xs">TO</span>
                 <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="px-4 py-2 border border-gray-100 rounded-xl text-sm font-medium focus:ring-4 focus:ring-purple-50 focus:border-purple-600 focus:outline-none transition-all" />
-                <button className="px-6 py-2 bg-purple-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-lg shadow-purple-200 ml-auto">Sync View</button>
+                <button className="px-6 py-2 bg-purple-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-lg shadow-purple-200 sm:ml-auto w-full sm:w-auto">Sync View</button>
             </div>
 
             {/* KPI Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 {kpiCards.map((card, idx) => (
                     <motion.div 
                         key={card.label}
@@ -204,21 +204,21 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
                         whileHover={{ y: -5 }}
-                        className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-slate-200/20 group transition-all"
+                        className="bg-white p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border border-gray-100 shadow-xl shadow-slate-200/20 group transition-all"
                     >
                         <div className={`w-12 h-12 ${card.bg} ${card.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                             <card.icon size={24} />
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{card.label}</p>
-                        <h3 className="text-4xl font-black text-[#0f172a] mt-1 tracking-tight">{card.value}</h3>
+                        <h3 className="text-4xl font-black text-[#0f172a] mt-1 tracking-tight text-2xl sm:text-4xl">{card.value}</h3>
                     </motion.div>
                 ))}
             </div>
 
             {/* Main Visualizations */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                 {/* Participation Trends */}
-                <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
+                <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
                     <h3 className="text-xl font-black text-[#0f172a] mb-8 tracking-tight">Participation Trends</h3>
                     {timeline.length > 0 ? (
                         <div className="h-64 flex items-end justify-between gap-4">
@@ -246,7 +246,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
                 </div>
 
                 {/* Department Distribution */}
-                <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
+                <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
                     <h3 className="text-xl font-black text-[#0f172a] mb-8 tracking-tight">Departmental Breakdown</h3>
                     {departments.length > 0 ? (
                         <div className="space-y-6">
@@ -273,9 +273,9 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
             </div>
 
             {/* Score Distribution & Submission Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                 {/* Score Distribution Histogram */}
-                <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
+                <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
                     <h3 className="text-xl font-black text-[#0f172a] mb-8 tracking-tight">Score Distribution</h3>
                     <div className="h-64 flex items-end justify-between gap-4">
                         {scoreDist.some(b => b.count > 0) ? scoreDist.map((bucket, i) => (
@@ -299,7 +299,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ institutionId }) => {
                 </div>
 
                 {/* Submission Distribution Bar Chart */}
-                <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
+                <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/20">
                     <h3 className="text-xl font-black text-[#0f172a] mb-8 tracking-tight">Submissions by Event</h3>
                     {subDist.length > 0 ? (
                         <div className="space-y-5">

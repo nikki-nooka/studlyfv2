@@ -34,10 +34,13 @@ def _normalize_submission_status(doc: dict) -> dict:
 async def add_judge(data: dict = Body(...), user: dict = Depends(get_auth_user)):
     """Add a judge for the institution."""
     inst_id = str(user.get("institution_id") or user.get("user_id"))
+    email = str(data.get("email") or "").strip().lower()
     judge_doc = {
         "institution_id": inst_id,
         "name": data.get("name"),
+        "email": email,
         "domain": data.get("domain"),
+        "status": "ACCEPTED",
         "created_at": datetime.utcnow()
     }
     result = await judges_col.insert_one(judge_doc)

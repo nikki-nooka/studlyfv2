@@ -560,16 +560,16 @@ const RoadmapSection: React.FC<{
     }, [selectedPath, roadmapData, isGeneratingRoadmap, handlePathClick]);
 
     return (
-        <section className="w-full max-w-6xl mx-auto py-24 px-6 relative bg-white">
+        <section className="w-full max-w-6xl mx-auto py-16 sm:py-24 px-3 sm:px-6 relative bg-white">
             {/* Section Heading with Technical Specs */}
             <div className="mb-20">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-[1px] bg-[#7C3AED]" />
                     <span className="text-[10px] font-black text-[#7C3AED] uppercase tracking-[0.3em]">Operational Protocol 741</span>
                 </div>
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-10">
                     <div className="max-w-3xl">
-                        <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight leading-[1.1] mb-6">Career Architecture<br /><span className="text-slate-400">Blueprint</span></h2>
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-[1.1] mb-6">Career Architecture<br /><span className="text-slate-400">Blueprint</span></h2>
                         <p className="text-slate-500 text-base sm:text-lg font-medium leading-relaxed">
                             A validated 6-month technical progression strategy engineered for professional excellence and industry standard compliance.
                         </p>
@@ -632,7 +632,7 @@ const RoadmapSection: React.FC<{
 
             {/* FINAL CTA */}
             {roadmapData && !isGeneratingRoadmap && (
-                <div className="mt-20 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-32">
+                <div className="mt-16 sm:mt-20 pt-6 sm:pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 bg-white p-4 sm:p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-24 sm:mb-32">
                     <div>
                         <h3 className="text-base font-bold text-slate-900">Ready to initiate training?</h3>
                         <p className="text-sm text-slate-500 font-medium mt-1">Access specialized modules aligned with your technical roadmap.</p>
@@ -1430,21 +1430,21 @@ const CareerOnboarding: React.FC = () => {
             const charCount = formData.role.length;
             const isValid = wordCount > 0 && wordCount <= 5 && charCount <= 50;
 
-            return (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="w-full max-w-2xl bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-8 sm:p-12 border border-slate-100/80 shadow-[0_24px_80px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col gap-8"
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="w-full max-w-2xl bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-6 sm:p-8 md:p-12 border border-slate-100/80 shadow-[0_24px_80px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col gap-6 sm:gap-8"
                 >
                     {/* Subtle gradient background glow */}
                     <div className="absolute top-0 right-0 w-48 h-48 bg-[#7C3AED]/5 rounded-full blur-3xl pointer-events-none" />
 
                     {/* --- Logo Header --- */}
-                    <div className="flex justify-center select-none mb-2">
-                        <div className="flex items-center gap-1">
-                            <span className="text-4xl sm:text-5xl font-black text-slate-800 tracking-wider uppercase">CAREER</span>
-                            <span className="text-4xl sm:text-5xl font-black text-[#7C3AED] tracking-wider uppercase">DREAMER</span>
+                        <div className="flex justify-center select-none mb-2">
+                            <div className="flex items-center gap-1">
+                                <span className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 tracking-wider uppercase">CAREER</span>
+                                <span className="text-3xl sm:text-4xl md:text-5xl font-black text-[#7C3AED] tracking-wider uppercase">DREAMER</span>
                         </div>
                     </div>
 
@@ -1567,7 +1567,7 @@ const CareerOnboarding: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="flex flex-col gap-10 w-full max-w-2xl px-6"
+                    className="flex flex-col gap-10 w-full max-w-2xl px-3 sm:px-6"
                 >
                     {/* Role Title */}
                     <div className="space-y-2">
@@ -1659,7 +1659,7 @@ const CareerOnboarding: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="flex flex-col gap-6 w-full max-w-3xl px-6"
+                    className="flex flex-col gap-6 w-full max-w-3xl px-3 sm:px-6"
                 >
                     {/* Header */}
                     <div className="space-y-2">
@@ -1781,7 +1781,7 @@ const CareerOnboarding: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="flex flex-col gap-6 w-full max-w-2xl px-6"
+                    className="flex flex-col gap-6 w-full max-w-2xl px-3 sm:px-6"
                 >
                     {/* Header */}
                     <div className="space-y-3 relative">
@@ -1959,7 +1959,7 @@ const CareerOnboarding: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="flex flex-col gap-8 w-full max-w-2xl px-6"
+                    className="flex flex-col gap-8 w-full max-w-2xl px-3 sm:px-6"
                 >
                     {/* ── Step 1 answer (conversation bubble) ── */}
                     <motion.div
@@ -2081,7 +2081,7 @@ const CareerOnboarding: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="flex flex-col gap-8 w-full max-w-2xl px-6"
+                    className="flex flex-col gap-8 w-full max-w-2xl px-3 sm:px-6"
                 >
                     {/* ── Conversation echo: Role + Subject ── */}
                     <motion.div
@@ -2344,7 +2344,7 @@ const CareerOnboarding: React.FC = () => {
 
         if (activeTab === 'Identity') {
             return (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-7xl mx-auto pt-28 pb-12 grid lg:grid-cols-[350px_1fr] xl:grid-cols-[400px_1fr] gap-12 px-6">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-7xl mx-auto pt-28 pb-12 grid lg:grid-cols-[350px_1fr] xl:grid-cols-[400px_1fr] gap-12 px-3 sm:px-6">
                     <div className="space-y-10">
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-slate-800 font-bold uppercase text-[11px] tracking-widest"> Experiences</div>
@@ -2506,7 +2506,7 @@ const CareerOnboarding: React.FC = () => {
             const pathsToUse = generatedPaths.length > 0 ? generatedPaths : DEFAULT_PATHS;
             return (
                 <div className="w-full min-h-screen bg-slate-50/50 pt-24 sm:pt-28 pb-16">
-                    <div className="max-w-6xl mx-auto px-6">
+                    <div className="max-w-6xl mx-auto px-3 sm:px-6">
                         {/* Title & Subtitle */}
                         <div className="text-center mb-12">
                             <span className="text-xs font-bold text-[#7C3AED] uppercase tracking-[0.25em] mb-3 block">Match Results</span>
@@ -2640,7 +2640,7 @@ const CareerOnboarding: React.FC = () => {
                             <div className="absolute inset-0 border-[6px] border-blue-50 rounded-full" />
                             <div className="absolute inset-0 border-[6px] border-blue-600 border-t-transparent rounded-full animate-spin" />
                         </div>
-                        <h2 className="text-3xl font-black text-[#111] uppercase tracking-tighter text-center px-6 leading-none">Synthesizing Profile</h2>
+                        <h2 className="text-2xl sm:text-3xl font-black text-[#111] uppercase tracking-tighter text-center px-3 sm:px-6 leading-none">Synthesizing Profile</h2>
                         <div className="flex gap-4 mt-6 flex-wrap justify-center">
                             {["Core Vectors", "Path Synapses"].map((t, idx) => (
                                 <motion.span key={idx} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.4 }} className="text-[9px] font-black text-gray-400 tracking-widest uppercase">{t}</motion.span>
@@ -2692,7 +2692,7 @@ const CareerOnboarding: React.FC = () => {
                         </AnimatePresence>
 
                         {/* Top Header Bar */}
-                        <div className="w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-100 bg-white/40 backdrop-blur-md sticky top-0 z-[1400]">
+                        <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-6 flex items-center justify-between border-b border-slate-100 bg-white/40 backdrop-blur-md sticky top-0 z-[1400]">
                             <button
                                 onClick={() => setShowDetailedPage(false)}
                                 className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-bold text-xs shadow-sm active:scale-95 cursor-pointer"
@@ -2708,7 +2708,7 @@ const CareerOnboarding: React.FC = () => {
                         </div>
 
                         {/* Section 1: Imagine yourself as (Landing screen with arrow) */}
-                        <div className="w-full max-w-4xl mx-auto text-center py-20 px-6 flex flex-col items-center min-h-[85vh] justify-center relative">
+                        <div className="w-full max-w-4xl mx-auto text-center py-12 sm:py-20 px-3 sm:px-6 flex flex-col items-center min-h-[85vh] justify-center relative">
                             <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.25em] mb-4">Imagine yourself as:</p>
 
                             {/* Title styled with gorgeous blue/green gradient */}
@@ -2752,7 +2752,7 @@ const CareerOnboarding: React.FC = () => {
                         </div>
 
                         {/* Section 2: Sweet spots */}
-                        <div id="sweet-spots-section" className="w-full bg-white border-t border-slate-100 py-28 px-6 text-left">
+                        <div id="sweet-spots-section" className="w-full bg-white border-t border-slate-100 py-16 sm:py-28 px-3 sm:px-6 text-left">
                             <div className="w-full max-w-5xl mx-auto">
                                 <div className="flex items-center justify-between mb-16 flex-wrap gap-4">
                                     <div>

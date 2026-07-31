@@ -194,7 +194,7 @@ const SDLManagement: React.FC = () => {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
             <Layers size={28} className="text-purple-400" />
             Build A <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">Project</span>
           </h1>
@@ -279,7 +279,8 @@ const SDLManagement: React.FC = () => {
       ) : (
         <div className="bg-white/[0.02] rounded-2xl border border-white/[0.06] overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-12 gap-3 px-6 py-3 border-b border-white/[0.06] text-[10px] font-bold text-white/30 uppercase tracking-widest">
+          <div className="overflow-x-auto">
+          <div className="grid grid-cols-12 gap-3 px-3 sm:px-6 py-3 border-b border-white/[0.06] text-[10px] font-bold text-white/30 uppercase tracking-widest min-w-[700px]">
             <div className="col-span-3">Project</div>
             <div className="col-span-1">Type</div>
             <div className="col-span-1">Status</div>
@@ -298,7 +299,7 @@ const SDLManagement: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, height: 0 }}
-                className="grid grid-cols-12 gap-3 px-6 py-4 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors items-center group"
+                className="grid grid-cols-12 gap-3 px-3 sm:px-6 py-4 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors items-center group min-w-[700px]"
               >
                 {/* Title + Owner */}
                 <div className="col-span-3">
@@ -387,6 +388,7 @@ const SDLManagement: React.FC = () => {
               </motion.div>
             ))}
           </AnimatePresence>
+          </div>
         </div>
       )}
 

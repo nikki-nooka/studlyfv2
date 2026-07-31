@@ -105,8 +105,8 @@ const UnifiedAuth: React.FC = () => {
                                 </div>
                             </motion.div>
                         ) : (
-                            <div className="absolute inset-0 z-[60] p-4 flex items-center justify-center bg-transparent">
-                                <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl">
+                            <div className="absolute inset-0 z-[60] p-4 sm:p-6 flex items-center justify-center bg-transparent overflow-y-auto">
+                                <div className="w-full max-w-[calc(100vw-2rem)] max-w-md bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
                                     <AnimatePresence mode="wait">
                                         {isLogin ? (
                                             <LoginForm onSwitchToSignup={handleToggle} />

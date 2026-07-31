@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Body, Query
 from typing import List, Optional
 from datetime import datetime
 from bson import ObjectId
-from db import hackathon_submissions_col, events_col, users_col, judges_col, participants_col, teams_col
+from db import hackathon_submissions_col, events_col, users_col, judges_col, participants_col, teams_col, parse_dt_ist
 from domain_models import HackathonSubmission
 from routes.auth import get_current_user
 from stage_access_control import check_stage_submission_access, check_stage_deadline
@@ -48,19 +48,9 @@ async def create_hackathon_submission(submission: HackathonSubmission, current_u
                     start = stage.get("start_date") or stage.get("startDate")
                     end = stage.get("end_date") or stage.get("endDate") or stage.get("deadline")
                     if isinstance(start, str):
-                        try:
-                            start = datetime.fromisoformat(start.replace("Z", "+00:00"))
-                        except:
-                            start = None
+                        start = parse_dt_ist(start)
                     if isinstance(end, str):
-                        try:
-                            end = datetime.fromisoformat(end.replace("Z", "+00:00"))
-                        except:
-                            end = None
-                    if isinstance(start, datetime) and start.tzinfo is None:
-                        start = start.replace(tzinfo=timezone.utc)
-                    if isinstance(end, datetime) and end.tzinfo is None:
-                        end = end.replace(tzinfo=timezone.utc)
+                        end = parse_dt_ist(end)
                     if start and end and start <= now <= end:
                         current_stage_type = stage.get("type")
                         current_stage_name = stage.get("name", "")

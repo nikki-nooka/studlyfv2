@@ -58,19 +58,19 @@ const DownloadsPage: React.FC<DownloadsPageProps> = ({ onNavigate }) => {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="flex justify-between items-end">
+        <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 px-3 sm:px-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Report Downloads</h1>
+                    <h1 className="text-xl sm:text-3xl font-bold text-slate-900 tracking-tight">Report Downloads</h1>
                     <p className="text-slate-500 mt-2">Export your institutional data into professional formats for offline analysis.</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {downloadFiles.map((file) => (
                     <div 
                         key={file.id} 
-                        className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group"
+                        className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group"
                     >
                         <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             {file.icon}
@@ -110,7 +110,7 @@ const DownloadsPage: React.FC<DownloadsPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Quick Export Tips */}
-            <div className="bg-slate-900 rounded-[2rem] p-10 text-white overflow-hidden relative">
+            <div className="bg-slate-900 rounded-[2rem] p-6 sm:p-10 text-white overflow-hidden relative">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-xl">
                         <h2 className="text-2xl font-bold mb-4">Need Custom Reports?</h2>
@@ -120,7 +120,7 @@ const DownloadsPage: React.FC<DownloadsPageProps> = ({ onNavigate }) => {
                     </div>
                     <button 
                         onClick={() => onNavigate('analytics')}
-                        className="bg-white text-slate-900 px-8 py-4 rounded-2xl font-bold hover:bg-blue-500 hover:text-white transition-all flex items-center gap-3 group whitespace-nowrap"
+                        className="bg-white text-slate-900 px-6 sm:px-8 py-4 rounded-2xl font-bold hover:bg-blue-500 hover:text-white transition-all flex items-center justify-center gap-3 group whitespace-nowrap w-full sm:w-auto"
                     >
                         Go to Analytics <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>

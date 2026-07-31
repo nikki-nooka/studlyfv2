@@ -642,7 +642,7 @@ const StudOTT: React.FC = () => {
 
       <main className="flex-1 w-full relative z-10 overflow-y-auto h-full custom-scrollbar pt-[88px] sm:pt-[104px] pb-16">
         
-        <div className="md:hidden flex items-center justify-between px-6 py-4 sticky top-0 z-40 bg-[#05050A]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="md:hidden flex items-center justify-between px-3 sm:px-6 py-4 sticky top-0 z-40 bg-[#05050A]/80 backdrop-blur-xl border-b border-white/5">
           <img src="/images/studott.jpg" alt="STUDOTT" className="h-6 w-auto object-contain drop-shadow-[0_0_10px_rgba(108,43,255,0.2)] rounded-sm" />
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6C2BFF] to-[#EC4899] p-[1.5px]">
             <div className="w-full h-full bg-[#05050A] rounded-full flex items-center justify-center">
@@ -653,7 +653,7 @@ const StudOTT: React.FC = () => {
 
         {activeMenu === 'home' ? (
           <>
-            <div className="px-6 lg:px-12 pt-6 pb-2 relative z-50">
+            <div className="px-3 sm:px-6 lg:px-12 pt-6 pb-2 relative z-50">
               <div className="relative max-w-2xl mx-auto">
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -721,7 +721,7 @@ const StudOTT: React.FC = () => {
 
             {/* Search Results */}
             {debouncedSearchQuery.trim() !== '' && (
-              <div className="relative z-20 pt-8 pb-12 px-6 lg:px-12">
+              <div className="relative z-20 pt-8 pb-12 px-3 sm:px-6 lg:px-12">
                 <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2 mb-6">
                   <Search className="w-6 h-6 text-[#A88CFF]" />
                   Search Results for "{debouncedSearchQuery}"
@@ -770,11 +770,11 @@ const StudOTT: React.FC = () => {
                   </span>
                 </div>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6 drop-shadow-2xl">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6 drop-shadow-2xl">
                   {heroVideo.title}
                 </h1>
                 
-                <p className="text-base sm:text-lg text-gray-300 mb-8 max-w-lg leading-relaxed font-medium drop-shadow-md">
+                <p className="text-sm sm:text-lg text-gray-300 mb-8 max-w-lg leading-relaxed font-medium drop-shadow-md">
                   {heroVideo.subtitle}
                 </p>
                 
@@ -846,7 +846,7 @@ const StudOTT: React.FC = () => {
 
             {/* Bite-Sized Learning (Shorts) Row */}
             {!debouncedSearchQuery.trim() && (
-              <div className="relative z-20 pb-16 px-6 lg:px-12 -mt-4">
+              <div className="relative z-20 pb-16 px-3 sm:px-6 lg:px-12 -mt-4">
                 <motion.div 
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -895,7 +895,7 @@ const StudOTT: React.FC = () => {
             )}
 
             {/* Home Rows (Categories) */}
-            <div className="relative z-20 pb-24 px-6 lg:px-12 -mt-4 space-y-12 md:space-y-16">
+            <div className="relative z-20 pb-24 px-3 sm:px-6 lg:px-12 -mt-4 space-y-12 md:space-y-16">
               {Object.entries(categories).map(([key, row], rIdx) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 30 }}
@@ -1020,13 +1020,13 @@ const StudOTT: React.FC = () => {
           </>
         ) : (
           /* Gallery View for Specific Category or History */
-          <div className="relative pt-8 md:pt-12 pb-24 px-6 lg:px-12 min-h-[80vh]">
+            <div className="relative pt-8 md:pt-12 pb-24 px-3 sm:px-6 lg:px-12 min-h-[80vh]">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-10 lg:mb-14"
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4 drop-shadow-2xl flex items-center gap-4">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4 drop-shadow-2xl flex items-center gap-4">
                 {activeMenu === 'history' ? 'History' : categories[activeMenu]?.title}
               </h1>
               <p className="text-gray-400 text-lg max-w-2xl font-medium">

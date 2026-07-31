@@ -331,7 +331,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ eventId, stage, partici
 
     if (isAccessDeniedError) {
         return (
-            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950 p-10 rounded-2xl border border-slate-800 shadow-2xl text-center max-w-2xl mx-auto my-6 transform hover:scale-[1.01] transition-all duration-300">
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950 p-6 sm:p-10 rounded-2xl border border-slate-800 shadow-2xl text-center max-w-2xl mx-auto my-4 sm:my-6 transform hover:scale-[1.01] transition-all duration-300">
                 {/* Visual Glassmorphic Accent */}
                 <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -382,9 +382,9 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ eventId, stage, partici
     const readOnly = submitted && !canEditSubmission;
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold mb-2">{stageTitle}</h2>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">{stageTitle}</h2>
                 <div>
                     {submitted && !canEditSubmission ? (
                         <span className="inline-block text-sm font-black text-red-700 bg-red-50 border border-red-100 px-3 py-1 rounded-lg">

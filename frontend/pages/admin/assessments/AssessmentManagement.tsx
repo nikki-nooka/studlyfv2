@@ -202,10 +202,10 @@ const AssessmentManagement: React.FC = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Assessment Control</h1>
+                    <h1 className="text-xl sm:text-3xl font-bold text-white tracking-tight">Assessment Control</h1>
                     <p className="text-white/50 mt-1">Configure logic, AI evaluation, and grant certifications.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-center gap-3">
                     <button onClick={() => { setView('history'); fetchHistory(); }} className={`flex items-center gap-2 px-4 py-2 ${view === 'history' ? 'bg-[#7C3AED] shadow-lg shadow-purple-500/20 text-white' : 'bg-white/5 hover:bg-white/10 text-white/80'} border border-white/10 rounded-xl text-sm font-medium transition-colors`}>
                         <Settings2 size={18} />
                         Evaluation History
@@ -255,7 +255,7 @@ const AssessmentManagement: React.FC = () => {
 
                     {/* Assessments List */}
                     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+                        <div className="px-3 sm:px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <h2 className="text-lg font-bold text-white">Active Assessments</h2>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ const AssessmentManagement: React.FC = () => {
             )}
 
             {view === 'submissions' && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden p-6 font-sans">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden p-3 sm:p-6 font-sans">
                     <h3 className="text-xl font-bold text-white mb-6">Pending Student Evaluations</h3>
                     <div className="space-y-4">
                         {submissions.length === 0 && <p className="text-white/40">No pending assessments or track completions to review.</p>}
@@ -419,22 +419,22 @@ const AssessmentManagement: React.FC = () => {
                     className="space-y-6"
                 >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6">
                             <div className="text-sm font-bold text-white/50 mb-1">Total Evaluated</div>
-                            <div className="text-3xl font-bold text-white mb-2">{history.length}</div>
+                            <div className="text-xl sm:text-3xl font-bold text-white mb-2">{history.length}</div>
                             <div className="h-1 bg-white/10 rounded-full w-full overflow-hidden"><div className="h-full bg-blue-500 w-full" /></div>
                         </div>
-                        <div className="bg-white/5 border border-white/10 border-b-4 border-b-green-500 rounded-2xl p-6">
+                        <div className="bg-white/5 border border-white/10 border-b-4 border-b-green-500 rounded-2xl p-4 sm:p-6">
                             <div className="text-sm font-bold text-white/50 mb-1">Approved & Certified</div>
-                            <div className="text-3xl font-bold text-green-400 mb-2">{history.filter(h => h.review_status === 'approved').length}</div>
+                            <div className="text-xl sm:text-3xl font-bold text-green-400 mb-2">{history.filter(h => h.review_status === 'approved').length}</div>
                         </div>
-                        <div className="bg-white/5 border border-white/10 border-b-4 border-b-red-500 rounded-2xl p-6">
+                        <div className="bg-white/5 border border-white/10 border-b-4 border-b-red-500 rounded-2xl p-4 sm:p-6">
                             <div className="text-sm font-bold text-white/50 mb-1">Rejected / Demanded Revisions</div>
-                            <div className="text-3xl font-bold text-red-400 mb-2">{history.filter(h => h.review_status === 'rejected').length}</div>
+                            <div className="text-xl sm:text-3xl font-bold text-red-400 mb-2">{history.filter(h => h.review_status === 'rejected').length}</div>
                         </div>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden p-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden p-3 sm:p-6">
                         <h3 className="text-xl font-bold text-white mb-6">Evaluation Logs</h3>
                         <div className="space-y-4">
                             {history.length === 0 && <p className="text-white/40">No historical evaluations found.</p>}
@@ -462,7 +462,7 @@ const AssessmentManagement: React.FC = () => {
             )}
 
             {/* AI Reasoning Preview Section - premium touch */}
-            <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-8 relative overflow-hidden">
+                    <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 sm:p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <BrainCircuit size={120} className="text-[#7C3AED]" />
                 </div>
@@ -474,7 +474,7 @@ const AssessmentManagement: React.FC = () => {
                     <p className="text-white/50 leading-relaxed mb-6">
                         The current scoring engine uses multi-modal analysis to verify student logic. It looks for coding patterns, time-per-node complexity, and behavioral consistency to assign "Trust Scores".
                     </p>
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-3">
                             <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Cheating Prediction Accuracy</div>
                             <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
@@ -495,9 +495,9 @@ const AssessmentManagement: React.FC = () => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-6"
+                    className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-6"
                 >
-                    <div className="flex justify-between items-start mb-8 border-b border-white/10 pb-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start mb-8 border-b border-white/10 pb-6 gap-4">
                         <div>
                             <h2 className="text-2xl font-bold text-white mb-2">{selectedAssessment.name}</h2>
                             <div className="flex gap-4 text-sm text-white/50">
@@ -540,7 +540,7 @@ const AssessmentManagement: React.FC = () => {
             )}
             {view === 'templates' && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-6">
                         <h3 className="text-xl font-bold text-white mb-2">🏅 Certificate Templates Library</h3>
                         <p className="text-white/40 text-sm mb-6">Stored templates appear in the evaluation dropdown. Use <code className="text-[#7C3AED]">{'{student_name}'}</code>, <code className="text-[#7C3AED]">{'{course_title}'}</code>, <code className="text-[#7C3AED]">{'{issue_date}'}</code>, <code className="text-[#7C3AED]">{'{certificate_id}'}</code> as placeholders.</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">

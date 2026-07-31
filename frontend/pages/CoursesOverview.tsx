@@ -153,7 +153,7 @@ const PremiumExploreCarousel = () => {
   return (
     <div className="bg-white pb-8 overflow-hidden">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-5xl font-black text-[#1A1A1A] mb-4 tracking-tight">Explore Career Paths Like</h2>
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-[#1A1A1A] mb-4 tracking-tight">Explore Career Paths Like</h2>
         <p className="text-gray-500 text-lg max-w-2xl mx-auto px-4">
           Discover curated learning journeys designed for modern careers, real-world skills, internships, and future opportunities.
         </p>
@@ -382,7 +382,7 @@ const CoursesOverview: React.FC = () => {
   }, [activeCategory, courses, searchQuery]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F8F9FC] px-6 py-32">
+    <div className="min-h-screen bg-[#F8F9FC] px-3 sm:px-6 py-32">
       <div className="max-w-7xl mx-auto rounded-[2.5rem] bg-white border border-gray-100 shadow-sm p-8 sm:p-10">
         <div className="flex items-center gap-3 mb-6 text-[#6C2BFF] font-black text-[10px] uppercase tracking-[0.3em]">
           <div className="w-4 h-4 rounded-full border-2 border-[#6C2BFF]/20 border-t-[#6C2BFF] animate-spin" />
@@ -399,7 +399,7 @@ const CoursesOverview: React.FC = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-[#1A1A1A]">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-[#F4F2FE] via-[#FAF9FF] to-white pt-32 pb-24 px-6 relative overflow-hidden">
+      <div className="bg-gradient-to-b from-[#F4F2FE] via-[#FAF9FF] to-white pt-32 pb-24 px-3 sm:px-6 relative overflow-hidden">
         {/* Soft background glow orbs */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-[#6C2BFF]/10 to-transparent rounded-full blur-[100px] pointer-events-none transform translate-x-1/3 -translate-y-1/3 z-0" />
         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-[#EC4899]/5 to-transparent rounded-full blur-[80px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2 z-0" />
@@ -408,7 +408,7 @@ const CoursesOverview: React.FC = () => {
 
           {/* Left Side: Content */}
           <div className="flex-1 flex flex-col items-start text-left">
-            <h1 className="text-5xl md:text-6xl lg:text-[5rem] font-black leading-[1.05] tracking-tight text-[#1A1A1A] mb-6">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-[5rem] font-black leading-[1.05] tracking-tight text-[#1A1A1A] mb-6">
               MASTER REAL SKILLS,<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] to-[#EC4899]">NOT JUST COURSES</span>
             </h1>
@@ -439,7 +439,7 @@ const CoursesOverview: React.FC = () => {
               </Link>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 md:gap-10 text-sm w-full">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 md:gap-10 text-sm w-full">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-[#6C2BFF]">
                   <User className="w-5 h-5" />
@@ -555,7 +555,7 @@ const CoursesOverview: React.FC = () => {
       </div>
 
       {/* Recommended Courses Section (Dark Theme) */}
-      <div id="courses-section" className="bg-[#0F0824] py-24 px-6 relative">
+      <div id="courses-section" className="bg-[#0F0824] py-24 px-3 sm:px-6 relative">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10">
 
@@ -565,7 +565,7 @@ const CoursesOverview: React.FC = () => {
                 <Star className="w-4 h-4 text-[#A78BFA]" />
                 <span className="text-xs font-bold text-[#A78BFA] uppercase tracking-wider">Curated Learning Tracks</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Explore Courses</h2>
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Explore Courses</h2>
               <p className="text-gray-400 mt-3 text-base md:text-lg max-w-2xl">
                 Industry-ready programs designed for practical outcomes.
               </p>
@@ -613,7 +613,7 @@ const CoursesOverview: React.FC = () => {
       </div>
 
       {/* Trust Section - Logos */}
-      <div className="bg-[#F8F9FC] py-16 px-6 border-y border-gray-100">
+      <div className="bg-[#F8F9FC] py-16 px-3 sm:px-6 border-y border-gray-100">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-sm font-bold text-gray-500 mb-10 tracking-wide">
             Trusted by professionals from leading companies and ambitious learners worldwide
@@ -641,9 +641,9 @@ const CoursesOverview: React.FC = () => {
       </div>
 
       {/* Quote Section */}
-      <div className="bg-white py-12 px-6">
+      <div className="bg-white py-12 px-3 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-[#0F0824] rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden shadow-2xl">
+          <div className="bg-[#0F0824] rounded-3xl p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center gap-6 sm:gap-10 relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#6C2BFF]/20 rounded-full blur-3xl" />
             <img
               src="/images/OIP.webp"
@@ -664,10 +664,10 @@ const CoursesOverview: React.FC = () => {
         </div>
       </div>
       {/* Student Outcomes Section */}
-      <div className="bg-gradient-to-b from-[#F8F9FC] to-[#F4F2FE] py-32 px-6 border-t border-gray-100">
+      <div className="bg-gradient-to-b from-[#F8F9FC] to-[#F4F2FE] py-32 px-3 sm:px-6 border-t border-gray-100">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter leading-[1.05] flex flex-col items-center justify-center gap-2">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter leading-[1.05] flex flex-col items-center justify-center gap-2">
               <span className="text-[#1A1A1A]">How Our Courses</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] via-[#A88CFF] to-[#EC4899] drop-shadow-sm pb-2">
                 Build Your Future
@@ -733,12 +733,12 @@ const CoursesOverview: React.FC = () => {
       </div>
 
       {/* Career Tracks & FAQ Section */}
-      <div className="bg-white py-16 px-6">
+      <div className="bg-white py-16 px-3 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
 
           <PremiumExploreCarousel />
 
-          <div className="bg-[#F8F9FC] border border-gray-200 rounded-3xl p-8 md:p-12">
+          <div className="bg-[#F8F9FC] border border-gray-200 rounded-3xl p-6 sm:p-8 md:p-12">
             <div className="flex flex-col md:flex-row gap-10 md:gap-16">
               <div className="md:w-1/3">
                 <h2 className="text-2xl font-black uppercase text-[#1A1A1A] mb-4">Frequently Asked Questions</h2>
@@ -800,14 +800,14 @@ const CoursesOverview: React.FC = () => {
       </div>
 
       {/* Resources & Stories Section */}
-      <div className="bg-white py-16 px-6 border-t border-gray-100">
+      <div className="bg-white py-16 px-3 sm:px-6 border-t border-gray-100">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
 
           <div>
             <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">Free Resources</h3>
             <h2 className="text-2xl font-black uppercase text-[#1A1A1A] mb-8">Learn Before You Commit</h2>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { title: 'Free Mini Courses', desc: 'Short courses to get started', icon: Play, link: '/learn/courses-overview' },
                 { title: 'Cheat Sheets', desc: 'Essential quick reference guides', icon: FileText, link: '/learn/company-modules' },
@@ -865,7 +865,7 @@ const CoursesOverview: React.FC = () => {
       </div>
 
       {/* Final CTA */}
-      <div className="bg-[#0F0824] py-24 px-6 text-center relative overflow-hidden mt-10">
+      <div className="bg-[#0F0824] py-24 px-3 sm:px-6 text-center relative overflow-hidden mt-10">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#6C2BFF]/20 rounded-full blur-[100px] pointer-events-none" />
 
@@ -873,7 +873,7 @@ const CoursesOverview: React.FC = () => {
           <div className="inline-block bg-white/10 px-4 py-1.5 rounded-full border border-white/20 mb-6">
             <span className="text-xs font-bold text-white uppercase tracking-[0.2em]">Ready To Level Up?</span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-black uppercase text-white leading-tight mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase text-white leading-tight mb-6">
             Start Building <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] to-[#EC4899]">Your Future</span> Today
           </h2>
           <p className="text-gray-400 text-lg mb-10">Join ambitious learners building real skills.</p>

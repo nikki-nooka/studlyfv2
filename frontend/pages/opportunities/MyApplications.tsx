@@ -98,14 +98,14 @@ const MyApplications: React.FC = () => {
     if (authLoading || loading) {
         return (
             <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 font-sans">
-                <div className="max-w-4xl mx-auto px-6 space-y-10">
+                <div className="max-w-4xl mx-auto px-3 sm:px-6 space-y-10">
                     <div className="space-y-4">
                         <div className="w-48 h-10 bg-slate-200 rounded-lg animate-pulse"></div>
                         <div className="w-96 h-4 bg-slate-200 rounded animate-pulse"></div>
                     </div>
-                    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden p-8 space-y-6">
+                    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden p-4 sm:p-8 space-y-6">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="flex gap-6 items-center">
+                            <div key={i} className="flex gap-3 sm:gap-6 items-center">
                                 <div className="flex-1 space-y-3">
                                     <div className="w-1/2 h-6 bg-slate-100 rounded animate-pulse"></div>
                                     <div className="w-1/3 h-4 bg-slate-100 rounded animate-pulse"></div>
@@ -121,7 +121,7 @@ const MyApplications: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 font-sans">
-            <div className="max-w-4xl mx-auto px-6">
+            <div className="max-w-4xl mx-auto px-3 sm:px-6">
                 <button
                     type="button"
                     onClick={() => navigate('/opportunities')}
@@ -132,7 +132,7 @@ const MyApplications: React.FC = () => {
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">My <span className="text-[#7C3AED]">dashboard</span></h1>
+                        <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">My <span className="text-[#7C3AED]">dashboard</span></h1>
                         <p className="text-sm text-slate-500 mt-2">
                             Manage your active applications and saved opportunities.
                         </p>
@@ -140,7 +140,7 @@ const MyApplications: React.FC = () => {
                 </div>
 
                 {notifications.filter((n) => !n.is_read).length > 0 ? (
-                    <section className="mb-10 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-4">
+                    <section className="mb-10 bg-white rounded-3xl border border-slate-100 shadow-sm p-3 sm:p-6 space-y-4">
                         <div className="flex items-center gap-2 text-slate-900 font-black text-sm uppercase tracking-widest">
                             <Bell size={18} className="text-purple-600" /> Recent updates
                         </div>
@@ -197,7 +197,7 @@ const MyApplications: React.FC = () => {
                 {activeTab === 'applications' && (
                     <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                         {applications.length === 0 ? (
-                            <div className="p-16 text-center text-slate-400 font-bold">
+                            <div className="p-8 sm:p-16 text-center text-slate-400 font-bold">
                                 You have not applied to any opportunities yet.{' '}
                                 <Link to="/opportunities" className="text-purple-600 hover:underline">
                                     Browse listings
@@ -211,7 +211,7 @@ const MyApplications: React.FC = () => {
                                     const oid = a.opportunity_id;
                                     const canTeams = Boolean(a.event_id);
                                     return (
-                                        <li key={a._id} className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 hover:bg-slate-50/80 transition-colors">
+                                        <li key={a._id} className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 hover:bg-slate-50/80 transition-colors">
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-black text-slate-900 text-lg truncate">
                                                     {a.opportunity_title || 'Opportunity'}
@@ -257,7 +257,7 @@ const MyApplications: React.FC = () => {
                 {activeTab === 'saved' && (
                     <section className="bg-transparent">
                         {savedOpps.length === 0 ? (
-                            <div className="p-16 text-center text-slate-400 font-bold bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+                            <div className="p-8 sm:p-16 text-center text-slate-400 font-bold bg-white rounded-[2rem] border border-slate-100 shadow-sm">
                                 You haven't saved any opportunities yet.{' '}
                                 <Link to="/opportunities" className="text-purple-600 hover:underline">
                                     Browse listings
@@ -265,7 +265,7 @@ const MyApplications: React.FC = () => {
                                 .
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                                 {savedOpps.map((opp) => (
                                     <div key={opp._id} className="w-full max-w-[320px] mx-auto">
                                         <OpportunityCard 

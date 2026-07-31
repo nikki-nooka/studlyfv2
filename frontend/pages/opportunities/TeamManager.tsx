@@ -174,7 +174,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId }) => {
 
     if (loading) {
         return (
-            <div className="p-6 border border-slate-200 bg-white rounded-2xl flex items-center justify-center">
+            <div className="p-3 sm:p-6 border border-slate-200 bg-white rounded-2xl flex items-center justify-center">
                 <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
             </div>
         );
@@ -183,7 +183,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId }) => {
     if (teamData) {
         return (
             <div className="border border-slate-200 bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-slate-100 bg-purple-50/50 flex justify-between items-center">
+                <div className="p-3 sm:p-5 border-b border-slate-100 bg-purple-50/50 flex justify-between items-center">
                     <div>
                         <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
                             <Users className="w-4 h-4 text-purple-600" />
@@ -198,7 +198,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId }) => {
                     </button>
                 </div>
                 
-                <div className="p-5 space-y-5">
+                <div className="p-3 sm:p-5 space-y-5">
                     {/* Active Invites */}
                     {teamData.invites && teamData.invites.length > 0 && (
                         <div className="space-y-3">
@@ -235,7 +235,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId }) => {
     }
 
     return (
-        <div className="border border-slate-200 bg-white rounded-2xl shadow-sm p-6 space-y-6">
+        <div className="border border-slate-200 bg-white rounded-2xl shadow-sm p-4 sm:p-6 space-y-5 sm:space-y-6">
             <div>
                 <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
                     <Users className="w-4 h-4 text-purple-600" />
@@ -247,7 +247,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ eventId }) => {
             {error && <div className="p-3 bg-red-50 text-red-600 text-xs font-bold rounded-lg border border-red-100">{error}</div>}
             {success && <div className="p-3 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-lg border border-emerald-100">{success}</div>}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {/* Create Team */}
                 <form onSubmit={handleCreateTeam} className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Create a New Team</label>

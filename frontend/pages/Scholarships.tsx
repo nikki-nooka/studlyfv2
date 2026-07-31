@@ -350,7 +350,7 @@ const Scholarships: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-gray-800 pt-28 font-sans selection:bg-emerald-500/20 flex flex-col">
-      <div className="max-w-7xl mx-auto px-6 pb-24 flex-grow w-full relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 flex-grow w-full relative z-10">
         
         {/* Back Button */}
         <Link 
@@ -368,17 +368,17 @@ const Scholarships: React.FC = () => {
             <GraduationCap className="w-4 h-4" /> Higher Education Support
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#1A1A1A] relative z-10 leading-[1.1]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#1A1A1A] relative z-10 leading-[1.1]">
             Global <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-600">Scholarships</span>
           </h1>
           
-          <p className="text-lg text-gray-500 font-medium relative z-10">
+          <p className="text-base sm:text-lg text-gray-500 font-medium relative z-10">
             Explore 20 verified elite scholarships from India and across the globe to fund your academic aspirations and research.
           </p>
         </div>
 
         {/* Search & Filtering Control Center */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 mb-12 bg-white p-3 sm:p-4 rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm">
           {/* Categories Tab */}
           <div className="flex flex-wrap items-center gap-2">
             {scholarshipCategories.map((cat) => {
@@ -413,7 +413,7 @@ const Scholarships: React.FC = () => {
         </div>
 
         {/* Scholarship Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-h-[300px]">
           <AnimatePresence mode="wait">
             {filteredScholarships.map((sch) => (
               <motion.div 
@@ -423,7 +423,7 @@ const Scholarships: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={() => setSelectedScholarship(sch)}
-                className="bg-white border border-gray-200 rounded-[2rem] p-8 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative overflow-hidden"
+                className="bg-white border border-gray-200 rounded-[2rem] p-4 sm:p-8 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative overflow-hidden"
               >
                 {/* Category Badge & Share & Bookmark */}
                 <div className="absolute top-6 right-6 flex items-center gap-2 z-10">
@@ -532,7 +532,7 @@ const Scholarships: React.FC = () => {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
             >
-              <div className="p-8 overflow-y-auto custom-scrollbar">
+              <div className="p-4 sm:p-8 overflow-y-auto custom-scrollbar">
                 <button 
                   onClick={() => setSelectedScholarship(null)}
                   className="absolute top-6 right-6 p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full transition-colors"
@@ -544,7 +544,7 @@ const Scholarships: React.FC = () => {
                   <selectedScholarship.icon className={`w-8 h-8 ${selectedScholarship.color}`} />
                 </div>
                 
-                <h2 className="text-3xl font-black text-gray-900 mb-2 pr-12 leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 pr-12 leading-tight">
                   {selectedScholarship.name}
                 </h2>
                 <div className="flex items-center gap-2 mb-8">
@@ -577,7 +577,7 @@ const Scholarships: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between mt-auto shrink-0">
+              <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto shrink-0">
                 <button 
                   onClick={(e) => handleShare(e, selectedScholarship.link, selectedScholarship.id)}
                   className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"

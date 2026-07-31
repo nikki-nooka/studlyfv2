@@ -114,6 +114,7 @@ const InstitutionDashboard: React.FC = () => {
     const [isTourOpen, setIsTourOpen] = useState(false);
     const [profileRefreshTrigger, setProfileRefreshTrigger] = useState(0);
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
     const institutionId = (user as any)?.institution_id || user?.user_id || 'default_inst';
 
@@ -319,6 +320,8 @@ const InstitutionDashboard: React.FC = () => {
                         activeTab={activeTab} 
                         onTabChange={handleTabChange} 
                         onPost={() => setIsSelectionModalOpen(true)}
+                        mobileOpen={mobileSidebarOpen}
+                        onCloseMobile={() => setMobileSidebarOpen(false)}
                     />
                 </div>
             )}
@@ -330,10 +333,11 @@ const InstitutionDashboard: React.FC = () => {
                     refreshKey={profileRefreshTrigger}
                     onNavigate={handleTabChange}
                     onNavigateToSettings={() => handleTabChange('settings')}
+                    onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
                 />
                 
                 <main className="flex-1 overflow-y-auto custom-scrollbar">
-                    <div className="max-w-[1400px] mx-auto py-6 px-6">
+                    <div className="max-w-[1400px] mx-auto py-4 sm:py-6 px-3 sm:px-6">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={activeTab}

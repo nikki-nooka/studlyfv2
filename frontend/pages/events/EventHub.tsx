@@ -337,7 +337,7 @@ const EventHub: React.FC = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-[#F8FAFC] pb-32">
-                <div className="bg-slate-900 pt-32 pb-20 px-6 border-b border-slate-800">
+                <div className="bg-slate-900 pt-32 pb-20 px-3 sm:px-6 border-b border-slate-800">
                     <div className="max-w-6xl mx-auto">
                         <div className="w-48 h-6 bg-slate-800 rounded animate-pulse mb-6"></div>
                         <div className="w-3/4 h-16 bg-slate-800 rounded-lg animate-pulse mb-8"></div>
@@ -348,7 +348,7 @@ const EventHub: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="max-w-6xl mx-auto px-6 mt-8 space-y-8">
+                <div className="max-w-6xl mx-auto px-3 sm:px-6 mt-8 space-y-8">
                     <div className="w-full h-32 bg-slate-100 rounded-3xl animate-pulse"></div>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-6">
@@ -370,7 +370,7 @@ const EventHub: React.FC = () => {
         const joinCode = params.get('join');
         
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-3 sm:p-6 text-center">
                 <div className="w-24 h-24 bg-white rounded-[2rem] shadow-xl shadow-purple-500/10 flex items-center justify-center mb-8 border border-slate-100">
                     {joinCode ? <UsersRound size={40} className="text-purple-600" /> : <LinkIcon size={40} className="text-purple-600" />}
                 </div>
@@ -406,7 +406,7 @@ const EventHub: React.FC = () => {
         <div className="min-h-screen bg-slate-50 pt-32 pb-20 font-sans">
             {/* Navigation Header */}
             <header className="bg-white border-b border-slate-100 sticky top-32 z-30">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-3 sm:px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-6">
                         <Link to="/opportunities/my-applications" className="p-3 hover:bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
                             <ChevronLeft size={24} />
@@ -418,10 +418,10 @@ const EventHub: React.FC = () => {
                     </div>
                     
                     <div className="flex items-center gap-3">
-                        <button onClick={() => navigate(`/events/${eventId}/package`)} className="px-4 py-2 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <button onClick={() => navigate(`/events/${eventId}/package`)} className="hidden sm:flex px-4 py-2 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest items-center gap-2">
                             <LayoutGrid size={14} /> Problem Board
                         </button>
-                        <button onClick={() => navigate(`/events/${eventId}/package/card`)} className="px-4 py-2 bg-white border border-slate-200 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <button onClick={() => navigate(`/events/${eventId}/package/card`)} className="hidden sm:flex px-4 py-2 bg-white border border-slate-200 rounded-full text-[10px] font-black uppercase tracking-widest items-center gap-2">
                             <IdCard size={14} /> Participant Card
                         </button>
                         <div className="px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-100">
@@ -432,10 +432,10 @@ const EventHub: React.FC = () => {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-6 py-12">
+            <main className="max-w-7xl mx-auto px-3 sm:px-6 py-12">
                 <div className="space-y-12">
                     {/* Tab Navigation */}
-                    <div className="flex items-center gap-2 p-1.5 bg-white border border-slate-100 rounded-[2rem] w-fit shadow-sm">
+                    <div className="flex items-center gap-2 p-1.5 bg-white border border-slate-100 rounded-[2rem] w-fit shadow-sm overflow-x-auto scrollbar-none">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
@@ -480,7 +480,7 @@ const EventHub: React.FC = () => {
 
                                                             {/* Contextual Action Button - Only show if current or accessible */}
                                                             {canAccess && (isCurrent || !isCompleted) && (
-                                                                <div className="shrink-0">
+                                                                <div className="shrink-0 hidden sm:block">
                                                                     {stype === 'TEAM FORMATION' || stype === 'TEAM_FORMATION' || stage.name?.toUpperCase().includes('TEAM') ? (
                                                                         <button 
                                                                             onClick={() => setActiveTab('team')}
@@ -939,7 +939,7 @@ const EventHub: React.FC = () => {
                                         <div className="p-10 bg-white border border-slate-100 rounded-[3rem] shadow-xl shadow-slate-900/5 space-y-6">
                                             <h3 className="text-xl font-black text-slate-900">Create a Team</h3>
                                             <p className="text-slate-500 text-sm font-medium">Start a new team and invite your classmates to join.</p>
-                                            <div className="flex gap-4">
+                                            <div className="flex flex-col sm:flex-row gap-4">
                                                 <input
                                                     type="text"
                                                     placeholder="Enter your team name"
@@ -961,7 +961,7 @@ const EventHub: React.FC = () => {
                                         <div className="p-10 bg-white border border-slate-100 rounded-[3rem] shadow-xl shadow-slate-900/5 space-y-6">
                                             <h3 className="text-xl font-black text-slate-900">Join a Team</h3>
                                             <p className="text-slate-500 text-sm font-medium">Ask your team lead for the invite code.</p>
-                                            <div className="flex gap-4">
+                                            <div className="flex flex-col sm:flex-row gap-4">
                                                 <input
                                                     type="text"
                                                     placeholder="Enter invite code"
@@ -1066,7 +1066,7 @@ const EventHub: React.FC = () => {
                                             <div className="p-10 bg-white border border-slate-100 rounded-[3rem] shadow-xl shadow-slate-900/5 space-y-6">
                                                 <h3 className="text-xl font-black text-slate-900">Sync with Team</h3>
                                                 <p className="text-slate-500 text-sm font-medium">Enter the invite code shared by your team lead to sync.</p>
-                                                <div className="flex gap-4">
+                                                <div className="flex flex-col sm:flex-row gap-4">
                                                     <input
                                                         type="text"
                                                         placeholder="Invite Code"
@@ -1077,7 +1077,7 @@ const EventHub: React.FC = () => {
                                                     <button
                                                         onClick={joinByCode}
                                                         disabled={working || !inviteCode.trim() || Boolean(team)}
-                                                        className="w-full py-4 rounded-2xl bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-900/10 disabled:opacity-50"
+                                                        className="w-full sm:w-auto py-4 rounded-2xl bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-900/10 disabled:opacity-50"
                                                     >
                                                         Sync with Team
                                                     </button>

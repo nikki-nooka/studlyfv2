@@ -347,8 +347,8 @@ const PortfolioBuilder: React.FC = () => {
               className="overflow-x-hidden"
             >
               {/* Hero */}
-              <section className="max-w-6xl mx-auto px-6 pt-36 pb-16">
-                <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[80vh]">
+              <section className="max-w-6xl mx-auto px-3 sm:px-6 pt-28 sm:pt-36 pb-12 sm:pb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center min-h-[60vh] lg:min-h-[80vh]">
 
                   {/* Left — staggered text reveal */}
                   <motion.div variants={stagger} initial="hidden" animate="show">
@@ -368,7 +368,7 @@ const PortfolioBuilder: React.FC = () => {
                     <motion.h1
                       variants={fadeUp}
                       custom={1}
-                      className="text-5xl md:text-6xl lg:text-[64px] font-black leading-[1.0] tracking-[-0.03em] mb-6 text-gray-950"
+                      className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-black leading-[1.0] tracking-[-0.03em] mb-6 text-gray-950"
                     >
                       Build a Portfolio
                       <br />
@@ -418,7 +418,7 @@ const PortfolioBuilder: React.FC = () => {
                     </motion.div>
 
                     {/* Animated stats */}
-                    <motion.div variants={fadeUp} custom={4} className="flex flex-wrap gap-8">
+                    <motion.div variants={fadeUp} custom={4} className="flex flex-wrap gap-6 sm:gap-8">
                       {[
                         { target: 10000, suffix: '+', label: 'Portfolios built' },
                         { target: 50, suffix: '+', label: 'Templates' },
@@ -548,16 +548,16 @@ const PortfolioBuilder: React.FC = () => {
               </section>
 
               {/* How it works */}
-              <section className="py-24 bg-white border-y border-gray-100">
-                <div className="max-w-6xl mx-auto px-6">
+              <section className="py-16 sm:py-24 bg-white border-y border-gray-100">
+                <div className="max-w-6xl mx-auto px-3 sm:px-6">
                   <FadeSection className="text-center mb-14">
                     <p className="text-xs font-semibold text-purple-600 uppercase tracking-widest mb-3">Process</p>
-                    <h2 className="text-3xl font-black tracking-tight text-gray-900 mb-4">How it works</h2>
+                    <h2 className="text-xl sm:text-3xl font-black tracking-tight text-gray-900 mb-4">How it works</h2>
                     <p className="text-base text-gray-500 max-w-md mx-auto">From resume to live portfolio in four seamless steps.</p>
                   </FadeSection>
 
                   <motion.div
-                    className="grid md:grid-cols-4 gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"
                     variants={stagger}
                     initial="hidden"
                     whileInView="show"
@@ -594,11 +594,11 @@ const PortfolioBuilder: React.FC = () => {
               </section>
 
               {/* Scrolling templates marquee */}
-              <section className="py-24">
-                <div className="max-w-6xl mx-auto px-6 text-center mb-12">
+              <section className="py-16 sm:py-24">
+                <div className="max-w-6xl mx-auto px-3 sm:px-6 text-center mb-8 sm:mb-12">
                   <FadeSection>
                     <p className="text-xs font-semibold text-purple-600 uppercase tracking-widest mb-3">Templates</p>
-                    <h2 className="text-3xl font-black tracking-tight text-gray-900 mb-4">Premium portfolio designs</h2>
+                    <h2 className="text-xl sm:text-3xl font-black tracking-tight text-gray-900 mb-4">Premium portfolio designs</h2>
                     <p className="text-base text-gray-500">Crafted for developers who care about first impressions.</p>
                   </FadeSection>
                 </div>
@@ -645,7 +645,7 @@ const PortfolioBuilder: React.FC = () => {
               </section>
 
               {/* CTA */}
-              <section className="max-w-6xl mx-auto px-6 pb-24">
+              <section className="max-w-6xl mx-auto px-3 sm:px-6 pb-16 sm:pb-24">
                 <FadeSection>
                   <motion.div
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-purple-700 p-14 text-center"
@@ -675,7 +675,7 @@ const PortfolioBuilder: React.FC = () => {
                           <Globe size={11} />
                           Free to get started
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-white mb-5 tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-5 tracking-tight leading-tight">
                           Your dream portfolio,<br />built in minutes.
                         </h2>
                         <p className="text-white/70 text-base max-w-md mx-auto mb-10">
@@ -717,15 +717,15 @@ const PortfolioBuilder: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -32 }}
               transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="max-w-6xl mx-auto px-6 pt-36 pb-10"
+              className="max-w-6xl mx-auto px-3 sm:px-6 pt-28 sm:pt-36 pb-10"
             >
-              <FadeSection className="mb-8">
+              <FadeSection className="mb-6 sm:mb-8">
                 <p className="text-xs font-semibold text-purple-600 uppercase tracking-widest mb-1.5">Step 2 of 3</p>
-                <h2 className="text-3xl font-black tracking-tight text-gray-900 mb-2">Tell us about yourself</h2>
+                <h2 className="text-xl sm:text-3xl font-black tracking-tight text-gray-900 mb-2">Tell us about yourself</h2>
                 <p className="text-gray-500 text-sm">Fill in your professional details — or upload your resume to autofill.</p>
               </FadeSection>
 
-              <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 sm:gap-8 items-start">
                 <div className="space-y-0">
 
                   {inputMethod === 'upload' ? (
@@ -1054,16 +1054,16 @@ const PortfolioBuilder: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -32 }}
               transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="max-w-6xl mx-auto px-6 pt-36 pb-10"
+              className="max-w-6xl mx-auto px-3 sm:px-6 pt-28 sm:pt-36 pb-10"
             >
-              <FadeSection className="mb-10">
+              <FadeSection className="mb-6 sm:mb-10">
                 <p className="text-xs font-semibold text-purple-600 uppercase tracking-widest mb-1.5">Step 3 of 3</p>
-                <h2 className="text-3xl font-black tracking-tight text-gray-900 mb-2">Choose your template</h2>
+                <h2 className="text-xl sm:text-3xl font-black tracking-tight text-gray-900 mb-2">Choose your template</h2>
                 <p className="text-gray-500 text-sm">Select a design that represents your personal brand.</p>
               </FadeSection>
 
               <motion.div
-                className="grid md:grid-cols-3 gap-5 mb-10"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 mb-10"
                 variants={stagger}
                 initial="hidden"
                 animate="show"
@@ -1219,7 +1219,7 @@ const PortfolioBuilder: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.34, 1.2, 0.64, 1] }}
-              className="max-w-2xl mx-auto px-6 py-20 text-center"
+              className="max-w-2xl mx-auto px-3 sm:px-6 py-16 sm:py-20 text-center"
             >
               {/* Confetti burst */}
               <div className="relative flex justify-center mb-8">
@@ -1254,7 +1254,7 @@ const PortfolioBuilder: React.FC = () => {
                   </div>
                 </motion.div>
 
-                <motion.h2 variants={fadeUp} custom={1} className="text-4xl font-black tracking-tight text-gray-900 mb-4">
+                <motion.h2 variants={fadeUp} custom={1} className="text-2xl sm:text-4xl font-black tracking-tight text-gray-900 mb-4">
                   Your portfolio is live! 🎉
                 </motion.h2>
                 <motion.p variants={fadeUp} custom={2} className="text-gray-500 text-base mb-10 max-w-md mx-auto leading-relaxed">

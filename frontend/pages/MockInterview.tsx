@@ -1093,18 +1093,18 @@ export default function MockInterview() {
             `}</style>
             <AnimatePresence mode="wait">
                 {step === 'INTRO' && (
-                    <motion.div key="intro" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-7xl mx-auto px-6 pt-12">
-                        <div className="grid lg:grid-cols-2 gap-20 items-center">
+                    <motion.div key="intro" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-7xl mx-auto px-3 sm:px-6 pt-8 sm:pt-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-20 items-center">
                             <div>
                                 <span className="text-[#7C3AED] font-bold uppercase tracking-[0.5em] text-[10px] mb-6 block">Interview Readiness</span>
-                                <h1 className="text-5xl sm:text-7xl font-black text-[#111827] mb-8 leading-[0.9] tracking-tighter uppercase">
+                                <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-[#111827] mb-6 sm:mb-8 leading-[0.9] tracking-tighter uppercase">
                                     Mock <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B] inline-block">INTERVIEW.</span>
                                 </h1>
                                 <p className="text-xl text-[#475569] mb-12 leading-relaxed max-w-lg font-medium">
                                     Simulate realistic interviews with AI, voice, and video practice. Build confidence for technical, behavioral, and HR rounds before the real call.
                                 </p>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 max-w-2xl">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-8 sm:mb-10 max-w-2xl">
                                     {[
                                         { label: 'Rounds', value: '3' },
                                         { label: 'Mode', value: 'Live AI' },
@@ -1148,16 +1148,16 @@ export default function MockInterview() {
                             </div>
                         </div>
 
-                        <div className="mt-24 space-y-10">
+                        <div className="mt-16 sm:mt-24 space-y-8 sm:space-y-10">
                             <div className="max-w-3xl">
                                 <span className="text-[#7C3AED] font-black uppercase tracking-[0.35em] text-[10px]">Why students use it</span>
-                                <h2 className="text-3xl sm:text-5xl font-black text-[#111827] mt-4 leading-tight">A realistic rehearsal before the real interview.</h2>
+                                <h2 className="text-xl sm:text-3xl md:text-5xl font-black text-[#111827] mt-4 leading-tight">A realistic rehearsal before the real interview.</h2>
                                 <p className="mt-4 text-lg text-[#475569] leading-relaxed">
                                     The page is designed like a guided experience. Users can see the value first, then start practicing only after curiosity is built through examples, feedback, and a clear interview flow.
                                 </p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
                                 {[
                                     { title: 'Company Learning Modules', desc: 'Master placement preparation with company-specific learning paths tailored for Google, Amazon, Microsoft, and more.', img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=900' },
                                     { title: 'AI Mock Interview Simulator', desc: 'Practice realistic company-level mock interviews with adaptive questions designed for Google, Amazon, and Microsoft preparation.', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=900' },
@@ -1184,7 +1184,7 @@ export default function MockInterview() {
                                 ))}
                             </div>
 
-                            <div className="grid lg:grid-cols-3 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                                 {[
                                     { title: 'How it helps', bullets: ['Reduce interview anxiety', 'Practice structured answers', 'Get instant feedback', 'Track confidence over time'] },
                                     { title: 'What you can try', bullets: ['Text answers', 'Voice answers', 'Video mode', 'Domain-based scenarios'] },
@@ -1208,9 +1208,9 @@ export default function MockInterview() {
                 )}
 
                 {step === 'API_KEY' && (
-                    <motion.div key="api-key" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto px-6 pt-16 relative">
+                    <motion.div key="api-key" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto px-3 sm:px-6 pt-12 sm:pt-16 relative">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[250px] bg-gradient-to-b from-[#7C3AED]/10 to-transparent blur-[100px] pointer-events-none -z-10" />
-                        <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+                        <div className="bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl space-y-6">
                             <div className="text-center">
                                 <h2 className="text-3xl font-black mb-2 uppercase tracking-tighter italic">
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B] inline-block pb-1">
@@ -1423,9 +1423,9 @@ export default function MockInterview() {
                 )}
 
                 {step === 'SETUP' && (
-                    <motion.div key="setup" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto px-6 pt-16 relative">
+                    <motion.div key="setup" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto px-3 sm:px-6 pt-12 sm:pt-16 relative">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[250px] bg-gradient-to-b from-[#7C3AED]/10 to-transparent blur-[100px] pointer-events-none -z-10" />
-                        <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+                        <div className="bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl space-y-6">
                             <div className="text-center">
                                 <h2 className="text-3xl font-black mb-2 uppercase tracking-tighter italic">
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B] inline-block pb-1">
@@ -1516,12 +1516,12 @@ export default function MockInterview() {
                 )}
 
                 {step === 'INTERVIEW' && (
-                    <motion.div key="interview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-6xl mx-auto px-6 pt-12">
+                    <motion.div key="interview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-6xl mx-auto px-3 sm:px-6 pt-8 sm:pt-12">
                         {/* NEW: Performance Metrics Dashboard */}
                         <motion.div 
                             initial={{ y: -20, opacity: 0 }} 
                             animate={{ y: 0, opacity: 1 }} 
-                            className="grid grid-cols-4 gap-4 mb-8"
+                            className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8"
                         >
                             <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-4">
                                 <div className="text-[10px] font-black uppercase tracking-widest text-purple-600 mb-2">Streak 🔥</div>
@@ -1740,24 +1740,24 @@ export default function MockInterview() {
                 )}
 
                 {step === 'REPORT' && (
-                    <motion.div key="report" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-6xl mx-auto px-6 py-12">
-                        <div className="bg-white rounded-[4rem] border border-gray-100 p-12 shadow-2xl relative overflow-hidden">
+                    <motion.div key="report" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-6xl mx-auto px-3 sm:px-6 py-8 sm:py-12">
+                        <div className="bg-white rounded-2xl sm:rounded-[4rem] border border-gray-100 p-4 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-violet-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
 
-                            <div className="relative z-10 text-center mb-16">
-                                <h2 className="text-6xl font-black text-[#111827] uppercase tracking-tighter italic leading-none mb-4">Outcome <span className="text-[#7C3AED]">Protocol.</span></h2>
+                            <div className="relative z-10 text-center mb-8 sm:mb-16">
+                                <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-[#111827] uppercase tracking-tighter italic leading-none mb-4">Outcome <span className="text-[#7C3AED]">Protocol.</span></h2>
                                 <p className="text-gray-400 font-bold uppercase tracking-[0.3em] text-[10px]">Session Analytics & Clinical Verdict</p>
                             </div>
 
-                            <div className="grid lg:grid-cols-3 gap-12 mb-20">
-                                <div className="lg:col-span-1 flex flex-col items-center justify-center bg-gray-50 rounded-[3rem] p-12 border border-gray-100 shadow-inner">
+                            <div className="grid lg:grid-cols-3 gap-6 sm:gap-12 mb-10 sm:mb-20">
+                                <div className="lg:col-span-1 flex flex-col items-center justify-center bg-gray-50 rounded-2xl sm:rounded-[3rem] p-6 sm:p-12 border border-gray-100 shadow-inner">
                                     <div className="relative">
                                         <svg className="w-48 h-48 transform -rotate-90">
                                             <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-gray-200" />
                                             <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={552} strokeDashoffset={552 - (552 * (report?.overall_score || 0)) / 100} className="text-[#7C3AED] transition-all duration-1000" />
                                         </svg>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-5xl font-black text-[#111827]">{report?.overall_score}%</span>
+                                            <span className="text-3xl sm:text-5xl font-black text-[#111827]">{report?.overall_score}%</span>
                                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Score</span>
                                         </div>
                                     </div>
@@ -1787,18 +1787,18 @@ export default function MockInterview() {
                                 </div>
                             </div>
 
-                            <div className="space-y-12 mb-20">
-                                <h3 className="text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-10 flex items-center gap-4">
+                            <div className="space-y-6 sm:space-y-12 mb-10 sm:mb-20">
+                                <h3 className="text-xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-6 sm:mb-10 flex items-center gap-3 sm:gap-4">
                                     <MessageSquare className="w-8 h-8 text-[#7C3AED]" />
                                     Step-by-Step Analysis
                                 </h3>
 
                                 {report?.detailed_analysis.map((round, ri) => (
-                                    <div key={ri} className="bg-gray-50 rounded-[3.5rem] p-10 border border-gray-100">
-                                        <div className="flex flex-wrap items-center justify-between mb-8 pb-6 border-b border-gray-200">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center font-black">{ri + 1}</div>
-                                                <h4 className="text-2xl font-black text-[#111827] uppercase tracking-tighter italic">{round.round_name}</h4>
+                                    <div key={ri} className="bg-gray-50 rounded-xl sm:rounded-[3.5rem] p-4 sm:p-8 md:p-10 border border-gray-100">
+                                        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-gray-200">
+                                            <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-0">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black text-white rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-sm">{ri + 1}</div>
+                                                <h4 className="text-lg sm:text-2xl font-black text-[#111827] uppercase tracking-tighter italic">{round.round_name}</h4>
                                             </div>
                                             <div className="flex gap-6">
                                                 <div className="text-right">
@@ -1810,8 +1810,8 @@ export default function MockInterview() {
 
                                         <div className="space-y-6">
                                             {round.responses.map((res, idx) => (
-                                                <div key={idx} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-6">
-                                                    <div className="grid md:grid-cols-2 gap-10">
+                                                <div key={idx} className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4 sm:space-y-6">
+                                                    <div className="grid md:grid-cols-2 gap-6 sm:gap-10">
                                                         <div className="space-y-4">
                                                             <div className="flex items-center gap-3">
                                                                 <MessageSquare className="w-4 h-4 text-violet-500" />

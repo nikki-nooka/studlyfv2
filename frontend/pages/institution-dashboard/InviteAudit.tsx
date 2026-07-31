@@ -47,9 +47,9 @@ const InviteAudit: React.FC = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-2xl shadow-sm">
+        <div className="p-3 sm:p-6 bg-white rounded-2xl shadow-sm">
             <h2 className="text-lg font-black mb-4">Invite Audit</h2>
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
                 <input placeholder="Team ID" value={filters.team_id} onChange={e => setFilters(f => ({ ...f, team_id: e.target.value }))} className="px-3 py-2 border rounded" />
                 <input placeholder="Invite Code" value={filters.code} onChange={e => setFilters(f => ({ ...f, code: e.target.value }))} className="px-3 py-2 border rounded" />
                 <input type="date" value={filters.date_from} onChange={e => setFilters(f => ({ ...f, date_from: e.target.value }))} className="px-3 py-2 border rounded" />
@@ -58,6 +58,7 @@ const InviteAudit: React.FC = () => {
                 <button onClick={handleExport} className="px-4 py-2 bg-white border rounded">Export CSV</button>
             </div>
             <div className="max-h-72 overflow-auto">
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="text-left text-xs text-slate-500"><th className="p-2">When</th><th className="p-2">Team</th><th className="p-2">User</th><th className="p-2">Email</th><th className="p-2">Code</th></tr>
@@ -68,6 +69,7 @@ const InviteAudit: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     );

@@ -210,9 +210,9 @@ const EventsManagement: React.FC<EventsManagementProps> = ({ institutionId, onVi
 
     return (
         <>
-            <div className="space-y-6 animate-in fade-in duration-700 font-sans">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-black text-slate-900">My Jobs & Internships</h1>
+            <div className="px-3 sm:px-6 space-y-3 sm:space-y-6 animate-in fade-in duration-700 font-sans">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <h1 className="text-xl sm:text-3xl font-black text-slate-900">My Jobs & Internships</h1>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
@@ -229,7 +229,7 @@ const EventsManagement: React.FC<EventsManagementProps> = ({ institutionId, onVi
                     ))}
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
                     <div className="relative w-full lg:max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input 
@@ -241,7 +241,7 @@ const EventsManagement: React.FC<EventsManagementProps> = ({ institutionId, onVi
                         />
                     </div>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <FilterDropdown 
                             label="Visibility" 
                             options={['Public', 'Private']} 
@@ -417,7 +417,7 @@ const EventsManagement: React.FC<EventsManagementProps> = ({ institutionId, onVi
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-8 text-center font-sans overflow-hidden border border-slate-100"
+                            className="relative w-full max-w-md bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl p-5 sm:p-8 text-center font-sans overflow-hidden border border-slate-100"
                         >
                             <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
                                 <Trash2 size={28} />

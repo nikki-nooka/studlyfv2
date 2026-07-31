@@ -93,7 +93,7 @@ const RoadmapSection: React.FC = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                className="w-[95%] max-w-[1400px] bg-[#6C3BFF] rounded-[60px] relative overflow-hidden pt-20 pb-40 px-6 md:px-12 shadow-[0_40px_100px_rgba(108,59,255,0.2)]"
+                className="w-[95%] max-w-[1400px] bg-[#6C3BFF] rounded-[2rem] sm:rounded-[60px] relative overflow-hidden pt-12 sm:pt-20 pb-24 sm:pb-40 px-4 sm:px-6 md:px-12 shadow-[0_40px_100px_rgba(108,59,255,0.2)]"
             >
                 {/* Ambient Lighting & Particles inside the box */}
                 <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
@@ -112,11 +112,11 @@ const RoadmapSection: React.FC = () => {
                 </div>
 
                 {/* Header */}
-                <div className="text-center mb-24 relative z-10">
+                <div className="text-center mb-12 sm:mb-24 relative z-10">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={isInView ? { opacity: 1, y: 0 } : {}}
-                        className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight"
+                        className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-6 tracking-tight"
                     >
                         Master Your <span className="text-purple-200">Path</span>
                     </motion.h2>

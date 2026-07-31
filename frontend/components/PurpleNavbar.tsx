@@ -31,7 +31,7 @@ const BentoCard = ({ title, desc, children, className = "", to = "#", onClick }:
 );
 
 const LearnDropdown = ({ onItemClick }: { onItemClick: () => void }) => (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 min-w-[300px] md:min-w-[900px]">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 min-w-full md:min-w-[900px]">
         <BentoCard onClick={onItemClick} to="/learn/courses-overview" title="Courses" desc="Role-focused tracks for elite engineering readiness." className="md:col-span-2 md:row-span-2 min-h-[180px] md:min-h-[260px] bg-white shadow-sm overflow-hidden">
             <div className="absolute top-0 right-0 w-1/2 h-full overflow-hidden">
                 <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Courses" />
@@ -48,7 +48,7 @@ const LearnDropdown = ({ onItemClick }: { onItemClick: () => void }) => (
 );
 
 const JobPrepDropdown = ({ onItemClick }: { onItemClick: () => void }) => (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 min-w-[300px] md:min-w-[1000px]">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 sm:gap-4 min-w-full md:min-w-[1000px]">
         <BentoCard onClick={onItemClick} to="/job-prep/portfolio" title="Build Portfolio" desc="Showcase evidence of your engineering prowess." className="md:col-span-2 md:row-span-2 min-h-[180px] md:min-h-[260px] bg-[#F8FAFC]">
             <div className="mt-4 bg-[#0F172A] rounded-xl p-4 shadow-2xl border border-white/10 group-hover:scale-[1.05] transition-transform duration-500 h-28 relative overflow-hidden">
                 <div className="flex items-center gap-1.5 mb-2">
@@ -170,7 +170,7 @@ const PurpleNavbar: React.FC = () => {
                                     exit={{ opacity: 0, y: 10, scale: 0.98 }}
                                     transition={{ duration: 0.3, ease: "easeOut" }}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="absolute bottom-full left-1/2 -translate-x-1/2 w-[92vw] sm:w-[95vw] max-w-6xl z-[100] cursor-auto pb-4"
+                                    className="absolute bottom-full left-1/2 -translate-x-1/2 w-[90vw] sm:w-[95vw] max-w-6xl z-[100] cursor-auto pb-4"
                                 >
                                     {/* Bridge to prevent closing when moving mouse between bar and dropdown */}
                                     <div className="bg-white/95 backdrop-blur-md border border-[#7C3AED]/10 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(124,58,237,0.25)] overflow-y-auto max-h-[80vh] no-scrollbar">

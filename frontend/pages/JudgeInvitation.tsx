@@ -126,7 +126,7 @@ const JudgeInvitation: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-            <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+            <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-200 p-4 sm:p-8 shadow-sm">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Studlyf Judge Portal</p>
                 <h1 className="text-2xl font-black text-slate-900 mt-2">Judging Invitation</h1>
                 

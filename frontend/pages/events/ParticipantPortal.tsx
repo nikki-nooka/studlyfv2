@@ -173,7 +173,7 @@ const ParticipantPortal: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 pt-32 px-6">
+            <div className="min-h-screen bg-slate-50 pt-32 px-3 sm:px-6">
                 <div className="max-w-4xl mx-auto space-y-8">
                     <div className="w-64 h-10 bg-slate-200 rounded-xl animate-pulse"></div>
                     <div className="w-full h-48 bg-white rounded-3xl border border-slate-100 animate-pulse"></div>
@@ -185,7 +185,7 @@ const ParticipantPortal: React.FC = () => {
 
     if (!event) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 p-3 sm:p-6 text-center">
                 <div className="max-w-lg space-y-4">
                     <AlertTriangle className="mx-auto text-amber-500" size={48} />
                     <h1 className="text-3xl font-black text-slate-900">Event portal not found</h1>
@@ -201,7 +201,7 @@ const ParticipantPortal: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900">
-            <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 py-8 space-y-8">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <button onClick={() => navigate(`/events/${eventId}`)} className="p-3 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50">
@@ -209,7 +209,7 @@ const ParticipantPortal: React.FC = () => {
                         </button>
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#6C3BFF]">Participant Portal</p>
-                            <h1 className="text-3xl font-black tracking-tight">{event.title}</h1>
+                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">{event.title}</h1>
                             <p className="text-slate-500 font-medium mt-1">Browse problem statements, make a selection, and use the package links posted by the institution.</p>
                         </div>
                     </div>
@@ -225,14 +225,14 @@ const ParticipantPortal: React.FC = () => {
                 </div>
 
                 <section className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6">
-                    <div className="p-8 rounded-[2rem] bg-gradient-to-br from-[#2A1758] to-[#7c154b] text-white shadow-2xl">
-                        <div className="flex flex-wrap gap-3 items-center mb-4">
-                            <span className="px-4 py-2 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-[0.25em]">{config.event_name || event.title}</span>
-                            <span className="px-4 py-2 rounded-full bg-[#E32879] text-[10px] font-black uppercase tracking-[0.25em]">{config.event_round || 'Hackathon'}</span>
-                        </div>
-                        <h2 className="text-4xl font-black tracking-tight leading-tight max-w-[14ch]">Choose the problem your team will own.</h2>
+                        <div className="p-4 sm:p-8 rounded-[2rem] bg-gradient-to-br from-[#2A1758] to-[#7c154b] text-white shadow-2xl">
+                            <div className="flex flex-wrap gap-3 items-center mb-4">
+                                <span className="px-4 py-2 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-[0.25em]">{config.event_name || event.title}</span>
+                                <span className="px-4 py-2 rounded-full bg-[#E32879] text-[10px] font-black uppercase tracking-[0.25em]">{config.event_round || 'Hackathon'}</span>
+                            </div>
+                            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight max-w-[14ch]">Choose the problem your team will own.</h2>
                         <p className="text-white/80 mt-4 max-w-2xl">The institution can publish sponsors, packages, and evaluation context here. Students see the same live data inside this portal.</p>
-                        <div className="grid grid-cols-3 gap-3 mt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
                             <div className="p-4 rounded-2xl bg-white/10 border border-white/10">
                                 <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Active statements</p>
                                 <p className="text-2xl font-black mt-1">{stats.activeStatements}</p>
@@ -259,7 +259,7 @@ const ParticipantPortal: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
+                    <div className="p-4 sm:p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
                         <div>
                             <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Team name</label>
                             <input value={teamName} onChange={e => setTeamName(e.target.value)} placeholder="Your team name" className="mt-2 w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none" />
@@ -300,11 +300,11 @@ const ParticipantPortal: React.FC = () => {
                     </div>
                 )}
 
-                <section className="p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
+                <section className="p-4 sm:p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#6C3BFF]">Problem Board</p>
-                            <h3 className="text-2xl font-black">Browse available problem statements</h3>
+                            <h3 className="text-xl sm:text-2xl font-black">Browse available problem statements</h3>
                         </div>
                         <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
                             <div className="relative min-w-[260px]">
@@ -332,7 +332,7 @@ const ParticipantPortal: React.FC = () => {
                     {Object.keys(grouped).length === 0 ? (
                         <div className="p-10 text-center rounded-[2rem] bg-white border border-slate-200 text-slate-400">No problem statements match your filters.</div>
                     ) : Object.entries(grouped).map(([dom, items]) => (
-                        <section key={dom} className="p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
+                        <section key={dom} className="p-4 sm:p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
                             <div className="flex items-center justify-between mb-4">
                                 <div>
                                     <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Domain</p>
@@ -352,7 +352,7 @@ const ParticipantPortal: React.FC = () => {
                                                         {p.is_full ? 'Unavailable' : 'Open'}
                                                     </span>
                                                 </div>
-                                                <h5 className="text-2xl font-black text-slate-900 leading-tight">{p.title}</h5>
+                                                <h5 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">{p.title}</h5>
                                                 <p className="text-slate-600 mt-2 leading-relaxed">{p.brief || p.description || 'No description provided.'}</p>
                                                 {p.tech_stack && <p className="text-sm text-slate-500 mt-3"><span className="font-bold">Tech:</span> {p.tech_stack}</p>}
                                             </div>
@@ -380,12 +380,12 @@ const ParticipantPortal: React.FC = () => {
                     ))}
                 </div>
 
-                <section className="p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
+                <section className="p-4 sm:p-6 rounded-[2rem] bg-white border border-slate-200 shadow-sm">
                     <div className="flex items-center gap-3 mb-4">
                         <Users size={18} className="text-[#6C3BFF]" />
-                        <h3 className="text-xl font-black">Sponsors & Partners</h3>
+                        <h3 className="text-lg sm:text-xl font-black">Sponsors & Partners</h3>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                         {sponsors.length > 0 ? sponsors.map((s: any, idx: number) => (
                             <div key={idx} className="p-5 rounded-2xl border border-slate-200 bg-slate-50 text-center font-bold text-slate-700">
                                 {s.name || s.label || 'Sponsor'}
@@ -399,7 +399,7 @@ const ParticipantPortal: React.FC = () => {
 
             {modalProblem && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-lg p-8 rounded-[2rem] bg-white shadow-2xl space-y-6">
+                    <div className="w-full max-w-lg p-6 sm:p-8 rounded-[2rem] bg-white shadow-2xl space-y-6">
                         <div className="flex items-start justify-between">
                             <div>
                                 <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#6C3BFF]">Confirm selection</p>

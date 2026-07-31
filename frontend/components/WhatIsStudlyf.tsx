@@ -54,7 +54,7 @@ const WhatIsStudlyf: React.FC = () => {
     return (
         <section className="bg-white">
             {/* Header Section - Adjusted padding to bring text down */}
-            <div className="pt-16 md:pt-24 pb-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+            <div className="pt-12 sm:pt-16 md:pt-24 pb-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ const WhatIsStudlyf: React.FC = () => {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
-                        className="text-4xl md:text-6xl lg:text-7xl font-['Poppins'] font-extrabold text-black leading-[1.1] tracking-tight"
+                        className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-['Poppins'] font-extrabold text-black leading-[1.1] tracking-tight"
                     >
                         <motion.span
                             initial={{ x: -20, opacity: 0 }}
@@ -108,7 +108,7 @@ const WhatIsStudlyf: React.FC = () => {
                         {items.map((item) => (
                             <div key={item.id} className="group relative h-screen w-[90vw] md:w-[85vw] lg:w-[80vw] flex-shrink-0 flex items-center justify-center p-4 md:p-8 lg:p-12">
                                 {/* The Main Card as a Browser Window with Dynamic Colors */}
-                                <div className={`relative w-full max-w-4xl h-[400px] md:h-[500px] ${item.bgColor} rounded-[2rem] overflow-hidden border-2 ${item.borderColor} shadow-[0_0_50px_-12px_rgba(108,77,255,0.25)] transition-all duration-700 hover:shadow-[0_0_80px_-10px_rgba(108,77,255,0.4)] group/card flex flex-col`}>
+                                <div className={`relative w-full max-w-4xl h-[320px] sm:h-[400px] md:h-[500px] ${item.bgColor} rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border-2 ${item.borderColor} shadow-[0_0_50px_-12px_rgba(108,77,255,0.25)] transition-all duration-700 hover:shadow-[0_0_80px_-10px_rgba(108,77,255,0.4)] group/card flex flex-col`}>
 
                                     {/* Browser Window Header - Covers the whole card */}
                                     <div className="h-10 bg-[#1A1A1A] border-b border-[#2A2A2A] flex items-center px-6 gap-3 shrink-0">
@@ -130,7 +130,7 @@ const WhatIsStudlyf: React.FC = () => {
                                     </div>
 
                                     {/* Content Grid Area - Normalized height */}
-                                    <div className="flex-1 p-6 md:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center overflow-hidden">
+                                    <div className="flex-1 p-4 sm:p-6 md:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center overflow-hidden">
 
                                         {/* Text Content */}
                                         <div className="order-2 lg:order-1 flex flex-col items-start space-y-4 md:space-y-6">

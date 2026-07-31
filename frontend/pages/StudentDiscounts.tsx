@@ -481,7 +481,7 @@ const StudentDiscounts: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-gray-800 pt-28 font-sans selection:bg-[#6C2BFF]/20 flex flex-col">
-      <div className="max-w-7xl mx-auto px-6 pb-24 flex-grow w-full relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 flex-grow w-full relative z-10">
         
         {/* Navigation */}
         <Link 
@@ -498,10 +498,10 @@ const StudentDiscounts: React.FC = () => {
           <div className="inline-flex items-center gap-2 bg-[#6C2BFF]/10 text-[#6C2BFF] px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-6 border border-[#6C2BFF]/20 relative z-10 shadow-sm">
             <Tag className="w-4 h-4" /> Real Leverage
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#1A1A1A] relative z-10 leading-[1.1]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#1A1A1A] relative z-10 leading-[1.1]">
             Student <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] to-[#EC4899]">Discounts</span>
           </h1>
-          <p className="text-lg text-gray-500 font-medium relative z-10">
+          <p className="text-base sm:text-lg text-gray-500 font-medium relative z-10">
             Your `.edu` email is powerful. Unlock thousands of dollars in premium software, AI tools, and cloud credits for free.
           </p>
         </div>
@@ -519,7 +519,7 @@ const StudentDiscounts: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             {discountCategories.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
@@ -540,7 +540,7 @@ const StudentDiscounts: React.FC = () => {
         </div>
 
         {/* Discounts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[300px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 min-h-[300px]">
           <AnimatePresence mode="wait">
             {filteredDiscounts.map((discount) => (
               <motion.div 
@@ -550,7 +550,7 @@ const StudentDiscounts: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={() => handleLinkClick(discount.link)}
-                className="bg-white border border-gray-200 rounded-[2rem] p-6 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-[#6C2BFF]/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative"
+                className="bg-white border border-gray-200 rounded-[2rem] p-4 sm:p-6 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-[#6C2BFF]/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative"
               >
                 <div className="flex justify-between items-start mb-6">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${discount.bg} group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm`}>

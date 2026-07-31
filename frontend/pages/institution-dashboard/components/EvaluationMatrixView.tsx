@@ -106,9 +106,9 @@ const EvaluationMatrixView: React.FC<EvaluationMatrixViewProps> = ({ eventId, cr
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-8">
             {/* Header / Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                 <div className="relative flex-1 max-w-md group">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#6C3BFF] transition-colors" size={20} />
                     <input 
@@ -123,7 +123,7 @@ const EvaluationMatrixView: React.FC<EvaluationMatrixViewProps> = ({ eventId, cr
                     <button 
                         onClick={handleExportCSV}
                         disabled={exporting}
-                        className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#6C3BFF] transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
+                        className="px-4 sm:px-8 py-3 sm:py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#6C3BFF] transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
                     >
                         {exporting ? <Loader2 className="animate-spin" size={14} /> : <FileSpreadsheet size={16} />}
                         Export Analytics (CSV)
@@ -207,17 +207,17 @@ const EvaluationMatrixView: React.FC<EvaluationMatrixViewProps> = ({ eventId, cr
             </div>
 
             {/* Stats Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl shadow-slate-900/20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
+                <div className="p-4 sm:p-8 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl shadow-slate-900/20">
                     <TrendingUp className="text-[#6C3BFF] mb-4" size={32} />
-                    <div className="text-3xl font-black tracking-tighter">
+                    <div className="text-xl sm:text-3xl font-black tracking-tighter">
                         {submissions.length > 0 ? (scores.length / submissions.length * 100).toFixed(0) : 0}%
                     </div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Evaluation Progress</div>
                 </div>
-                <div className="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm">
+                <div className="p-4 sm:p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm">
                     <Users className="text-[#6C3BFF] mb-4" size={32} />
-                    <div className="text-3xl font-black text-slate-900 tracking-tighter">
+                    <div className="text-xl sm:text-3xl font-black text-slate-900 tracking-tighter">
                         {submissions.length}
                     </div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Total Submissions</div>

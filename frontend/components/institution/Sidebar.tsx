@@ -8,6 +8,8 @@ interface SidebarProps {
     activeTab: string;
     onTabChange: (tab: string) => void;
     onPost: () => void;
+    mobileOpen?: boolean;
+    onCloseMobile?: () => void;
 }
 
 import { 
@@ -43,7 +45,7 @@ const sidebarItems = [
 ];
 
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onPost }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onPost, mobileOpen, onCloseMobile }) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
@@ -51,16 +53,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onPost }) => 
         logout();
     };
 
+    const handleNav = (id: string) => {
+        onTabChange(id);
+        onCloseMobile?.();
+    };
 
-    return (
-        <div className="w-60 h-screen bg-white border-r border-gray-100 flex flex-col shrink-0 sticky top-0 overflow-hidden z-10">
-            <div className="p-6 pb-2 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+    const sidebarContent = (
+        <div className="w-60 h-full bg-white border-r border-gray-100 flex flex-col shrink-0 overflow-hidden">
+            <div className="p-6 pb-2 flex items-center gap-2 cursor-pointer" onClick={() => { navigate('/'); onCloseMobile?.(); }}>
                 <img src="/images-optimized/studlyf_secondary.webp" alt="Studlyf" className="h-8" />
             </div>
 
             <div className="px-4 mb-4">
                 <button 
-                    onClick={onPost}
+                    onClick={() => { onPost(); onCloseMobile?.(); }}
                     className="w-full py-2.5 bg-gradient-to-r from-[#6C3BFF] to-[#9F6BFF] text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-200 hover:scale-[1.02] transition-all text-sm"
                 >
                     <Plus size={20} />
@@ -74,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onPost }) => 
                         key={item.id}
                         whileHover={{ x: 4 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => onTabChange(item.id)}
+                        onClick={() => handleNav(item.id)}
                         className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-medium transition-all text-left whitespace-nowrap text-xs ${
                             activeTab === item.id 
                                 ? 'bg-purple-50 text-[#6C3BFF] shadow-sm' 
@@ -106,9 +112,36 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onPost }) => 
                 </div>
             </div>
         </div>
+    );
 
+    return (
+        <>
+            {/* Desktop: static sidebar */}
+            <div className="hidden md:block">{sidebarContent}</div>
+
+            {/* Mobile: overlay + slide-in */}
+            {mobileOpen && (
+                <div className="fixed inset-0 z-50 md:hidden">
+                    <motion.div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onCloseMobile}
+                    />
+                    <motion.div
+                        className="absolute inset-y-0 left-0 w-64 shadow-2xl"
+                        initial={{ x: -256 }}
+                        animate={{ x: 0 }}
+                        exit={{ x: -256 }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                    >
+                        {sidebarContent}
+                    </motion.div>
+                </div>
+            )}
+        </>
     );
 };
 
 export default Sidebar;
-

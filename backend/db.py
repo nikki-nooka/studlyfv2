@@ -4,6 +4,8 @@ import os
 import certifi
 import logging
 from dotenv import load_dotenv
+from datetime import datetime, timezone, timedelta
+from typing import Optional
 # Setup production logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("db_service")
@@ -463,3 +465,21 @@ community_saves_col = db["community_saves"]
 course_submissions_col = db["course_submissions"]
 course_evaluations_col = db["course_evaluations"]
 course_rubrics_col = db["course_rubrics"]
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+def parse_dt_ist(value) -> Optional[datetime]:
+    """Parse a datetime value, treating naive datetimes as IST (Asia/Kolkata)."""
+    if isinstance(value, str):
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            if parsed.tzinfo:
+                return parsed
+            return parsed.replace(tzinfo=IST)
+        except Exception:
+            return None
+    if isinstance(value, datetime):
+        if value.tzinfo:
+            return value
+        return value.replace(tzinfo=IST)
+    return None

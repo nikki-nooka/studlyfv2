@@ -820,7 +820,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                         <div className="relative mb-20">
                             <div 
                                 onClick={handleBannerClick}
-                                className="w-full h-48 rounded-[3rem] bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden group relative"
+                                className="w-full h-32 sm:h-48 rounded-[2rem] sm:rounded-[3rem] bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden group relative"
                             >
                                 {profile.banner_url && !imgErrors.banner ? (
                                     <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" onError={() => setImgErrors(prev => ({ ...prev, banner: true }))} />
@@ -837,8 +837,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                 </div>
                             </div>
 
-                            <div className="absolute -bottom-12 left-10 group" onClick={handleLogoClick}>
-                                <div className="w-32 h-32 rounded-[2rem] bg-white border-8 border-white shadow-2xl flex items-center justify-center overflow-hidden relative cursor-pointer group-hover:scale-105 transition-transform">
+                            <div className="absolute -bottom-10 sm:-bottom-12 left-6 sm:left-10 group" onClick={handleLogoClick}>
+                                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-[1.5rem] sm:rounded-[2rem] bg-white border-4 sm:border-8 border-white shadow-2xl flex items-center justify-center overflow-hidden relative cursor-pointer group-hover:scale-105 transition-transform">
                                     {profile.logo_url && !imgErrors.logo ? (
                                         <img src={profile.logo_url} alt="Logo" className="w-full h-full object-cover" onError={() => setImgErrors(prev => ({ ...prev, logo: true }))} />
                                     ) : (
@@ -858,7 +858,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 pt-8">
                             {[
                                 { id: 'name', label: 'Institution Name', icon: Building2, placeholder: 'e.g., Stanford University' },
                                 { id: 'website', label: 'Official Website', icon: Globe, placeholder: 'https://www.university.edu' },
@@ -880,7 +880,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                 </div>
                             ))}
 
-                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-50 mt-4">
+                            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 border-t border-slate-50 mt-4">
                                 {[
                                     { id: 'linkedin', label: 'LinkedIn', placeholder: 'linkedin.com/school/...' },
                                     { id: 'twitter', label: 'Twitter / X', placeholder: 'twitter.com/...' },
@@ -917,14 +917,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
             case 'notifications':
                 return (
                     <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 shadow-inner">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="p-4 sm:p-6 md:p-10 bg-slate-50 rounded-[2rem] sm:rounded-[3rem] border border-slate-100 shadow-inner">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-white rounded-2xl text-amber-500 shadow-md">
                                         <Bell size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Internal Operational Alerts</h3>
+                                        <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Internal Operational Alerts</h3>
                                         <p className="text-sm text-slate-400 mt-0.5">Control which notifications are sent to the institution staff.</p>
                                     </div>
                                 </div>
@@ -950,14 +950,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                             ))}
                         </div>
 
-                        <div className="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 shadow-inner">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="p-4 sm:p-6 md:p-10 bg-slate-50 rounded-[2rem] sm:rounded-[3rem] border border-slate-100 shadow-inner">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-white rounded-2xl text-emerald-500 shadow-md">
                                         <Gavel size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Judging Panel Logic</h3>
+                                        <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Judging Panel Logic</h3>
                                         <p className="text-sm text-slate-400 mt-0.5">Control correspondence for your evaluators.</p>
                                     </div>
                                 </div>
@@ -986,12 +986,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
             case 'team':
                 return (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-3">
                             <div>
                                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Institutional Team</h3>
                                 <p className="text-sm text-slate-500 mt-1">Manage staff members and their administrative roles.</p>
                             </div>
-                            <div className="flex gap-3">
+                            <div className="flex flex-wrap gap-3">
                                 <button 
                                     onClick={() => document.getElementById('bulk-member-upload')?.click()}
                                     className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all"
@@ -1022,7 +1022,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                     key={idx} 
                                     className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm flex flex-col md:flex-row md:items-center gap-6"
                                 >
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
                                             <input 
@@ -1076,7 +1076,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                 return (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                         {/* Header */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div>
                                 <h2 className="text-2xl font-bold text-slate-900 font-sans">Custom Communications</h2>
                                 <p className="text-sm text-slate-500 mt-1">Create segment campaigns and message your participants via email and in-app alerts.</p>
@@ -1162,7 +1162,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                         {/* Compose Broadcast Drawer Modal */}
                         {isComposeOpen && (
                             <div className="fixed inset-0 z-50 flex items-center justify-end bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                                <div className="w-[500px] h-full bg-white shadow-2xl flex flex-col p-8 overflow-y-auto animate-in slide-in-from-right duration-300">
+                                <div className="w-full sm:w-[500px] h-full bg-white shadow-2xl flex flex-col p-4 sm:p-6 md:p-8 overflow-y-auto animate-in slide-in-from-right duration-300">
                                     <div className="flex items-center justify-between pb-6 border-b border-slate-100">
                                         <div>
                                             <h3 className="text-xl font-bold text-slate-900 font-sans">Compose Broadcast</h3>
@@ -1368,7 +1368,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
             case 'onboarding':
                 return (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div>
                                 <h2 className="text-2xl font-bold text-slate-900 font-sans">Member Onboarding</h2>
                                 <p className="text-slate-500 text-sm mt-1">Bulk invite judges or students via CSV upload</p>
@@ -1387,7 +1387,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                         </div>
 
                         {/* Upload Area */}
-                        <div className="p-12 bg-purple-50/50 rounded-[3rem] border-2 border-dashed border-purple-200 text-center relative group transition-all hover:bg-purple-50">
+                        <div className="p-6 sm:p-8 bg-purple-50/50 rounded-[2rem] sm:rounded-[3rem] border-2 border-dashed border-purple-200 text-center relative group transition-all hover:bg-purple-50">
                             <input 
                                 type="file" 
                                 accept=".csv" 
@@ -1441,7 +1441,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                         Clear List
                                     </button>
                                 </div>
-                                <div className="max-h-[400px] overflow-y-auto no-scrollbar">
+                                <div className="max-h-[400px] overflow-y-auto overflow-x-auto no-scrollbar">
                                     <table className="w-full text-left">
                                         <thead>
                                             <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50/50">
@@ -1507,7 +1507,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
             case 'blocked':
                 return (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
                             <div>
                                 <h2 className="text-xl font-black text-slate-900 tracking-tight">Blocked Candidates & Organizations</h2>
                                 <p className="text-sm text-slate-500">Manage entities that are restricted from your events.</p>
@@ -1602,9 +1602,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                         initial={{ y: 24, scale: 0.98 }}
                                         animate={{ y: 0, scale: 1 }}
                                         exit={{ y: 24, scale: 0.98 }}
-                                        className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100"
+                                        className="w-full max-w-lg bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100"
                                     >
-                                        <div className="p-6 md:p-8 border-b border-slate-100 bg-gradient-to-r from-red-50 to-purple-50">
+                                        <div className="p-4 sm:p-6 md:p-8 border-b border-slate-100 bg-gradient-to-r from-red-50 to-purple-50">
                                             <div className="flex items-start justify-between gap-4">
                                                 <div>
                                                     <p className="text-[10px] font-black uppercase tracking-[0.25em] text-red-500">Restricted Access</p>
@@ -1622,7 +1622,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                             </div>
                                         </div>
 
-                                        <form onSubmit={handleBlockEntity} className="p-6 md:p-8 space-y-6">
+                                        <form onSubmit={handleBlockEntity} className="p-4 sm:p-6 md:p-8 space-y-6">
                                             {blockFormError && (
                                                 <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
                                                     {blockFormError}
@@ -1734,7 +1734,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                 )}
 
                                 <div className="max-w-4xl mx-auto px-4 mb-8">
-                                    <div className="p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-200 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                                    <div className="p-6 sm:p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2rem] sm:rounded-[2.5rem] text-white shadow-2xl shadow-indigo-200 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                                         <div className="space-y-3">
                                             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-200">Event Package</p>
                                             <h4 className="text-2xl font-black">Hackathon Event Package</h4>
@@ -1764,7 +1764,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                 </div>
 
                                 <div className="text-center space-y-2 py-8">
-                                    <h3 className="text-4xl font-black text-slate-800">Available Plans</h3>
+                                    <h3 className="text-2xl sm:text-4xl font-black text-slate-800">Available Plans</h3>
                                     <p className="text-sm text-slate-400 font-medium tracking-wide">All at no cost — choose the plan that works best for you</p>
                                     <p className="text-xs font-black uppercase tracking-widest text-[#6C3BFF]">
                                         Active Subscription: {plansData.plans.find((p: any) => p.id === plansData.currentPlanId)?.name || plansData.currentPlanId}
@@ -1787,7 +1787,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4">
                                     {plansData.plans.map((plan: any) => {
                                         const isCurrent = plan.id === plansData.currentPlanId;
                                         const isPending = plansData.pendingPlan?.plan_id === plan.id;
@@ -1847,9 +1847,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                                 initial={{ y: 24, scale: 0.98 }}
                                                 animate={{ y: 0, scale: 1 }}
                                                 exit={{ y: 24, scale: 0.98 }}
-                                                className="w-full max-w-3xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100"
+                                                className="w-full max-w-3xl bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100"
                                             >
-                                                <div className="p-6 md:p-8 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                                                <div className="p-4 sm:p-6 md:p-8 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                                                     <div className="flex items-start justify-between gap-4">
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-500">Subscription Confirmation</p>
@@ -1864,7 +1864,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                                     </div>
                                                 </div>
 
-                                                <div className="p-6 md:p-8 space-y-6">
+                                                <div className="p-4 sm:p-6 md:p-8 space-y-6">
                                                     {planModalError && (
                                                         <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
                                                             {planModalError}
@@ -1932,7 +1932,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ institutionId, onProfileUpd
                                 </AnimatePresence>
 
                                 <div className="pt-24 space-y-12 pb-12">
-                                    <h3 className="text-4xl font-black text-slate-800 text-center font-sans">Frequently asked questions</h3>
+                                    <h3 className="text-2xl sm:text-4xl font-black text-slate-800 text-center font-sans">Frequently asked questions</h3>
                                     <div className="max-w-4xl mx-auto space-y-3">
                                         {plansData.faqs.map((faq: any, i: number) => (
                                             <div key={i} className="bg-white border border-slate-100 rounded-2xl overflow-hidden">

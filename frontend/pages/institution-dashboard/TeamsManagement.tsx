@@ -155,10 +155,10 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
     });
 
     return (
-        <div className="p-8 space-y-8">
-            <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-8 space-y-4 sm:space-y-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Teams Management</h1>
+                    <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">Teams Management</h1>
                     <p className="text-slate-500 font-medium mt-1">Manage event teams and approvals</p>
                 </div>
                 <button
@@ -172,7 +172,7 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 bg-white p-4 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                 <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Event</label>
                     <select
@@ -214,7 +214,7 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
             </div>
 
             {!selectedEventId ? (
-                <div className="bg-white p-20 rounded-[2.5rem] border border-slate-100 text-center shadow-sm">
+                <div className="bg-white p-10 sm:p-20 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 text-center shadow-sm">
                     <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-300 mx-auto mb-6">
                         <Users size={40} />
                     </div>
@@ -222,12 +222,12 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
                     <p className="text-slate-500 font-medium">Please select an event from the dropdown to manage its teams.</p>
                 </div>
             ) : loading ? (
-                <div className="flex flex-col items-center justify-center p-20">
+                <div className="flex flex-col items-center justify-center p-10 sm:p-20">
                     <div className="w-12 h-12 border-4 border-slate-100 border-t-[#6C3BFF] rounded-full animate-spin mb-4" />
                     <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Loading Teams...</p>
                 </div>
             ) : filteredTeams.length === 0 ? (
-                <div className="bg-white p-20 rounded-[2.5rem] border border-slate-100 text-center shadow-sm">
+                <div className="bg-white p-10 sm:p-20 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 text-center shadow-sm">
                     <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-300 mx-auto mb-6">
                         <Search size={40} />
                     </div>
@@ -323,12 +323,12 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
 
             {selectedTeam && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-in fade-in duration-300" onClick={() => setSelectedTeam(null)}>
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-8 border-b bg-slate-50/50">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">{selectedTeam.team_name || 'Unnamed Team'}</h2>
+                    <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-4 sm:p-8 border-b bg-slate-50/50">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{selectedTeam.team_name || 'Unnamed Team'}</h2>
                                         <span className={`px-3 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border ${
                                             selectedTeam.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                                             selectedTeam.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
@@ -353,11 +353,12 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
                             </div>
                         </div>
                         
-                        <div className="flex-1 overflow-y-auto p-8">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
                             <div className="space-y-8">
                                 <div>
                                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Team Roster</h3>
                                     <div className="bg-slate-50 rounded-[1.5rem] border border-slate-100 overflow-hidden">
+                                        <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-slate-200">
                                             <thead className="bg-slate-100/50">
                                                 <tr>
@@ -404,12 +405,13 @@ const TeamsManagement: React.FC<TeamsManagementProps> = ({ institutionId }) => {
                                                 ))}
                                             </tbody>
                                         </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div className="p-8 border-t bg-slate-50/50 flex justify-end gap-3">
+                        <div className="p-4 sm:p-8 border-t bg-slate-50/50 flex flex-col sm:flex-row justify-end gap-3">
                             <button 
                                 onClick={() => setSelectedTeam(null)}
                                 className="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"

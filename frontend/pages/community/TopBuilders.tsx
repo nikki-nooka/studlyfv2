@@ -71,7 +71,7 @@ function getOrdinalSuffix(rank: number): string {
 
 function SkeletonRow() {
   return (
-    <div className="flex items-center gap-4 px-6 py-4 animate-pulse">
+    <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 animate-pulse">
       <div className="w-8 h-5 bg-white/10 rounded" />
       <div className="w-10 h-10 bg-white/10 rounded-full" />
       <div className="flex-1 space-y-2">
@@ -104,7 +104,7 @@ function PodiumCard({
         rank === 1 ? 'order-2 -mt-4' : rank === 2 ? 'order-1' : 'order-3'
       }`}
     >
-      <div className="p-6 text-center">
+      <div className="p-4 sm:p-6 text-center">
         {/* Rank Badge */}
         <div className="flex justify-center mb-3">
           <div
@@ -183,7 +183,7 @@ export default function TopBuilders() {
 
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white pt-24">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button
@@ -204,7 +204,7 @@ export default function TopBuilders() {
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
             <Users className="mx-auto mb-1 text-purple-400" size={20} />
             <p className="text-2xl font-bold text-white">
@@ -224,9 +224,9 @@ export default function TopBuilders() {
         {loading ? (
           <div className="space-y-3">
             {/* Podium skeleton */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 animate-pulse">
+                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6 animate-pulse">
                   <div className="w-12 h-12 bg-white/10 rounded-full mx-auto mb-3" />
                   <div className="w-20 h-20 bg-white/10 rounded-full mx-auto mb-3" />
                   <div className="w-24 h-4 bg-white/10 rounded mx-auto mb-2" />
@@ -261,7 +261,7 @@ export default function TopBuilders() {
         ) : (
           <div className="space-y-3">
             {/* Top 3 Podium */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
               {builders.slice(0, 3).map((builder, idx) => {
                 const rank = idx + 1;
                 return (
@@ -293,7 +293,7 @@ export default function TopBuilders() {
                       transition={{ delay: (idx + 3) * 0.04 }}
                       className="border-b border-white/5 last:border-b-0"
                     >
-                      <div className="flex items-center gap-4 px-6 py-4 hover:bg-white/5 transition-colors">
+                      <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 hover:bg-white/5 transition-colors">
                         <span className="text-sm font-bold text-gray-500 w-8 text-center">
                           #{rank}
                         </span>
@@ -340,7 +340,7 @@ export default function TopBuilders() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-gradient-to-r from-purple-600/10 to-purple-800/10 border border-purple-500/20 rounded-xl p-6 mt-8"
+              className="bg-gradient-to-r from-purple-600/10 to-purple-800/10 border border-purple-500/20 rounded-xl p-4 sm:p-6 mt-8"
             >
               <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
                 <Star size={18} className="text-yellow-400" />

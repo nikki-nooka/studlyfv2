@@ -479,9 +479,9 @@ export default function ProjectDetail() {
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 sm:px-6 py-4 sm:py-6">
         {/* Header */}
-        <div className="flex items-start gap-3 mb-6">
+        <div className="flex items-start gap-2 sm:gap-3 mb-4 sm:mb-6">
           <button
             onClick={() => navigate('/community')}
             className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors shrink-0 mt-1"
@@ -698,8 +698,8 @@ export default function ProjectDetail() {
               )}
 
               {/* Stats + Vote + Actions Row */}
-              <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center justify-between pt-4 border-t border-white/10 gap-3">
+                <div className="flex items-center gap-1 flex-wrap">
                   {/* Vote buttons inline */}
                   <button
                     onClick={() => handleVote('up')}

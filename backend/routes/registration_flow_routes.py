@@ -12,7 +12,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Depends, Body, File, UploadFile, status, Query
 from fastapi.responses import StreamingResponse
 from auth_institution import get_auth_user
-from db import db, user_profiles_col, registrations_col, events_col, participants_col, users_col, opportunities_col, announcements_col, announcement_audit_col
+from db import db, user_profiles_col, registrations_col, events_col, participants_col, users_col, opportunities_col, announcements_col, announcement_audit_col, parse_dt_ist
 from bson import ObjectId
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
@@ -1510,13 +1510,9 @@ async def notify_approved_participants(
                 continue
             s = stg.get("start_date") or stg.get("startDate") or ""
             if s:
-                try:
-                    sd = datetime.fromisoformat(s)
-                    if sd.tzinfo is None:
-                        sd = sd.replace(tzinfo=timezone.utc)
+                sd = parse_dt_ist(s)
+                if sd:
                     upcoming.append((sd, stg.get("name", ""), s))
-                except Exception:
-                    pass
         upcoming.sort(key=lambda x: x[0])
         next_stage_name = upcoming[0][1] if upcoming else ""
         next_stage_active = now >= upcoming[0][0] if upcoming else False

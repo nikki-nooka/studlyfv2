@@ -49,7 +49,7 @@ const GoalSelector: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 pt-32 pb-20 relative overflow-hidden">
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center px-3 sm:px-6 pt-32 pb-20 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
                 <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#7C3AED]/5 rounded-full blur-[120px]" />
                 <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px]" />
@@ -60,17 +60,17 @@ const GoalSelector: React.FC = () => {
                     <Zap className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-black uppercase tracking-[0.3em]">Protocol Initialized</span>
                 </div>
-                <h1 className="text-5xl sm:text-7xl font-black text-gray-900 mb-6 leading-[0.9] tracking-tighter uppercase italic">
+                <h1 className="text-3xl sm:text-5xl sm:text-7xl font-black text-gray-900 mb-6 leading-[0.9] tracking-tighter uppercase italic">
                     What is your <br /><span className="text-[#7C3AED]">Atomic Goal?</span>
                 </h1>
                 <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto mb-16 leading-relaxed">
                     The Studlyf engine personalizes your verification flow based on your target outcome. Choose your primary objective to continue.
                 </p>
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {goals.map((goal, i) => (
                         <motion.div key={goal.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.1 }} whileHover={{ y: -8, scale: 1.02 }} onClick={() => handleSelect(goal)}
-                            className="bg-white border border-gray-100 p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 cursor-pointer group text-left flex flex-col h-full hover:border-[#7C3AED]/20 transition-all"
+                            className="bg-white border border-gray-100 p-6 sm:p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 cursor-pointer group text-left flex flex-col h-full hover:border-[#7C3AED]/20 transition-all"
                         >
                             <div className={`${goal.color} w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-gray-200`}>{goal.icon}</div>
                             <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-3 group-hover:text-[#7C3AED] transition-colors">{goal.title}</h3>

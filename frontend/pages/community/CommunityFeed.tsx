@@ -335,11 +335,11 @@ export default function CommunityFeed() {
     <div className="min-h-screen bg-[#0a0a1a] text-white pt-24">
       {/* Top Nav */}
       <div className="sticky top-24 z-40 bg-[#0a0a1a]/80 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Community</h1>
           <Link
             to="/community/submit"
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors"
           >
             <Plus size={18} />
             Submit Project
@@ -347,7 +347,7 @@ export default function CommunityFeed() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Sort Tabs */}
         <div className="flex items-center gap-2 mb-4">
           {SORT_OPTIONS.map((opt) => {
@@ -409,7 +409,7 @@ export default function CommunityFeed() {
           )}
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex gap-3 sm:gap-6">
           {/* Main Feed */}
           <div className="flex-1 min-w-0">
             {loading ? (

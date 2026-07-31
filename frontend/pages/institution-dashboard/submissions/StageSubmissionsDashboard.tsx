@@ -96,10 +96,10 @@ const StageSubmissionsDashboard: React.FC<StageSubmissionsDashboardProps> = ({ e
     const totalPages = Math.ceil(filteredAndPaginated.total / itemsPerPage);
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-black text-slate-900">Stage Submissions ({filteredAndPaginated.total})</h2>
-                <div className="flex items-center gap-4">
+        <div className="space-y-3 sm:space-y-6 animate-in fade-in duration-500">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">Stage Submissions ({filteredAndPaginated.total})</h2>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                     {selectedIds.size > 0 && (
                         <>
                             <button 
@@ -119,7 +119,7 @@ const StageSubmissionsDashboard: React.FC<StageSubmissionsDashboardProps> = ({ e
                             </button>
                         </>
                     )}
-                    <div className="relative w-64">
+                    <div className="relative w-full sm:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input 
                             type="text" 
@@ -133,6 +133,7 @@ const StageSubmissionsDashboard: React.FC<StageSubmissionsDashboardProps> = ({ e
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
@@ -178,6 +179,7 @@ const StageSubmissionsDashboard: React.FC<StageSubmissionsDashboardProps> = ({ e
                         ))}
                     </tbody>
                 </table>
+                </div>
                 {/* Pagination Controls */}
                 <div className="flex justify-between items-center px-6 py-4 bg-slate-50 border-t border-slate-200">
                     <span className="text-xs text-slate-500">Page {currentPage} of {totalPages}</span>

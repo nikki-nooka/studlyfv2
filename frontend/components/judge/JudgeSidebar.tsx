@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     Gavel,
     LayoutDashboard,
@@ -8,13 +8,21 @@ import {
     Trophy,
     ChevronLeft,
     ChevronRight,
+    Menu,
+    X,
 } from 'lucide-react';
 import { useAuth } from '../../AuthContext';
 
 const JudgeSidebar: React.FC = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [collapsed, setCollapsed] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    useEffect(() => {
+        setMobileOpen(false);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
@@ -28,13 +36,8 @@ const JudgeSidebar: React.FC = () => {
         { icon: Settings, label: 'Settings', path: '/judge-portal/settings' },
     ];
 
-    return (
-        <aside
-            className={`h-screen bg-gradient-to-b from-[#0c0a2a] via-[#0f0d2e] to-[#08071e] border-r border-white/[0.06] flex flex-col shrink-0 transition-all duration-300 ${
-                collapsed ? 'w-[72px]' : 'w-[260px]'
-            }`}
-        >
-            {/* Logo */}
+    const sidebarContent = (
+        <>
             <div className={`p-5 flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/25 shrink-0">
                     <Gavel size={18} className="text-white" />
@@ -47,15 +50,13 @@ const JudgeSidebar: React.FC = () => {
                 )}
             </div>
 
-            {/* Collapse toggle */}
             <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="mx-4 mb-2 flex items-center justify-center p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-500 hover:text-slate-300 transition-colors"
+                className="hidden md:flex mx-4 mb-2 items-center justify-center p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-500 hover:text-slate-300 transition-colors"
             >
                 {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 
-            {/* Navigation */}
             <nav className="flex-1 px-3 mt-2 space-y-1">
                 {navItems.map((item) => (
                     <NavLink
@@ -79,7 +80,6 @@ const JudgeSidebar: React.FC = () => {
                 ))}
             </nav>
 
-            {/* User profile + logout */}
             <div className={`p-4 border-t border-white/[0.06] ${collapsed ? 'px-2' : ''}`}>
                 <div
                     className={`flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] mb-3 ${
@@ -108,7 +108,51 @@ const JudgeSidebar: React.FC = () => {
                     {!collapsed && <span>Sign Out</span>}
                 </button>
             </div>
-        </aside>
+        </>
+    );
+
+    return (
+        <>
+            {/* Mobile hamburger */}
+            <button
+                onClick={() => setMobileOpen(true)}
+                className="md:hidden fixed top-4 left-4 z-50 p-2.5 bg-[#0c0a2a] border border-white/[0.1] rounded-xl text-white shadow-lg"
+            >
+                <Menu size={20} />
+            </button>
+
+            {/* Mobile overlay */}
+            {mobileOpen && (
+                <div
+                    className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                    onClick={() => setMobileOpen(false)}
+                />
+            )}
+
+            {/* Mobile sidebar */}
+            <aside
+                className={`md:hidden fixed inset-y-0 left-0 z-50 w-[260px] bg-gradient-to-b from-[#0c0a2a] via-[#0f0d2e] to-[#08071e] border-r border-white/[0.06] flex flex-col shrink-0 transition-transform duration-300 ${
+                    mobileOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+            >
+                <button
+                    onClick={() => setMobileOpen(false)}
+                    className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/[0.06] text-slate-400 hover:text-white"
+                >
+                    <X size={16} />
+                </button>
+                {sidebarContent}
+            </aside>
+
+            {/* Desktop sidebar */}
+            <aside
+                className={`hidden md:flex h-screen bg-gradient-to-b from-[#0c0a2a] via-[#0f0d2e] to-[#08071e] border-r border-white/[0.06] flex-col shrink-0 transition-all duration-300 ${
+                    collapsed ? 'w-[72px]' : 'w-[260px]'
+                }`}
+            >
+                {sidebarContent}
+            </aside>
+        </>
     );
 };
 

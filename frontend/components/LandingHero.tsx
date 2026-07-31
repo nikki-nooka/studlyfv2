@@ -79,7 +79,7 @@ const LandingHero: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-[90vh] flex flex-col items-center justify-center bg-white px-6 relative overflow-hidden">
+        <div className="min-h-[90vh] flex flex-col items-center justify-center bg-white px-4 sm:px-6 relative overflow-hidden">
 
             {/* Headline Group */}
             <div className="relative z-10 flex flex-col items-center w-full max-w-7xl gap-4 md:gap-6">
@@ -119,7 +119,7 @@ const LandingHero: React.FC = () => {
                             </motion.div>
                         </div>
 
-                        <h1 className="text-[60px] sm:text-[100px] md:text-[140px] font-['Poppins'] font-bold text-black leading-none tracking-tight relative z-20">
+                        <h1 className="text-5xl sm:text-[60px] md:text-[100px] lg:text-[140px] font-['Poppins'] font-bold text-black leading-none tracking-tight relative z-20">
                             Learn
                         </h1>
 
@@ -153,9 +153,9 @@ const LandingHero: React.FC = () => {
                             </div>
                         </div>
 
-                        <h1 className="text-[60px] sm:text-[100px] md:text-[140px] font-['Poppins'] font-bold text-black leading-[1.1] tracking-tight flex items-center relative z-20 pb-4">
+                        <h1 className="text-5xl sm:text-[60px] md:text-[100px] lg:text-[140px] font-['Poppins'] font-bold text-black leading-[1.1] tracking-tight flex items-center relative z-20 pb-4">
                             <span>by&nbsp;</span>
-                            <span className="relative inline-block min-w-[200px] sm:min-w-[320px] md:min-w-[580px]">
+                            <span className="relative inline-block min-w-[120px] sm:min-w-[200px] md:min-w-[320px] lg:min-w-[580px]">
                                 <AnimatePresence mode="wait">
                                     <motion.span
                                         key={words[index]}
@@ -195,7 +195,7 @@ const LandingHero: React.FC = () => {
                 </div>
 
                 {/* Row 3: CTA Button */}
-                <div className="relative flex flex-col items-center pt-2 md:pt-4 mb-32 z-20">
+                <div className="relative flex flex-col items-center pt-2 md:pt-4 mb-16 sm:mb-32 z-20">
 
                     <style>{`
                         @keyframes btn-shimmer {

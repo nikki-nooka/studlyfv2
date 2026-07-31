@@ -413,10 +413,49 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
         return computeStatus(startDate, endDate);
     };
 
+    const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+
+    const toISOStringWithIST = (localDatetime: string): string => {
+        if (!localDatetime) return localDatetime;
+        const parts = localDatetime.split('T');
+        if (parts.length !== 2) {
+            const d = new Date(localDatetime);
+            return isNaN(d.getTime()) ? localDatetime : d.toISOString();
+        }
+        const [datePart, timePart] = parts;
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
+        const utcMs = Date.UTC(year, month - 1, day, hours, minutes, 0) - IST_OFFSET;
+        return new Date(utcMs).toISOString();
+    };
+
+    const toLocalDatetimeValue = (value: string): string => {
+        if (!value) return '';
+        try {
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return value.slice(0, 16);
+            return d.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).replace(' ', 'T').slice(0, 16);
+        } catch {
+            return value.slice(0, 16);
+        }
+    };
+
+    const formatIST = (value: string): string => {
+        if (!value) return '';
+        try {
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return value;
+            return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+        } catch {
+            return value;
+        }
+    };
+
     const addStage = () => {
         const now = new Date();
-        const startDate = now.toISOString().slice(0, 16);
-        const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
+        const startDate = toISOStringWithIST(now.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).replace(' ', 'T').slice(0, 16));
+        const endD = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const endDate = toISOStringWithIST(endD.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).replace(' ', 'T').slice(0, 16));
         const defaultType = 'SUBMISSION';
         
         const newStage: IStage = {
@@ -441,9 +480,16 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
     };
 
     const updateStage = (id: string, updates: Partial<IStage>) => {
+        const processedUpdates = { ...updates };
+        if (updates.start_date) {
+            processedUpdates.start_date = toISOStringWithIST(updates.start_date);
+        }
+        if (updates.end_date) {
+            processedUpdates.end_date = toISOStringWithIST(updates.end_date);
+        }
         onUpdate(stages.map(s => {
             if (s.id === id) {
-                const updated = { ...s, ...updates };
+                const updated = { ...s, ...processedUpdates };
                 // Recalculate status if dates changed
                 if (updates.start_date || updates.end_date) {
                     updated.status = calculateStatus(
@@ -472,8 +518,8 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center mb-4">
+        <div className="space-y-3 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
                     <h3 className="text-xl font-bold text-slate-900">Event Stage Engine</h3>
                     <p className="text-sm text-slate-500">Configure your competition lifecycle and rules per stage</p>
@@ -533,7 +579,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                     <div className="flex items-center gap-3 mt-1">
                                         <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
                                             <Clock size={12} />
-                                            {stage.start_date} — {stage.end_date}
+                                            {formatIST(stage.start_date)} — {formatIST(stage.end_date)}
                                         </span>
                                         <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
                                             <CheckCircle2 size={12} />
@@ -577,7 +623,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                         exit={{ height: 0, opacity: 0 }}
                                         className="overflow-hidden"
                                     >
-                                        <div className="p-8 border-t border-slate-50 bg-slate-50/30 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="p-4 sm:p-8 border-t border-slate-50 bg-slate-50/30 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                                             <div className="space-y-4">
                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stage Name</label>
                                                 <input 
@@ -631,13 +677,13 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                 </select>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="space-y-2">
                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Start Date & Time</label>
                                                     <input 
                                                         type="datetime-local" 
-                                                        value={stage.start_date || ''}
-                                                        min={new Date().toISOString().slice(0, 16)}
+                                                        value={toLocalDatetimeValue(stage.start_date)}
+                                                        min={toLocalDatetimeValue(new Date().toISOString())}
                                                         max="2099-12-31T23:59"
                                                         onChange={(e) => updateStage(stage.id, { start_date: e.target.value })}
                                                         className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm"
@@ -647,8 +693,8 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">End Date & Time</label>
                                                     <input 
                                                         type="datetime-local" 
-                                                        value={stage.end_date || ''}
-                                                        min={stage.start_date || new Date().toISOString().slice(0, 16)}
+                                                        value={toLocalDatetimeValue(stage.end_date)}
+                                                        min={toLocalDatetimeValue(stage.start_date) || toLocalDatetimeValue(new Date().toISOString())}
                                                         max="2099-12-31T23:59"
                                                         onChange={(e) => updateStage(stage.id, { end_date: e.target.value })}
                                                         className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm"
@@ -673,14 +719,14 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                 </div>
                                             </div>
 
-                                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                                                 <div className="space-y-2">
                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Result Time</label>
                                                     <input
                                                         type="datetime-local"
-                                                        value={stage.result_time || ''}
+                                                        value={toLocalDatetimeValue(stage.result_time || '')}
                                                         max="2099-12-31T23:59"
-                                                        onChange={(e) => updateStage(stage.id, { result_time: e.target.value || undefined })}
+                                                        onChange={(e) => updateStage(stage.id, { result_time: e.target.value ? toISOStringWithIST(e.target.value) : undefined })}
                                                         className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm"
                                                     />
                                                     <p className="text-[9px] text-slate-400 ml-1">When results/pass marks are published</p>
@@ -738,7 +784,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
 
                                             {showStageBrief && (
                                                 stageTypeId === 'REGISTRATION' ? (
-                                                    <div className="md:col-span-2 p-8 bg-purple-50/30 rounded-[2rem] border border-purple-100/50 space-y-8">
+                                                    <div className="md:col-span-2 p-4 sm:p-8 bg-purple-50/30 rounded-[2rem] border border-purple-100/50 space-y-6 sm:space-y-8">
                                                         {/* Header */}
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-[#6C3BFF]">
@@ -779,11 +825,11 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                             return (
                                                                 <div className="space-y-3">
                                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Registration Approval Mode</label>
-                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => updateRegistrationSettings({ approval_mode: 'AUTO_APPROVE' })}
-                                                                            className={`p-5 rounded-2xl border text-left transition-all duration-200 flex items-start gap-4 ${
+                                                                            className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 flex items-start gap-3 sm:gap-4 ${
                                                                                 approvalMode === 'AUTO_APPROVE'
                                                                                     ? 'bg-white border-[#6C3BFF] ring-2 ring-purple-100 shadow-md'
                                                                                     : 'bg-white/40 border-slate-200 hover:border-slate-300 shadow-sm'
@@ -803,7 +849,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => updateRegistrationSettings({ approval_mode: 'MANUAL_APPROVAL' })}
-                                                                            className={`p-5 rounded-2xl border text-left transition-all duration-200 flex items-start gap-4 ${
+                                                                            className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 flex items-start gap-3 sm:gap-4 ${
                                                                                 approvalMode === 'MANUAL_APPROVAL'
                                                                                     ? 'bg-white border-[#6C3BFF] ring-2 ring-purple-100 shadow-md'
                                                                                     : 'bg-white/40 border-slate-200 hover:border-slate-300 shadow-sm'
@@ -876,6 +922,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                                         <p className="text-[10px] text-slate-500 font-medium ml-1">Configure which reusable profile fields are required, optional, or completely hidden from the registration form.</p>
                                                                     </div>
                                                                     <div className="overflow-hidden bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                                                        <div className="overflow-x-auto">
                                                                         <table className="w-full text-left border-collapse">
                                                                             <thead>
                                                                                 <tr className="bg-slate-50 border-b border-slate-100">
@@ -930,6 +977,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                                                 })}
                                                                             </tbody>
                                                                         </table>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             );
@@ -959,7 +1007,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                             </div>
                                                             <p className="text-[10px] text-slate-500 font-medium">Configure team settings for this registration stage.</p>
                                                             
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                                 <div>
                                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Min Team Size</label>
                                                                     <input
@@ -986,7 +1034,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                                 </div>
                                                             </div>
 
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                                 <label className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-200 transition-colors">
                                                                     <input
                                                                         type="checkbox"
@@ -1031,7 +1079,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                         </div>
                                                     </div>
                                                 ) : stageTypeId === 'TEAM_FORMATION' ? (
-                                                    <div className="md:col-span-2 p-8 bg-indigo-50/30 rounded-[2rem] border border-indigo-100/50 space-y-8">
+                                                    <div className="md:col-span-2 p-4 sm:p-8 bg-indigo-50/30 rounded-[2rem] border border-indigo-100/50 space-y-6 sm:space-y-8">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
                                                                 <Users size={20} />
@@ -1059,7 +1107,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                             </div>
                                                             <p className="text-[10px] text-slate-500 font-medium">Configure team settings for this stage.</p>
 
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                                 <div>
                                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Min Team Size</label>
                                                                     <input
@@ -1086,7 +1134,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                                 </div>
                                                             </div>
 
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                                 <label className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-200 transition-colors">
                                                                     <input
                                                                         type="checkbox"
@@ -1131,7 +1179,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="md:col-span-2 p-8 bg-emerald-50/30 rounded-[2rem] border border-emerald-100/50">
+                                                    <div className="md:col-span-2 p-4 sm:p-8 bg-emerald-50/30 rounded-[2rem] border border-emerald-100/50">
                                                         <div className="flex items-center gap-3 mb-6">
                                                             <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
                                                                 <Plus size={20} />
@@ -1173,7 +1221,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                             )}
 
                                             {stageTypeId === 'REVIEW' && (
-                                                <div className="md:col-span-2 p-8 bg-purple-50/30 rounded-[2rem] border border-purple-100/50 space-y-8">
+                                                <div className="md:col-span-2 p-4 sm:p-8 bg-purple-50/30 rounded-[2rem] border border-purple-100/50 space-y-6 sm:space-y-8">
                                                     <div>
                                                         <div className="flex items-center gap-3 mb-6">
                                                             <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
@@ -1265,7 +1313,7 @@ const StageBuilder: React.FC<StageBuilderProps> = ({ stages, onUpdate, onConfigu
                                             )}
 
                                             {stageTypeId === 'QUIZ' ? (
-                                                <div className="md:col-span-2 p-8 bg-amber-50/30 rounded-[2rem] border border-amber-100/50 space-y-4">
+                                                <div className="md:col-span-2 p-4 sm:p-8 bg-amber-50/30 rounded-[2rem] border border-amber-100/50 space-y-4">
                                                     <div className="flex items-start justify-between gap-4">
                                                         <div>
                                                             <h5 className="text-sm font-black text-slate-900 uppercase tracking-tight">

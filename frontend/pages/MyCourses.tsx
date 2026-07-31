@@ -80,7 +80,7 @@ const MyCourses: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="pt-40 pb-32 px-6 bg-[#F8FAFC] min-h-screen">
+            <div className="pt-40 pb-32 px-3 sm:px-6 bg-[#F8FAFC] min-h-screen">
                 <div className="max-w-7xl mx-auto space-y-8">
                     <div className="w-64 h-12 bg-slate-200 rounded-xl animate-pulse"></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -94,7 +94,7 @@ const MyCourses: React.FC = () => {
     }
 
   return (
-    <div className="pt-28 sm:pt-40 pb-32 px-6 bg-white min-h-screen relative overflow-hidden">
+    <div className="pt-28 sm:pt-40 pb-32 px-3 sm:px-6 bg-white min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-tech opacity-[0.03] pointer-events-none" />
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[#7C3AED]/5 to-transparent pointer-events-none" />
 

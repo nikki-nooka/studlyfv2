@@ -476,16 +476,16 @@ export default function LiveResultsDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] font-sans text-slate-800 p-8">
+    <div className="min-h-screen bg-[#f8f9fa] font-sans text-slate-800 px-3 sm:px-8 py-4 sm:py-8">
         {/* Header Options */}
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start gap-3 mb-6">
           <div>
             <div className="flex items-center space-x-3">
               <h1 className="text-2xl font-bold text-slate-900">Live Results</h1>
             </div>
             <p className="text-sm text-slate-500 mt-1">Real-time rankings based on official evaluations and scores.</p>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
             <button
               onClick={handleExportPDF}
               className="flex items-center px-4 py-2 border border-slate-200 text-slate-700 bg-white rounded-lg hover:bg-slate-50 font-medium text-sm transition-colors shadow-sm"
@@ -508,8 +508,8 @@ export default function LiveResultsDashboard() {
         </div>
 
         {/* Filters */}
-        <div className="flex space-x-4 mb-6">
-          <div className="w-64">
+        <div className="flex flex-col sm:flex-row sm:space-x-4 mb-6 gap-3">
+          <div className="w-full sm:w-64">
             <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Select Event</label>
             <div className="relative">
               <select
@@ -529,7 +529,7 @@ export default function LiveResultsDashboard() {
               <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
             </div>
           </div>
-          <div className="w-64">
+          <div className="w-full sm:w-64">
             <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Select Stage</label>
             <div className="relative">
               <select
@@ -569,7 +569,7 @@ export default function LiveResultsDashboard() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           {summaryCards.map((card, idx) => (
             <div key={idx} className="bg-white rounded-xl border border-slate-200 p-5 flex items-center shadow-sm">
               <div className={`w-12 h-12 rounded-full ${card.bgColor} flex items-center justify-center mr-4`}>
@@ -789,7 +789,7 @@ export default function LiveResultsDashboard() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
+              <div className="flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6 py-4 border-t border-slate-200 bg-white gap-3">
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
                     <label className="text-xs text-slate-500 font-medium">Per page</label>
@@ -880,14 +880,14 @@ export default function LiveResultsDashboard() {
 
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-2 sm:mx-4 overflow-y-auto max-h-[90vh]">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200">
               <h3 className="text-lg font-bold text-slate-900">{teamInfo.name}</h3>
               <button onClick={() => setSelectedTeam(null)} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6">
 
               {/* Header: Rank + Team Info */}
               <div className="flex items-center space-x-4">
@@ -997,7 +997,7 @@ export default function LiveResultsDashboard() {
                 </div>
               )}
             </div>
-            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+            <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
               <button
                 onClick={() => setSelectedTeam(null)}
                 className="px-4 py-2 bg-[#4f46e5] text-white rounded-lg hover:bg-[#4338ca] text-sm font-medium transition-colors"
@@ -1013,17 +1013,17 @@ export default function LiveResultsDashboard() {
       {/* Recommendation Preview Modal */}
       {previewRecommendation && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-2 sm:mx-4">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200">
               <h3 className="text-lg font-bold text-slate-900">{previewRecommendation.title}</h3>
               <button onClick={() => setPreviewRecommendation(null)} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{previewRecommendation.text}</p>
             </div>
-            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+            <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
               <button
                 onClick={() => setPreviewRecommendation(null)}
                 className="px-4 py-2 bg-[#4f46e5] text-white rounded-lg hover:bg-[#4338ca] text-sm font-medium transition-colors"
@@ -1037,7 +1037,7 @@ export default function LiveResultsDashboard() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold flex items-center space-x-2 transition-all ${
+        <div className={`fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50 px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold flex items-center space-x-2 transition-all ${
           toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
         }`}>
           {toast.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}

@@ -2168,7 +2168,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         return (
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-in fade-in duration-300" onClick={() => setSelectedTeam(null)}>
                 <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-                    <div className="p-8 border-b bg-slate-50/50">
+                    <div className="p-4 sm:p-8 border-b bg-slate-50/50">
                         <div className="flex justify-between items-start">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
@@ -2196,7 +2196,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-8">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-8">
                         <div className="space-y-8">
                             <div>
                                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Team Roster</h3>
@@ -2206,6 +2206,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                             <Loader2 size={28} className="animate-spin text-[#6C3BFF]" />
                                         </div>
                                     ) : (
+                                        <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-slate-200">
                                             <thead className="bg-slate-100/50">
                                                 <tr>
@@ -2256,6 +2257,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                                 )}
                                             </tbody>
                                         </table>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -2263,7 +2265,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     </div>
 
                     {activeTab === 'teams' && (
-                        <div className="p-8 border-t bg-slate-50/50 flex justify-end gap-3">
+                        <div className="p-4 sm:p-8 border-t bg-slate-50/50 flex flex-col sm:flex-row justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={() => setSelectedTeam(null)}
@@ -2413,10 +2415,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
             );
 
             return (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
+                <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="p-6 sm:p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
                         <div className="relative z-10">
-                            <h3 className="text-4xl font-black tracking-tight mb-4">Submission Management</h3>
+                            <h3 className="text-2xl sm:text-4xl font-black tracking-tight mb-4">Submission Management</h3>
                             <p className="text-slate-400 font-bold max-w-xl leading-relaxed">Review submissions, assign judges, and evaluate in real-time.</p>
                         </div>
                         <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px]"></div>
@@ -2507,7 +2509,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             </div>
 
                             {/* Summary bar */}
-                            <div className="flex flex-wrap items-center gap-6 px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium text-slate-500 animate-in fade-in">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-6 px-4 sm:px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium text-slate-500 animate-in fade-in">
                                 <span>Total Attempts: <strong className="text-slate-800">{quizResults.length}</strong></span>
                                 <span>Passed Cutoff: <strong className="text-emerald-600">{passedCount}</strong></span>
                                 <span>Failed: <strong className="text-red-500">{quizResults.length - passedCount}</strong></span>
@@ -2533,6 +2535,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                         No quiz attempts submitted yet for this stage.
                                     </div>
                                 ) : (
+                                <div className="overflow-x-auto">
 <table className="w-full text-left table-fixed border-collapse">
                                         <thead>
                                             <tr className="bg-slate-50/50">
@@ -2607,6 +2610,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                             })}
                                         </tbody>
                                     </table>
+                                </div>
                                 )}
                             </div>
                         </div>
@@ -2617,10 +2621,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
         return (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
-                <div className="p-8 bg-white/70 backdrop-blur-xl rounded-3xl relative overflow-hidden shadow-sm border border-slate-200 mx-4">
-                    <div className="relative z-10 flex items-center justify-between">
+                <div className="p-4 sm:p-8 bg-white/70 backdrop-blur-xl rounded-3xl relative overflow-hidden shadow-sm border border-slate-200 mx-4">
+                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <h3 className="text-3xl font-black tracking-tight mb-2 text-slate-900">Submissions</h3>
+                            <h3 className="text-xl sm:text-3xl font-black tracking-tight mb-2 text-slate-900">Submissions</h3>
                             <p className="text-slate-500 font-medium text-sm">Review submissions, assign judges, and evaluate in real-time.</p>
                         </div>
                     </div>
@@ -2911,8 +2915,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                     return (
                         <div className="mt-16 space-y-8 animate-in fade-in duration-300">
                             {/* Score Thresholds Configuration Card */}
-                            <div className="mx-4 p-8 bg-gradient-to-r from-slate-900 to-slate-800 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden border border-white/5">
-                                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                            <div className="mx-4 p-4 sm:p-8 bg-gradient-to-r from-slate-900 to-slate-800 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden border border-white/5">
+                                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
                                     <div className="space-y-2">
                                         <h4 className="text-xl font-black tracking-tight flex items-center gap-2">
                                             <Settings className="text-[#9875FF] animate-spin-slow" size={22} />
@@ -3033,6 +3037,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             </div>
 
                             <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
+                                <div className="overflow-x-auto">
                                 <table className="w-full text-left" style={{ tableLayout: 'fixed' }}>
                                     <thead>
                                         <tr className="bg-slate-50/50">
@@ -3219,6 +3224,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                         )}
                                     </tbody>
                                 </table>
+                                </div>
                             </div>
                             {bundleTab === 'shortlisted' && selectedBundleItems.length > 0 && (
                                 <div className="flex items-center justify-between px-4 py-4 bg-purple-50 border border-purple-100 rounded-2xl mt-4">
@@ -3286,10 +3292,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
         return (
             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-12 bg-blue-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
+                <div className="p-6 sm:p-12 bg-blue-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <h3 className="text-4xl font-black tracking-tight mb-4">Event Participants</h3>
+                            <h3 className="text-2xl sm:text-4xl font-black tracking-tight mb-4">Event Participants</h3>
                             <p className="text-blue-200 font-bold max-w-xl leading-relaxed">All individuals from submitted projects — team leads and members.</p>
                         </div>
                         <div className="flex items-center gap-8">
@@ -3320,6 +3326,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 </div>
 
                 <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50">
@@ -3358,6 +3365,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             )}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         );
@@ -3379,10 +3387,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
         return (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-12 bg-purple-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
+                <div className="p-6 sm:p-12 bg-purple-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <h3 className="text-4xl font-black tracking-tight mb-3">Registered Teams</h3>
+                            <h3 className="text-2xl sm:text-4xl font-black tracking-tight mb-3">Registered Teams</h3>
                             <p className="text-purple-200 font-bold">All teams and their members across this hackathon.</p>
                         </div>
                         <div className="flex items-center gap-10">
@@ -3400,6 +3408,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 </div>
 
                 <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/20">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/60 border-b border-slate-100">
@@ -3458,17 +3467,18 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             )}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         );
     };
 
     const renderTabContent_Judges = () => (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="p-12 bg-amber-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-10">
+        <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="p-6 sm:p-12 bg-amber-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 sm:gap-10">
                     <div className="space-y-4">
-                        <h3 className="text-4xl font-black tracking-tight">Event Judges</h3>
+                        <h3 className="text-2xl sm:text-4xl font-black tracking-tight">Event Judges</h3>
                         <p className="text-amber-200 font-bold max-w-xl leading-relaxed">{institutionJudges.length} judge{institutionJudges.length !== 1 ? 's' : ''} registered for this institution.</p>
                     </div>
                     <button
@@ -3481,9 +3491,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 <div className="absolute -right-20 -top-20 w-80 h-80 bg-amber-600/20 rounded-full blur-[100px]"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 px-4">
-                {institutionJudges.map((j: any, i: number) => (
-                    <div key={j._id || i} className="p-10 bg-white border border-slate-100 rounded-[3.5rem] shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-8 px-4">
+                {institutionJudges.map((j: any, i) => (
+                    <div key={j._id || i} className="p-6 sm:p-10 bg-white border border-slate-100 rounded-[3.5rem] shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden flex flex-col">
                         <div className="flex justify-between items-start mb-8">
                             <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center font-black text-2xl group-hover:bg-amber-600 group-hover:text-white transition-all shadow-inner border border-amber-100">
                                 {(j.name || '?').charAt(0).toUpperCase()}
@@ -3547,9 +3557,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
         });
 
         return (
-            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
+            <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
                 {/* 1. Header Command Card */}
-                <div className="p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <div className="p-6 sm:p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
                     <div className="relative z-10 space-y-4">
                         <div className="flex flex-wrap items-center gap-3">
                             <span className="px-4 py-1.5 bg-[#6C3BFF] text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(108,59,255,0.4)]">
@@ -3559,7 +3569,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                 Active Registrations Engine
                             </span>
                         </div>
-                        <h3 className="text-4xl lg:text-5xl font-black tracking-tighter leading-tight">Registration Pipeline</h3>
+                        <h3 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-tight">Registration Pipeline</h3>
                         <p className="text-slate-400 font-bold max-w-xl leading-relaxed">
                             Review core credentials, evaluate additional answers, and coordinate shortlisted profiles.
                         </p>
@@ -3578,8 +3588,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
                 {/* 1b. Registration Form Preview */}
                 {registrationUiFields.length > 0 && (
-                    <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm p-6 lg:p-8 space-y-5">
-                        <div className="flex items-center justify-between gap-4">
+                    <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm p-4 sm:p-6 lg:p-8 space-y-5">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div>
                                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500">Admin Preview</p>
                                 <h4 className="text-lg font-black text-slate-900 mt-1">Registration fields in order</h4>
@@ -3623,7 +3633,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 )}
 
                 {/* 2. Metrics Roster Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
                     {[
                         { label: 'Total Applicants', val: regStats.total, icon: Users, color: 'text-[#6C3BFF]', bg: 'bg-purple-50 border-purple-100/50' },
                         { label: 'Approved', val: regStats.approved, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50 border-emerald-100/50' },
@@ -3631,22 +3641,22 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                         { label: 'Waitlisted', val: regStats.waitlisted, icon: Timer, color: 'text-indigo-500', bg: 'bg-indigo-50 border-indigo-100/50' },
                         { label: 'Rejected', val: regStats.rejected, icon: XCircle, color: 'text-red-500', bg: 'bg-red-50 border-red-100/50' }
                     ].map((m, i) => (
-                        <div key={i} className={`p-8 bg-white border ${m.bg} rounded-[2.5rem] shadow-sm flex flex-col justify-between group hover:shadow-md transition-all`}>
+                        <div key={i} className={`p-4 sm:p-8 bg-white border ${m.bg} rounded-[2.5rem] shadow-sm flex flex-col justify-between group hover:shadow-md transition-all`}>
                             <div className="flex items-center justify-between mb-4">
-                                <div className={`w-12 h-12 rounded-2xl bg-white/80 ${m.color} flex items-center justify-center shadow-inner group-hover:scale-110 transition-all`}>
+                                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/80 ${m.color} flex items-center justify-center shadow-inner group-hover:scale-110 transition-all`}>
                                     <m.icon size={22} />
                                 </div>
                             </div>
                             <div>
                                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">{m.label}</p>
-                                <p className="text-3xl font-black text-slate-900 leading-none">{m.val}</p>
+                                <p className="text-xl sm:text-3xl font-black text-slate-900 leading-none">{m.val}</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 {/* 3. Search and Action Filters Command Bar */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 px-4">
                     <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
                         <div className="relative w-full md:w-80">
                             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -4227,7 +4237,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             </div>
                         )}
                         {/* Metrics Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                             {[
                                 { label: 'Registered Teams', val: hackathonSubmissions.length > 0 ? hackathonSubmissions.length : (teams?.length || 0), icon: Layers, color: 'text-[#6C3BFF]', bg: 'bg-purple-50', tab: 'teams' },
                                 {
@@ -4243,7 +4253,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                                 <button
                                     key={i}
                                     onClick={() => setActiveTab(m.tab)}
-                                    className="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left group"
+                                    className="p-4 sm:p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left group"
                                 >
                                     <div className={`w-12 h-12 ${m.bg} ${m.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all shadow-inner`}>
                                         <m.icon size={24} />
@@ -4471,9 +4481,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                         </div>
 
                         {/* Detailed Grid Card */}
-                        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-10 space-y-10">
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-6 sm:p-10 space-y-6 sm:space-y-10">
                             {/* Images Row */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
                                 <div className="space-y-3">
                                     <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Logo</span>
                                     <label className="group relative w-full h-40 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl flex items-center justify-center overflow-hidden p-4 cursor-pointer hover:border-purple-400 transition-all">
@@ -4499,7 +4509,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             </div>
 
                             {/* Details Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-50">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 pt-4 border-t border-slate-50">
                                 <div className="space-y-2">
                                     <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Opportunity Title</span>
                                     <p className="text-[15px] font-black text-slate-800 leading-tight">{event.title || '—'}</p>
@@ -4531,9 +4541,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                             </div>
 
                             {/* Description / Strategic Overview */}
-                            <div className="space-y-4 pt-8 border-t border-slate-50">
+                            <div className="space-y-4 pt-6 sm:pt-8 border-t border-slate-50">
                                 <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Strategic Overview</span>
-                                <div className="p-8 bg-slate-50 border border-slate-100 rounded-[2rem]">
+                                <div className="p-4 sm:p-8 bg-slate-50 border border-slate-100 rounded-[2rem]">
                                     <div
                                         className="opportunity-rich-text text-slate-600 font-medium leading-relaxed [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-2 [&_strong]:font-bold [&_em]:italic [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_a]:text-purple-600 [&_a]:underline outline-none"
                                         dangerouslySetInnerHTML={{ __html: sanitizePresentationHtml(event.description || '') }}
@@ -4700,10 +4710,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
             case 'criteria':
                 return (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5 flex items-center justify-between">
+                    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="p-6 sm:p-12 bg-slate-900 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                             <div>
-                                <h3 className="text-4xl font-black tracking-tight mb-3">Scoring Rubrics</h3>
+                                <h3 className="text-2xl sm:text-4xl font-black tracking-tight mb-3">Scoring Rubrics</h3>
                                 <p className="text-slate-400 font-bold">Define evaluation dimensions. Judges will score each team against these criteria.</p>
                             </div>
                             <button
@@ -4727,7 +4737,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
 
                         <div className="space-y-4">
                             {criteria.map((criterion: any, idx: number) => (
-                                <div key={idx} className="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm flex items-center gap-8 group hover:border-[#6C3BFF]/30 transition-all">
+                                <div key={idx} className="p-4 sm:p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 group hover:border-[#6C3BFF]/30 transition-all">
                                     <div className="w-14 h-14 bg-purple-50 text-[#6C3BFF] rounded-[1.2rem] flex items-center justify-center font-black text-lg shadow-inner shrink-0">{idx + 1}</div>
                                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
@@ -4991,12 +5001,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
             case 'faqs':
                 return (
                     <><div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div>
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Frequently Asked Questions</h2>
+                                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Frequently Asked Questions</h2>
                                 <p className="text-sm font-medium text-slate-500 mt-1">Manage FAQs displayed on the event page.</p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -5435,17 +5445,17 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
     };
 
     return (
-        <div className="space-y-10 max-w-7xl mx-auto animate-in fade-in duration-700 pb-20">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                <div className="flex items-center gap-6">
+        <div className="space-y-6 sm:space-y-10 max-w-7xl mx-auto animate-in fade-in duration-700 pb-20 px-3 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-8">
+                <div className="flex items-center gap-4 sm:gap-6">
                     {role !== 'judge' && (
-                        <button onClick={onBack} className="p-4 bg-white border border-slate-100 rounded-3xl text-slate-400 hover:text-[#6C3BFF] hover:shadow-xl transition-all active:scale-95">
+                        <button onClick={onBack} className="p-3 sm:p-4 bg-white border border-slate-100 rounded-3xl text-slate-400 hover:text-[#6C3BFF] hover:shadow-xl transition-all active:scale-95 shrink-0">
                             <ArrowLeft size={28} />
                         </button>
                     )}
                     <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tighter">{event.title}</h1>
+                        <div className="flex flex-wrap items-center gap-3 mb-1">
+                            <h1 className="text-xl sm:text-4xl font-black text-slate-900 tracking-tighter">{event.title}</h1>
                             <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">Live Portal</div>
                         </div>
                         <p className="text-slate-500 text-sm font-bold flex items-center gap-6"><span className="flex items-center gap-2 text-[#6C3BFF]"><MapPin size={16} /> Hybrid Environment</span><span className="flex items-center gap-2"><Users size={16} /> {event.participant_count || 0} Authenticated Participants</span></p>
@@ -5527,8 +5537,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                 </div>
             )}
 
-            <div className="bg-white/40 backdrop-blur-xl border border-white/20 p-2.5 rounded-[4rem] shadow-2xl shadow-slate-200/50">
-                <div className="bg-white p-12 rounded-[3.5rem] shadow-inner min-h-[600px] border border-slate-50">
+            <div className="bg-white/40 backdrop-blur-xl border border-white/20 p-1.5 sm:p-2.5 rounded-[2rem] sm:rounded-[4rem] shadow-2xl shadow-slate-200/50">
+                <div className="bg-white p-4 sm:p-12 rounded-[1.5rem] sm:rounded-[3.5rem] shadow-inner min-h-[600px] border border-slate-50">
                     <FramerAnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}

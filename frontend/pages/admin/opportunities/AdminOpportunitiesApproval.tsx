@@ -77,16 +77,16 @@ const AdminOpportunitiesApproval = () => {
         const pendingInCat = items.filter((o: any) => o.status === 'pending_approval').length;
 
         return (
-            <div className="p-6 lg:p-8 space-y-6">
+            <div className="p-4 sm:p-6 lg:p-8 space-y-6">
                 <button onClick={() => setSelectedCategory(null)} className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
                     <ArrowLeft size={16} /> Back to All Categories
                 </button>
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         {cat && <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center shadow-lg`}><cat.icon size={20} className="text-white" /></div>}
                         <div>
-                            <h1 className="text-2xl font-extrabold text-white">{cat?.label || 'Other'}</h1>
+                            <h1 className="text-xl sm:text-2xl font-extrabold text-white">{cat?.label || 'Other'}</h1>
                             <p className="text-sm text-slate-400">{items.length} total &middot; {pendingInCat} pending</p>
                         </div>
                     </div>
@@ -102,10 +102,10 @@ const AdminOpportunitiesApproval = () => {
                         <p className="text-lg font-bold">No opportunities in this category</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                         {items.map((opp: any) => (
                             <motion.div key={opp._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                                className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 hover:bg-white/[0.06] transition-all">
+                                className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 sm:p-5 hover:bg-white/[0.06] transition-all">
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-base font-bold text-white truncate">{opp.title}</h3>
@@ -155,10 +155,10 @@ const AdminOpportunitiesApproval = () => {
 
     // Category grid view
     return (
-        <div className="p-6 lg:p-8 space-y-8">
-            <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-white">Opportunities</h1>
+                    <h1 className="text-xl sm:text-2xl font-extrabold text-white">Opportunities</h1>
                     <p className="text-sm text-slate-400 mt-1">{allOpps.length} total &middot; {totalPending} pending approval</p>
                 </div>
                 {totalPending > 0 && (

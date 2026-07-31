@@ -6,6 +6,7 @@ import { API_BASE_URL, authHeaders } from '../../../apiConfig';
 interface Judge {
     _id: string;
     name: string;
+    email?: string;
     domain: string;
     institution_id: string;
 }
@@ -21,7 +22,7 @@ const DOMAIN_SUGGESTIONS = ['AI / ML', 'Web Dev', 'Healthcare', 'Fintech', 'Bloc
 const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => {
     const [judges, setJudges] = useState<Judge[]>([]);
     const [loading, setLoading] = useState(true);
-    const [form, setForm] = useState({ name: '', domain: '' });
+    const [form, setForm] = useState({ name: '', email: '', domain: '' });
     const [adding, setAdding] = useState(false);
     const [showAdd, setShowAdd] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -39,8 +40,8 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.name.trim() || !form.domain.trim()) {
-            setError('Both name and domain are required.');
+        if (!form.name.trim() || !form.email.trim() || !form.domain.trim()) {
+            setError('Name, email, and domain are all required.');
             return;
         }
         setError(null);
@@ -49,11 +50,11 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
             const res = await fetch(`${API_BASE_URL}/api/judging/judges`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                body: JSON.stringify(form),
+                body: JSON.stringify({ name: form.name.trim(), email: form.email.trim().toLowerCase(), domain: form.domain.trim() }),
             });
             if (res.ok) {
                 await fetchJudges();
-                setForm({ name: '', domain: '' });
+                setForm({ name: '', email: '', domain: '' });
                 setShowAdd(false);
             } else {
                 const d = await res.json();
@@ -116,11 +117,11 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
 
     // Full management mode (used in Judge Management tab)
     return (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-8">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Judge Management</h3>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Judge Management</h3>
                     <p className="text-slate-500 font-medium text-sm mt-1">
                         Add subject-matter experts to evaluate project submissions.
                     </p>
@@ -144,7 +145,7 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
                     >
                         <form
                             onSubmit={handleAdd}
-                            className="p-8 bg-white border-2 border-[#6C3BFF]/20 rounded-[2.5rem] space-y-6 shadow-xl shadow-purple-900/5"
+                            className="p-4 sm:p-8 bg-white border-2 border-[#6C3BFF]/20 rounded-[2.5rem] space-y-6 shadow-xl shadow-purple-900/5"
                         >
                             <p className="text-sm font-black text-slate-900 uppercase tracking-widest">New Judge</p>
 
@@ -155,7 +156,7 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
                                         Judge Name <span className="text-red-500">*</span>
@@ -167,6 +168,19 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
                                         placeholder="e.g. Sarah Chen"
                                         className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-purple-50 focus:border-[#6C3BFF]/30 transition-all"
                                         autoFocus
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                        Email <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={form.email}
+                                        onChange={e => setForm(prev => ({ ...prev, email: e.target.value }))}
+                                        placeholder="judge@university.com"
+                                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-purple-50 focus:border-[#6C3BFF]/30 transition-all"
                                     />
                                 </div>
 
@@ -223,14 +237,14 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
                     <p className="text-slate-400 font-medium text-sm">Click "Add Judge" to add your first evaluator.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                     {judges.map((j, idx) => (
                         <motion.div
                             key={j._id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            className="p-6 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-lg hover:shadow-slate-900/5 transition-all group relative"
+                            className="p-4 sm:p-6 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-lg hover:shadow-slate-900/5 transition-all group relative"
                         >
                             {/* Avatar */}
                             <div className="flex items-center gap-4 mb-6">
@@ -239,6 +253,7 @@ const JudgeManager: React.FC<JudgeManagerProps> = ({ onSelect, selectedId }) => 
                                 </div>
                                 <div>
                                     <p className="font-black text-slate-900 text-base">{j.name}</p>
+                                    {j.email && <p className="text-[10px] font-bold text-slate-400 mt-0.5">{j.email}</p>}
                                     <div className="flex items-center gap-1.5 mt-1">
                                         <Briefcase size={10} className="text-[#6C3BFF]" />
                                         <span className="text-[10px] font-black text-[#6C3BFF] uppercase tracking-widest">{j.domain}</span>

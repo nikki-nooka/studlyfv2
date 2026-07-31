@@ -38,9 +38,10 @@ type Props = {
     eventId: string;
     participationType?: string;
     stagesFromOpportunity?: any[];
+    selectedStageId?: string | null;
 };
 
-const StageSubmissionsPanel: React.FC<Props> = ({ eventId, participationType, stagesFromOpportunity }) => {
+const StageSubmissionsPanel: React.FC<Props> = ({ eventId, participationType, stagesFromOpportunity, selectedStageId }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [access, setAccess] = useState<StagesAccessResponse | null>(null);
@@ -99,7 +100,35 @@ const StageSubmissionsPanel: React.FC<Props> = ({ eventId, participationType, st
         return <div className="bg-white rounded-2xl border border-red-100 p-8 text-center text-red-600">{error}</div>;
     }
 
-    const active = access?.active_stage;
+    const findStageById = (stageId: string): StageAccessState | null => {
+        if (!access) return null;
+        if (access.active_stage?.stage_id === stageId || access.active_stage?.stage_name === stageId) {
+            return access.active_stage;
+        }
+        const allStages = [...(access.completed_stages || [])];
+        const found = allStages.find(s => s.stage_id === stageId || s.stage_name === stageId);
+        if (found) return found;
+
+        const fromOpp = (stagesFromOpportunity || []).find(
+            (s: any) => s.id === stageId || s.name === stageId
+        );
+        if (fromOpp) {
+            return {
+                stage_id: fromOpp.id || stageId,
+                stage_name: fromOpp.name || stageId,
+                description: fromOpp.description,
+                type: fromOpp.type,
+                is_unlocked: false,
+                can_submit: false,
+                has_submission: false,
+                status_badge: 'upcoming',
+                lock_detail: `This stage has not started yet. It will start on ${fromOpp.start_date || fromOpp.startDate ? new Date(fromOpp.start_date || fromOpp.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : 'TBA'}.`,
+            };
+        }
+        return null;
+    };
+
+    const active = selectedStageId ? findStageById(selectedStageId) : access?.active_stage;
 
     if (!active) {
         return (
@@ -125,7 +154,7 @@ const StageSubmissionsPanel: React.FC<Props> = ({ eventId, participationType, st
             {/* Only the current active stage — locked future stages are hidden */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-slate-100">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-purple-600 mb-1">Current stage</p>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-purple-600 mb-1">{selectedStageId ? 'Selected stage' : 'Current stage'}</p>
                     <h3 className="text-lg font-black text-slate-900">{active.stage_name}</h3>
                     {active.description ? <p className="text-sm text-slate-500 mt-1">{active.description}</p> : null}
 

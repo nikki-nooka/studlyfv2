@@ -70,7 +70,7 @@ const ResultsPage: React.FC = () => {
         return (
             <div className="min-h-screen bg-[#eef2f7]">
                 <Navigation />
-                <div className="max-w-4xl mx-auto px-4 py-20">
+                <div className="max-w-4xl mx-auto px-3 sm:px-4 py-20">
                     <div className="animate-pulse space-y-6">
                         <div className="h-48 bg-slate-200 rounded-2xl" />
                         <div className="h-8 bg-slate-200 rounded w-1/3" />
@@ -86,7 +86,7 @@ const ResultsPage: React.FC = () => {
         return (
             <div className="min-h-screen bg-[#eef2f7]">
                 <Navigation />
-                <div className="max-w-4xl mx-auto px-4 py-20 text-center">
+                <div className="max-w-4xl mx-auto px-3 sm:px-4 py-20 text-center">
                     <p className="text-slate-500 font-medium">Results not available.</p>
                 </div>
             </div>
@@ -109,7 +109,7 @@ const ResultsPage: React.FC = () => {
                     />
                 )}
                 <div className="absolute inset-0 bg-black/20" />
-                <div className="relative h-full max-w-4xl mx-auto px-4 flex items-center gap-6">
+                <div className="relative h-full max-w-4xl mx-auto px-3 sm:px-4 flex items-center gap-4 sm:gap-6">
                     {event.logo_url && (
                         <img
                             src={event.logo_url}
@@ -124,7 +124,7 @@ const ResultsPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-4 -mt-8 relative z-10">
+            <div className="max-w-4xl mx-auto px-3 sm:px-4 -mt-8 relative z-10">
                 {/* Search */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6 flex items-center gap-3">
                     <Search size={18} className="text-slate-400 shrink-0" />
@@ -161,7 +161,7 @@ const ResultsPage: React.FC = () => {
                                 key={entry.team_id}
                                 className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all hover:border-purple-200"
                             >
-                                <div className="p-5">
+                                <div className="p-3 sm:p-5">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-black text-slate-900 text-lg">
@@ -187,7 +187,7 @@ const ResultsPage: React.FC = () => {
                                             )}
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <div className="text-2xl font-black text-purple-600">
+                                            <div className="text-xl sm:text-2xl font-black text-purple-600">
                                                 #{entry.rank}
                                             </div>
                                             {entry.total_score > 0 && (

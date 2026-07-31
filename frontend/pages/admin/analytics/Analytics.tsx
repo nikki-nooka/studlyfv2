@@ -85,11 +85,11 @@ const Analytics: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Intelligence & Analytics</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Intelligence & Analytics</h1>
                     <p className="text-white/50 mt-1">Deep dive into the health and growth metrics of StudLyf.</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -105,14 +105,14 @@ const Analytics: React.FC = () => {
             </div>
 
             {/* Performance Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-[#111111] border border-white/10 rounded-3xl p-8 flex flex-col justify-between h-64 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div className="bg-[#111111] border border-white/10 rounded-3xl p-4 sm:p-8 flex flex-col justify-between h-64 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 sm:p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Users size={80} />
                     </div>
                     <div>
                         <div className="text-xs font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Community Growth</div>
-                        <div className="text-5xl font-bold text-white tracking-tighter">{communityGrowth}</div>
+                        <div className="text-3xl sm:text-5xl font-bold text-white tracking-tighter">{communityGrowth}</div>
                         <div className="flex items-center gap-2 mt-4 text-green-400 font-bold">
                             <TrendingUp size={18} />
                             <span>{stats?.studentGrowth || '+18.4%'} this month</span>
@@ -125,13 +125,13 @@ const Analytics: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="bg-[#111111] border border-white/10 rounded-3xl p-8 flex flex-col justify-between h-64 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <div className="bg-[#111111] border border-white/10 rounded-3xl p-4 sm:p-8 flex flex-col justify-between h-64 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 sm:p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Activity size={80} />
                     </div>
                     <div>
                         <div className="text-xs font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Course Progress Avg</div>
-                        <div className="text-5xl font-bold text-white tracking-tighter">{stats?.courseCompletion || '84%'}</div>
+                        <div className="text-3xl sm:text-5xl font-bold text-white tracking-tighter">{stats?.courseCompletion || '84%'}</div>
                         <div className="flex items-center gap-2 mt-4 text-blue-400 font-bold">
                             <TrendingUp size={18} />
                             <span>System optimal</span>
@@ -139,10 +139,10 @@ const Analytics: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-[#7C3AED] to-[#5B21B6] rounded-3xl p-8 flex flex-col justify-between h-64 shadow-2xl shadow-purple-900/40 border border-white/20">
+                <div className="bg-gradient-to-br from-[#7C3AED] to-[#5B21B6] rounded-3xl p-4 sm:p-8 flex flex-col justify-between h-64 shadow-2xl shadow-purple-900/40 border border-white/20">
                     <div>
                         <div className="text-xs font-bold text-white/50 uppercase tracking-[0.2em] mb-4">Total Revenue Generated</div>
-                        <div className="text-5xl font-bold text-white tracking-tighter">{revenueValue}</div>
+                        <div className="text-3xl sm:text-5xl font-bold text-white tracking-tighter">{revenueValue}</div>
                         <p className="text-white/70 text-sm mt-4 leading-snug">Exceeded target by 12% in the current fiscal period.</p>
                     </div>
                     <button onClick={() => navigate('/admin/payments')} className="w-full py-2 bg-white text-purple-700 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all hover:bg-gray-100">
@@ -152,9 +152,9 @@ const Analytics: React.FC = () => {
             </div>
 
             {/* In-depth Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                 {/* Placement funnel */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8 h-[500px] flex flex-col">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-8 h-[500px] flex flex-col">
                     <div className="flex items-center justify-between mb-10">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
                             <BarChart3 className="text-[#7C3AED]" /> Placement Velocity
@@ -194,7 +194,7 @@ const Analytics: React.FC = () => {
                 </div>
 
                 {/* Skill Distribution */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8 h-[500px] flex flex-col">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-8 h-[500px] flex flex-col">
                     <div className="flex items-center justify-between mb-10">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
                             <PieChart className="text-blue-500" /> Skill Distribution
@@ -242,7 +242,7 @@ const Analytics: React.FC = () => {
             </div>
 
             {/* AI Insight Highlight */}
-            <div className="bg-gradient-to-r from-[#1A0B2E] to-[#111] border border-white/10 rounded-3xl p-10 flex flex-col md:flex-row items-center gap-10">
+            <div className="bg-gradient-to-r from-[#1A0B2E] to-[#111] border border-white/10 rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-center gap-6 sm:gap-10">
                 <div className="w-24 h-24 rounded-full bg-[#7C3AED]/20 flex items-center justify-center flex-shrink-0 animate-pulse">
                     <TrendingUp size={48} className="text-[#7C3AED]" />
                 </div>

@@ -64,7 +64,6 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
         stages: [],
         submission_requirements: [] as { type: 'URL' | 'FILE', label: string, maxSizeMB?: number }[],
         contacts: [],
-        submission_requirements: [],
         // Festival Creation Fields
         festivalData: {
             name: '',

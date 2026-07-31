@@ -547,11 +547,11 @@ const CourseManagement: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                         {view === 'list' ? 'Course Management' : 'Curriculum Builder'}
                     </h1>
                     <p className="text-white/50 mt-1">Design, monitor and optimize StudLyf learning paths.</p>
@@ -590,7 +590,7 @@ const CourseManagement: React.FC = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
                     >
                         {courses.map(course => (
                             <div key={course._id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden group hover:border-[#7C3AED]/50 transition-all flex flex-col md:flex-row h-full">
@@ -601,7 +601,7 @@ const CourseManagement: React.FC = () => {
                                         {course.difficulty}
                                     </div>
                                 </div>
-                                <div className="p-6 flex-grow flex flex-col justify-between">
+                                <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
                                     <div>
                                         <div className="flex justify-between items-start">
                                             <h3 className="text-xl font-bold text-white leading-tight">{course.title}</h3>
@@ -615,7 +615,7 @@ const CourseManagement: React.FC = () => {
                                         <p className="text-xs text-white/40 mt-3 line-clamp-2">{course.description}</p>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
                                         <div className="text-center">
                                             <div className="text-xs text-white/40 mb-1">Completion</div>
                                             <div className="text-lg font-bold text-green-500">{course.completion || 0}%</div>
@@ -655,7 +655,7 @@ const CourseManagement: React.FC = () => {
 
                         <div
                             onClick={() => { resetForm(); setView('create'); }}
-                            className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center p-10 cursor-pointer hover:bg-white/[0.08] hover:border-[#7C3AED]/30 transition-all group min-h-[300px]"
+                            className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center p-6 sm:p-10 cursor-pointer hover:bg-white/[0.08] hover:border-[#7C3AED]/30 transition-all group min-h-[300px]"
                         >
                             <div className="w-16 h-16 rounded-full bg-[#7C3AED]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <Plus size={32} className="text-[#7C3AED]" />
@@ -670,11 +670,11 @@ const CourseManagement: React.FC = () => {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+                        className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8"
                     >
                         {/* Course Config */}
                         <div className="lg:col-span-8 space-y-6">
-                            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 space-y-4">
                                 <h3 className="text-lg font-semibold text-white">Curriculum Designer</h3>
                                 <div className="space-y-4 mt-6">
                                     {modules.map((mod, i) => (
@@ -1019,7 +1019,7 @@ const CourseManagement: React.FC = () => {
 
                         {/* Settings Panel */}
                         <div className="lg:col-span-4 space-y-6">
-                            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6 sticky top-24">
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 space-y-6 sticky top-24">
                                 <div>
                                     <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-4">Course Properties</h4>
                                     <div className="space-y-4">
@@ -1207,13 +1207,13 @@ const CourseManagement: React.FC = () => {
                         key="submissions"
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden p-6"
+                        className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden p-4 sm:p-6"
                     >
                         <h3 className="text-xl font-bold text-white mb-6">Pending Project Reviews</h3>
                         <div className="space-y-4">
                             {submissions.length === 0 && <p className="text-white/40">No pending projects to review.</p>}
                             {submissions.map((sub, idx) => (
-                                <div key={idx} className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between">
+                                <div key={idx} className="bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div>
                                         <div className="text-sm font-bold text-white mb-1">User ID: {sub.user_id}</div>
                                         <div className="text-xs text-white/50 mb-3">Module ID: {sub.module_id} • Status: <span className="text-yellow-500">{sub.review_status || 'pending_review'}</span></div>

@@ -41,7 +41,7 @@ from services.email_service import (
 from services.institutional_analytics_service import analytics_service
 from services.institutional_certificate_service import certificate_service
 from services.leaderboard_service import leaderboard_service
-from db import db, leaderboard_col, events_col, participants_col, certificates_col, notifications_col, institutions_col, users_col, teams_col, submissions_col, submission_data_col, scores_col, results_col, audit_logs_col, opportunities_col, opportunity_applications_col, hackathon_submissions_col, event_certificates_col, avatars_col
+from db import db, leaderboard_col, events_col, participants_col, certificates_col, notifications_col, institutions_col, users_col, teams_col, submissions_col, submission_data_col, scores_col, results_col, audit_logs_col, opportunities_col, opportunity_applications_col, hackathon_submissions_col, event_certificates_col, avatars_col, parse_dt_ist as _parse_dt_ist
 from bson import ObjectId
 from services.audit_service import log_admin_action
 from notification_helpers import notify_institution
@@ -249,8 +249,8 @@ async def _list_submissions_for_judge_user(
     """Return stage + legacy submissions assigned to the authenticated judge's email."""
     email = (user.get("email") or "").strip().lower()
     judge_user_id = str(user.get("user_id") or user.get("id") or "")
-    if not email:
-        raise HTTPException(status_code=400, detail="Your account must have an email to load judge assignments")
+    if not email and not judge_user_id:
+        raise HTTPException(status_code=400, detail="Your account must have an email or user ID to load judge assignments")
 
     review_statuses = [
         "Submitted", "Under Review", "Scored", "Assigned", "Pending Review",
@@ -260,6 +260,8 @@ async def _list_submissions_for_judge_user(
     seen: set[str] = set()
 
     my_judge_ids = set()
+    if judge_user_id:
+        my_judge_ids.add(judge_user_id)
     if email:
         from db import judges_col
         async for j in judges_col.find({"email": email}):
@@ -3949,7 +3951,10 @@ async def judge_download_submission_file(
         raise HTTPException(status_code=404, detail="Submission not found")
 
     from db import judges_col
+    judge_user_id = str(user.get("user_id") or user.get("id") or "")
     my_judge_ids = set()
+    if judge_user_id:
+        my_judge_ids.add(judge_user_id)
     if email:
         async for j in judges_col.find({"email": email}):
             my_judge_ids.add(str(j.get("_id")))
@@ -4076,8 +4081,9 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
     from datetime import datetime
 
     ue = (user.get("email") or "").strip().lower()
-    if not ue:
-        raise HTTPException(status_code=400, detail="Account email required for scoring")
+    judge_user_id = str(user.get("user_id") or user.get("id") or "")
+    if not ue and not judge_user_id:
+        raise HTTPException(status_code=400, detail="Account email or user ID required for scoring")
     criteria_scores = score_data.get("criteria_scores") or score_data.get("scores") or {}
     if isinstance(criteria_scores, dict):
         try:
@@ -4113,6 +4119,7 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
     
     from db import judges_col
     my_judge_ids = set()
+    my_judge_ids.add(str(user.get("user_id") or user.get("id") or ""))
     if ue:
         async for j in judges_col.find({"email": ue}):
             my_judge_ids.add(str(j.get("_id")))
@@ -4140,11 +4147,11 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
     if je and je != ue:
         raise HTTPException(status_code=403, detail="judge_email must match the authenticated account")
 
-    judge_id = score_data.get("judge_id") or user.get("id") or ""
+    judge_id = score_data.get("judge_id") or judge_user_id or ""
     upsert_filter = {"submission_id": submission_id}
     if judge_id:
         upsert_filter["judge_id"] = judge_id
-    else:
+    elif ue:
         upsert_filter["judge_email"] = ue
 
     now = datetime.utcnow()
@@ -4169,12 +4176,43 @@ async def save_judge_score(score_data: dict, user: dict = Depends(get_auth_user)
         upsert=True
     )
 
+    event = await events_col.find_one({"_id": ObjectId(str(event_id))})
+
+    # Compute recommendation based on thresholds
+    recommendation = "hold"
+    classified_status = "Scored"
+    if event:
+        thresholds = event.get("evaluation_thresholds") or {}
+        criteria = event.get("judging_criteria") or []
+        max_possible = sum(float(c.get("max_points") or 10) for c in criteria) or 100.0
+        if max_possible > 0:
+            pct = (total_score / max_possible) * 100
+        else:
+            pct = 0
+        shortlist_min = float(thresholds.get("shortlist_min", 80))
+        waitlist_min = float(thresholds.get("waitlist_min", 65))
+        reject_below = float(thresholds.get("reject_below", 40))
+        if pct >= shortlist_min:
+            recommendation = "shortlist"
+            classified_status = "Shortlisted"
+        elif pct >= waitlist_min:
+            recommendation = "waitlist"
+            classified_status = "Waitlisted"
+        elif pct < reject_below:
+            recommendation = "reject"
+            classified_status = "Rejected"
+        else:
+            recommendation = "hold"
+            classified_status = "Scored"
+
     await source_col.update_one(
         {"_id": ObjectId(str(submission_id))},
         {"$set": {
-            "status": "Scored",
+            "status": classified_status,
             "total_score": total_score,
             "evaluation_score": total_score,
+            "evaluation_status": "completed",
+            "evaluation_recommendation": recommendation,
             "last_evaluated_at": now,
         }},
     )
@@ -4440,7 +4478,7 @@ def _next_stage_after_team_formation(event_doc: dict) -> Optional[str]:
 async def update_team_status(event_id: str, team_id: str, status_update: dict, user: dict = Depends(get_auth_user)):
     """Updates team status, syncs all members, advances stage on approval, sends unlock email."""
     await assert_institution_owns_event(event_id, user)
-    from db import participants_col, teams_col, notifications_col, users_col, opportunity_applications_col, opportunities_col
+    from db import participants_col, teams_col, notifications_col, users_col, opportunity_applications_col, opportunities_col, registrations_col
     from services.email_service import send_notification_email
     from services.email_template_service import get_active_template, render_template, render_stage_custom_email
 
@@ -4509,6 +4547,22 @@ async def update_team_status(event_id: str, team_id: str, status_update: dict, u
             await opportunity_applications_col.update_one(
                 {"opportunity_id": str(opp["_id"]), "user_id": uid},
                 {"$set": {"status": participant_status, "current_stage": next_stage_name or prev.get("current_stage") if prev else None}},
+            )
+
+    reg_status_map = {
+        "approved": "APPROVED",
+        "shortlisted": "APPROVED",
+        "accepted": "APPROVED",
+        "rejected": "REJECTED",
+        "waitlisted": "WAITLISTED",
+        "pending": "PENDING_APPROVAL",
+    }
+    reg_new_status = reg_status_map.get(raw_status)
+    if reg_new_status:
+        for uid in member_ids:
+            await registrations_col.update_one(
+                {"event_id": event_id_str, "user_id": uid},
+                {"$set": {"status": reg_new_status, "updated_at": datetime.utcnow()}},
             )
 
     if raw_status in ("approved", "shortlisted", "accepted") and next_stage_doc and event_doc:
@@ -4978,12 +5032,7 @@ async def update_event_details(event_id: str, update_data: dict, user: dict = De
                 is_new = s.get("id") not in old_stages
                 if is_new or start_str != old_start:
                     if start_str:
-                        try:
-                            start_dt = datetime.fromisoformat(start_str)
-                            if start_dt.tzinfo is None:
-                                start_dt = start_dt.replace(tzinfo=timezone.utc)
-                        except Exception:
-                            start_dt = None
+                        start_dt = _parse_dt_ist(start_str)
                         if start_dt and start_dt < today:
                             raise HTTPException(
                                 status_code=400,
@@ -6259,13 +6308,9 @@ async def notify_shortlisted_participants(
             continue
         s = stg.get("start_date") or stg.get("startDate") or ""
         if s:
-            try:
-                start_dt = datetime.fromisoformat(s)
-                if start_dt.tzinfo is None:
-                    start_dt = start_dt.replace(tzinfo=timezone.utc)
+            start_dt = _parse_dt_ist(s)
+            if start_dt:
                 upcoming_stages.append((start_dt, stg.get("name", ""), s, stg_type))
-            except Exception:
-                pass
     upcoming_stages.sort(key=lambda x: x[0])
     next_stage_name = upcoming_stages[0][1] if upcoming_stages else ""
     next_stage_start = upcoming_stages[0][2] if upcoming_stages else ""

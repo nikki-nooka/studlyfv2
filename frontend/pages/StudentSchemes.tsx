@@ -219,7 +219,7 @@ const StudentSchemes: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-gray-800 pt-28 font-sans selection:bg-[#EC4899]/20 flex flex-col">
       
-      <div className="max-w-7xl mx-auto px-6 pb-24 flex-grow w-full relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 flex-grow w-full relative z-10">
         
         {/* Navigation */}
         <Link 
@@ -236,16 +236,16 @@ const StudentSchemes: React.FC = () => {
           <div className="inline-flex items-center gap-2 bg-[#EC4899]/10 text-[#EC4899] px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-6 border border-[#EC4899]/20 relative z-10 shadow-sm">
             <Landmark className="w-4 h-4" /> Government & Private Funding
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#1A1A1A] relative z-10 leading-[1.1]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#1A1A1A] relative z-10 leading-[1.1]">
             Student <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EC4899] to-[#6C2BFF]">Schemes</span>
           </h1>
-          <p className="text-lg text-gray-500 font-medium relative z-10">
+          <p className="text-base sm:text-lg text-gray-500 font-medium relative z-10">
             Discover verified scholarships, government grants, internships, and funding programs tailored specifically for ambitious students.
           </p>
         </div>
 
         {/* Categories Tab */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-16">
           {schemeCategories.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
@@ -265,7 +265,7 @@ const StudentSchemes: React.FC = () => {
         </div>
 
         {/* Schemes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-h-[300px]">
           <AnimatePresence mode="wait">
             {filteredSchemes.map((scheme) => (
               <motion.div 
@@ -275,7 +275,7 @@ const StudentSchemes: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={() => handleLinkClick(scheme.link)}
-                className="bg-white border border-gray-200 rounded-[2rem] p-8 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-[#EC4899]/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative overflow-hidden"
+                className="bg-white border border-gray-200 rounded-[2rem] p-4 sm:p-8 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-[#EC4899]/30 transition-all duration-300 group flex flex-col h-full cursor-pointer relative overflow-hidden"
               >
                 {/* Category Badge & Share & Bookmark */}
                 <div className="absolute top-6 right-6 flex items-center gap-2 z-10">

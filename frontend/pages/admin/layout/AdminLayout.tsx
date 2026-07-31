@@ -8,6 +8,7 @@ import { useAuth } from '../../../AuthContext';
 const AdminLayout: React.FC = () => {
     const { user, loading } = useAuth();
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     if (loading) return <div className="h-screen w-full bg-[#09090B] flex items-center justify-center text-purple-500 font-bold">Initializing Admin Space...</div>;
 
@@ -34,11 +35,40 @@ const AdminLayout: React.FC = () => {
                     }
                 `}
             </style>
+
+            {/* Mobile Hamburger */}
+            <button
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="fixed top-4 left-4 z-[60] md:hidden p-2 bg-[#1E1B4B] border border-white/10 rounded-xl text-white shadow-lg"
+            >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+
+            {/* Mobile Overlay */}
+            {isMobileSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] md:hidden"
+                    onClick={() => setIsMobileSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <Sidebar
-                isCollapsed={isSidebarCollapsed}
-                toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            />
+            <div className={`hidden md:block`}>
+                <Sidebar
+                    isCollapsed={isSidebarCollapsed}
+                    toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                />
+            </div>
+            <div className={`fixed inset-y-0 left-0 z-[59] md:hidden transition-transform duration-300 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <Sidebar
+                    isCollapsed={false}
+                    toggleCollapse={() => setIsMobileSidebarOpen(false)}
+                />
+            </div>
 
             {/* Main Content Area */}
             <main className="flex-grow flex flex-col relative overflow-hidden h-screen">

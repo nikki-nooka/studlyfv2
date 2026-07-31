@@ -28,11 +28,31 @@ async def submit_score(submission_id: str, judge_id: str, scores: dict, comments
     )
     
     # Update submission_data_col with the score
-    from db import submission_data_col
+    from db import submission_data_col, events_col
+    recommendation = "hold"
+    classified_status = "Scored"
     try:
+        event = await events_col.find_one({"_id": ObjectId(event_id)}) if event_id else None
+        if event:
+            thresholds = event.get("evaluation_thresholds") or {}
+            criteria = event.get("judging_criteria") or []
+            max_possible = sum(float(c.get("max_points") or 10) for c in criteria) or 100.0
+            pct = (rubric_sum / max_possible * 100) if max_possible > 0 else 0
+            shortlist_min = float(thresholds.get("shortlist_min", 80))
+            waitlist_min = float(thresholds.get("waitlist_min", 65))
+            reject_below = float(thresholds.get("reject_below", 40))
+            if pct >= shortlist_min:
+                recommendation = "shortlist"
+                classified_status = "Shortlisted"
+            elif pct >= waitlist_min:
+                recommendation = "waitlist"
+                classified_status = "Waitlisted"
+            elif pct < reject_below:
+                recommendation = "reject"
+                classified_status = "Rejected"
         await submission_data_col.update_one(
             {"_id": ObjectId(submission_id)},
-            {"$set": {"total_score": rubric_sum, "status": "Scored", "evaluation_score": rubric_sum}},
+            {"$set": {"total_score": rubric_sum, "status": classified_status, "evaluation_score": rubric_sum, "evaluation_status": "completed", "evaluation_recommendation": recommendation}},
         )
     except Exception:
         pass

@@ -27,7 +27,7 @@ const Announcements: React.FC = () => {
   }, [eventId]);
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-100">
+    <div className="bg-white p-3 sm:p-6 rounded-2xl border border-slate-100">
       <h2 className="text-lg font-black mb-4">Announcements</h2>
       {!eventId ? (
         <div className="text-sm text-slate-500">Select an event to view its announcements (use ?eventId=... in URL).</div>
@@ -38,6 +38,7 @@ const Announcements: React.FC = () => {
           {announcements.length === 0 ? (
             <div className="text-sm text-slate-400">No announcements found for this event.</div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-slate-500">
@@ -58,6 +59,7 @@ const Announcements: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

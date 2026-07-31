@@ -290,8 +290,8 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
 
     return (
         <>
-            <div className="space-y-6 animate-in fade-in duration-700 font-sans">
-                <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-3 sm:space-y-6 animate-in fade-in duration-700 font-sans">
+                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3">
                     <h1 className="text-xl font-black text-slate-900">Opportunities</h1>
                 </div>
 
@@ -309,7 +309,7 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                     ))}
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-center justify-between">
                     <div className="relative w-full lg:max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input 
@@ -495,8 +495,8 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                         </div>
                     </div>
                 ) : (
-                    <div className="min-h-[600px] flex flex-col items-center justify-center text-center">
-                        <div className="relative w-[500px] h-64 mb-12">
+                    <div className="min-h-[600px] flex flex-col items-center justify-center text-center px-4">
+                        <div className="relative w-full max-w-[500px] h-64 mb-12">
                             <img 
                                 src="https://img.freepik.com/free-vector/no-data-concept-illustration_114360-536.jpg" 
                                 alt="No results" 
@@ -526,7 +526,7 @@ const OpportunitiesManagement: React.FC<OpportunitiesManagementProps> = ({ insti
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
                         >
-                            <div className="p-6 text-center space-y-4">
+                            <div className="p-4 sm:p-6 text-center space-y-4">
                                 <p className="text-[17px] font-bold text-slate-700">unstop.com says</p>
                                 <p className="text-sm font-medium text-slate-500">Are you sure ?</p>
                                 <div className="flex items-center justify-center gap-3 pt-4">

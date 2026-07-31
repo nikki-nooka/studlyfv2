@@ -469,13 +469,13 @@ export default function ResumeBuilder() {
             <div className="min-h-screen flex flex-col" style={{ background: '#f9fafb' }}>
                 <style>{styles}</style>
                 <Navigation />
-                <div className="flex-1 v-scroll overflow-y-auto pt-28 pb-20 px-6">
+                <div className="flex-1 v-scroll overflow-y-auto pt-28 pb-20 px-3 sm:px-6">
                     <div className="max-w-6xl mx-auto">
                         <div className="mb-10">
                             <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1">My Workspace</p>
                             <h1 className="text-2xl font-bold text-gray-900">{displayName}'s Resumes</h1>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
                             {/* Existing resume */}
                             <motion.div
                                 initial={{ opacity: 0, y: 16 }}
@@ -548,7 +548,7 @@ export default function ResumeBuilder() {
 
                 {/* ── HERO ── */}
                 <section className="relative overflow-hidden grid-bg hero-glow pt-28 pb-20 md:pt-36 md:pb-28">
-                    <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
+                    <div className="max-w-6xl mx-auto px-3 sm:px-6 flex flex-col md:flex-row items-center gap-10 md:gap-16">
                         {/* Left */}
                         <div className="flex-1 max-w-xl">
                             <motion.div
@@ -561,7 +561,7 @@ export default function ResumeBuilder() {
 
                             <motion.h1
                                 variants={fadeUp} initial="hidden" animate="visible" custom={1}
-                                className="text-5xl md:text-6xl font-bold text-gray-950 leading-[1.1] tracking-tight mb-6"
+                                className="text-4xl md:text-6xl font-bold text-gray-950 leading-[1.1] tracking-tight mb-6"
                                 style={{ fontFamily: "'Poppins', sans-serif" }}
                             >
                                 Build a resume<br />
@@ -592,7 +592,7 @@ export default function ResumeBuilder() {
 
                             <motion.div
                                 variants={fadeUp} initial="hidden" animate="visible" custom={4}
-                                className="flex items-center gap-6 mt-10"
+                                className="flex items-center gap-4 sm:gap-6 mt-10 flex-wrap"
                             >
                                 {[['98%', 'Success rate'], ['2 min', 'Avg. build time'], ['Free', 'No credit card']].map(([val, label]) => (
                                     <div key={label}>
@@ -673,9 +673,9 @@ export default function ResumeBuilder() {
                 </section>
 
                 {/* ── STATS STRIP ── */}
-                <section className="border-y border-gray-100 py-8 bg-white">
-                    <div className="max-w-5xl mx-auto px-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <section className="border-y border-gray-100 py-6 sm:py-8 bg-white">
+                    <div className="max-w-5xl mx-auto px-3 sm:px-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
                             {[
                                 ['10,000+', 'Students helped'],
                                 ['98%', 'ATS pass rate'],
@@ -689,7 +689,7 @@ export default function ResumeBuilder() {
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.07 }}
                                 >
-                                    <p className="text-3xl font-bold text-gray-900 tracking-tight">{val}</p>
+                                    <p className="text-xl sm:text-3xl font-bold text-gray-900 tracking-tight">{val}</p>
                                     <p className="text-sm text-gray-400 mt-1">{label}</p>
                                 </motion.div>
                             ))}
@@ -698,20 +698,20 @@ export default function ResumeBuilder() {
                 </section>
 
                 {/* ── FEATURES ── */}
-                <section className="py-24 bg-white">
-                    <div className="max-w-5xl mx-auto px-6">
-                        <div className="text-center mb-16">
+                <section className="py-16 sm:py-24 bg-white">
+                    <div className="max-w-5xl mx-auto px-3 sm:px-6">
+                        <div className="text-center mb-10 sm:mb-16">
                             <motion.p
                                 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                                 className="text-xs font-semibold tracking-widest text-violet-600 uppercase mb-3"
                             >Features</motion.p>
                             <motion.h2
                                 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                                className="text-4xl font-bold text-gray-950 tracking-tight"
+                                className="text-2xl sm:text-4xl font-bold text-gray-950 tracking-tight"
                             >Everything you need to land the job</motion.h2>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
                             {[
                                 { icon: Sparkles, title: 'AI-Powered Review', desc: 'Get real-time suggestions to improve your content, keywords, and ATS score in under 60 seconds.', color: 'bg-violet-50 text-violet-600' },
                                 { icon: Layout, title: 'Clean Templates', desc: 'Choose from ATS-optimized templates designed by hiring professionals and career coaches.', color: 'bg-sky-50 text-sky-600' },
@@ -741,16 +741,16 @@ export default function ResumeBuilder() {
                 </section>
 
                 {/* ── HOW IT WORKS ── */}
-                <section className="py-24 bg-gray-50 border-y border-gray-100">
-                    <div className="max-w-3xl mx-auto px-6">
-                        <div className="text-center mb-16">
+                <section className="py-16 sm:py-24 bg-gray-50 border-y border-gray-100">
+                    <div className="max-w-3xl mx-auto px-3 sm:px-6">
+                        <div className="text-center mb-10 sm:mb-16">
                             <motion.p
                                 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                                 className="text-xs font-semibold tracking-widest text-violet-600 uppercase mb-3"
                             >How it works</motion.p>
                             <motion.h2
                                 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                                className="text-4xl font-bold text-gray-950 tracking-tight"
+                                className="text-2xl sm:text-4xl font-bold text-gray-950 tracking-tight"
                             >Three steps to your dream role</motion.h2>
                         </div>
 
@@ -792,16 +792,16 @@ export default function ResumeBuilder() {
                     Images are sourced from /template-previews/{id}-resume.png.
                     Fallback handled via onError → /template-previews/fallback.png.
                 */}
-                <section className="py-24 bg-white">
-                    <div className="max-w-5xl mx-auto px-6">
-                        <div className="text-center mb-16">
+                <section className="py-16 sm:py-24 bg-white">
+                    <div className="max-w-5xl mx-auto px-3 sm:px-6">
+                        <div className="text-center mb-10 sm:mb-16">
                             <motion.p
                                 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                                 className="text-xs font-semibold tracking-widest text-violet-600 uppercase mb-3"
                             >Templates</motion.p>
                             <motion.h2
                                 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                                className="text-4xl font-bold text-gray-950 tracking-tight"
+                                className="text-2xl sm:text-4xl font-bold text-gray-950 tracking-tight"
                             >Two templates, endless possibilities</motion.h2>
                         </div>
 
@@ -849,13 +849,13 @@ export default function ResumeBuilder() {
                 </section>
 
                 {/* ── FINAL CTA ── */}
-                <section className="py-24 bg-gray-950 relative overflow-hidden">
+                <section className="py-16 sm:py-24 bg-gray-950 relative overflow-hidden">
                     <div className="absolute inset-0 grid-bg opacity-20" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 bg-violet-800/20 rounded-full blur-3xl" />
-                    <div className="max-w-2xl mx-auto px-6 text-center relative z-10">
+                    <div className="max-w-2xl mx-auto px-3 sm:px-6 text-center relative z-10">
                         <motion.h2
                             initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                            className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-5"
+                            className="text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-5"
                         >
                             Your next opportunity<br />starts here.
                         </motion.h2>
@@ -894,18 +894,18 @@ export default function ResumeBuilder() {
             <div className="min-h-screen flex flex-col bg-white">
                 <style>{styles}</style>
                 <Navigation />
-                <div className="flex-1 flex flex-col items-center pt-36 pb-20 px-6">
+                <div className="flex-1 flex flex-col items-center pt-28 sm:pt-36 pb-16 sm:pb-20 px-3 sm:px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-center mb-14"
+                        className="text-center mb-10 sm:mb-14"
                     >
                         <p className="text-xs font-semibold tracking-widest text-violet-600 uppercase mb-3">Step 1 of 1</p>
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-950 tracking-tight mb-3">Choose your template</h1>
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-950 tracking-tight mb-3">Choose your template</h1>
                         <p className="text-gray-500 text-lg max-w-md mx-auto">Both templates are ATS-optimized. You can switch anytime from the editor.</p>
                     </motion.div>
 
-                    <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl">
+                    <div className="flex flex-col md:flex-row gap-4 sm:gap-6 w-full max-w-3xl">
                         {[
                             { id: 'classic', name: 'Classic', sub: 'Clean & Professional', tag: 'Most popular' },
                             { id: 'modern', name: 'Modern', sub: 'Structured & Visual', tag: 'Trending' }

@@ -250,12 +250,12 @@ async def submit_solo_team_for_review(
     if not team:
         raise HTTPException(status_code=404, detail="Solo team not found. Create one first.")
 
-    if team.get("status") == "finalized":
+    if team.get("status") in ("finalized", "pending_admin_approval", "approved"):
         return {"status": "success", "message": "Team already submitted for review"}
 
     await teams_col.update_one(
         {"_id": team["_id"]},
-        {"$set": {"status": "finalized", "updated_at": datetime.now(timezone.utc)}}
+        {"$set": {"status": "pending_admin_approval", "updated_at": datetime.now(timezone.utc)}}
     )
 
     team_id_str = str(team["_id"])

@@ -382,3 +382,41 @@ body {
     letter-spacing: 0.4em; text-transform: uppercase;
     color: #a78bfa; animation: boot-pulse 2s ease-in-out infinite;
 }
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== GLOBAL MOBILE RESPONSIVE LAYER ===== */
+
+/* Ensure html/body don't overflow on mobile */
+html, body, #root {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Fix common padding pattern: px-6/px-8 → responsive */
+@media (max-width: 639px) {
+    /* All modals/dialogs get smaller padding on mobile */
+    .fixed.inset-0 {
+        padding: 8px;
+    }
+}
+
+/* Touch-friendly minimum tap targets */
+@media (pointer: coarse) {
+    button, a, [role="button"], input[type="checkbox"], input[type="radio"] {
+        min-height: 44px;
+    }
+}
+
+/* Prevent horizontal overflow on all containers */
+.overflow-hidden, .min-h-screen, [class*="min-h-"] {
+    overflow-x: clip;
+}
+
+/* Better scrolling on iOS */
+@supports (-webkit-touch-callout: none) {
+    .custom-scrollbar {
+        -webkit-overflow-scrolling: touch;
+    }
+}

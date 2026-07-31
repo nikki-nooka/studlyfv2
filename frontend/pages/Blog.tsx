@@ -51,12 +51,12 @@ const BlogDetail = ({ post, onBack }: { post: BlogArticle; onBack: () => void })
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-6 pt-40 pb-20">
+      <div className="max-w-4xl mx-auto px-3 sm:px-6 pt-40 pb-20">
         <button onClick={onBack} className="flex items-center gap-2 text-[#94A3B8] hover:text-[#6C3BFF] font-bold uppercase tracking-widest text-[10px] mb-12 transition-colors group">
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back to Standard
         </button>
         <span className="inline-block px-4 py-1.5 rounded-full bg-[#6C3BFF]/10 text-[#6C3BFF] text-[10px] font-black uppercase tracking-widest mb-8">{post.category}</span>
-        <h1 className="text-4xl sm:text-6xl font-black text-[#0F172A] leading-[1.1] tracking-tight mb-8">{post.title}</h1>
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-[#0F172A] leading-[1.1] tracking-tight mb-8">{post.title}</h1>
         <div className="flex flex-wrap items-center gap-8 py-8 border-y border-gray-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#6C3BFF]/10 flex items-center justify-center text-[#6C3BFF]"><User size={18} /></div>
@@ -82,14 +82,14 @@ const BlogDetail = ({ post, onBack }: { post: BlogArticle; onBack: () => void })
         </div>
       </div>
 
-      <div className="w-full max-w-7xl mx-auto px-6 mb-20">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 mb-20">
         <div className="aspect-[21/9] rounded-[3rem] overflow-hidden shadow-2xl relative">
           <img src={post.image || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800'} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/20 to-transparent" />
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 pb-40">
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 pb-40">
         <div className="text-slate-600 font-medium leading-[1.8] space-y-8 prose prose-slate prose-lg max-w-none">
           {post.content.split('\n').map((line, i) => {
             if (line.startsWith('## ')) return <h2 key={i} className="text-2xl font-black text-[#0F172A] mt-12 mb-4">{line.slice(3)}</h2>;
@@ -131,7 +131,7 @@ const Blog: React.FC = () => {
       <Navigation />
       <AnimatePresence mode="wait">
         {!selectedPost ? (
-          <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-40 pb-20 px-6">
+          <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-40 pb-20 px-3 sm:px-6">
             <div className="max-w-7xl mx-auto">
               <div className="max-w-4xl mb-12">
                 <div className="flex flex-col items-start gap-4 mb-4">
@@ -152,7 +152,7 @@ const Blog: React.FC = () => {
               {loading ? (
                 <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-gray-200 border-t-[#6C3BFF] rounded-full animate-spin" /></div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                   {allPosts.map((post, index) => (
                     <BlogCard key={post._id} post={post} index={index} onClick={() => setSelectedPost(post)} />
                   ))}

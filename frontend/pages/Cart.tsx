@@ -76,14 +76,14 @@ const Cart: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="pt-40 pb-32 px-6 bg-white min-h-screen flex items-center justify-center">
+      <div className="pt-40 pb-32 px-3 sm:px-6 bg-white min-h-screen flex items-center justify-center">
         <div className="font-mono text-xs tracking-widest uppercase text-[#7C3AED]">Synchronizing Cart...</div>
       </div>
     );
   }
 
   return (
-    <div className="pt-40 pb-32 px-6 bg-white min-h-screen relative overflow-hidden">
+    <div className="pt-40 pb-32 px-3 sm:px-6 bg-white min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-tech opacity-[0.03] pointer-events-none" />
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[#7C3AED]/5 to-transparent pointer-events-none" />
 
@@ -94,7 +94,7 @@ const Cart: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-6xl sm:text-7xl font-black text-[#111827] tracking-tighter uppercase mb-4">
+            <h1 className="text-4xl sm:text-6xl sm:text-7xl font-black text-[#111827] tracking-tighter uppercase mb-4">
               Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B] inline-block">CART</span>
             </h1>
             <p className="text-lg text-[#6B7280] font-medium">
@@ -123,7 +123,7 @@ const Cart: React.FC = () => {
             </button>
           </motion.div>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <motion.div
@@ -137,7 +137,7 @@ const Cart: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="bg-white border border-gray-100 rounded-2xl p-6 flex items-center justify-between hover:shadow-lg transition-all"
+                    className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:shadow-lg transition-all"
                   >
                     <div className="flex-1">
                       <h3 className="text-lg font-black text-[#111827] mb-1">{item.course_title}</h3>
@@ -180,7 +180,7 @@ const Cart: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-[#F9FAFB] to-white border border-gray-100 rounded-2xl p-8 h-fit sticky top-40"
+              className="bg-gradient-to-br from-[#F9FAFB] to-white border border-gray-100 rounded-2xl p-6 sm:p-8 h-fit sticky top-40"
             >
               <h2 className="text-xl font-black text-[#111827] mb-6 uppercase tracking-tight">Order Summary</h2>
 

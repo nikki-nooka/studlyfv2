@@ -68,9 +68,9 @@ const CompanyManagement: React.FC = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 font-sans">
             {/* Header section with Stats */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight uppercase italics">Partner Ecosystem</h1>
+                    <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase italics">Partner Ecosystem</h1>
                     <p className="text-zinc-500 text-sm mt-1">Management of institutional placement partners and corporate alliances.</p>
                 </div>
                 <button 
@@ -92,7 +92,7 @@ const CompanyManagement: React.FC = () => {
                         />
                         <motion.div 
                             initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-lg bg-[#0F0F0F] border border-white/10 rounded-[2.5rem] p-10 overflow-hidden shadow-2xl"
+                            className="relative w-full max-w-lg bg-[#0F0F0F] border border-white/10 rounded-[2.5rem] p-5 sm:p-10 overflow-hidden shadow-2xl"
                         >
                             <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 blur-3xl -mr-20 -mt-20" />
                             
@@ -117,7 +117,7 @@ const CompanyManagement: React.FC = () => {
                                         onChange={(e) => setNewOrg({...newOrg, sector: e.target.value})}
                                     />
                                 </div>
-                                <div className="grid grid-cols-2 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest pl-2 font-mono">Openings</label>
                                         <input 
@@ -159,7 +159,7 @@ const CompanyManagement: React.FC = () => {
             </AnimatePresence>
 
             {/* Quick Stats Banner */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
                 <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-3xl flex items-center gap-6 group hover:border-indigo-500/30 transition-all duration-500">
                     <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                         <Building2 size={28} />

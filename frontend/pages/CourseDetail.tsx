@@ -200,7 +200,7 @@ const CourseDetail: React.FC = () => {
     <div className="min-h-screen bg-white text-gray-900 font-sans pb-24 overflow-x-hidden selection:bg-[#6C2BFF]/20 selection:text-gray-900">
 
       {/* 1. HERO SECTION (DARK) */}
-      <div className="relative pt-32 pb-20 px-6 overflow-hidden bg-[#05050A] text-white">
+      <div className="relative pt-32 pb-20 px-3 sm:px-6 overflow-hidden bg-[#05050A] text-white">
         {/* Glow Effects */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#6C2BFF]/20 rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3 z-0" />
         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#EC4899]/10 rounded-full blur-[100px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2 z-0" />
@@ -219,7 +219,7 @@ const CourseDetail: React.FC = () => {
                 <span className="text-sm font-bold text-white">{course.role_tag}</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
                 Generative <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#D946EF]">AI Course</span>
               </h1>
@@ -236,7 +236,7 @@ const CourseDetail: React.FC = () => {
               </div>
 
               {/* Stats Row */}
-              <div className="flex flex-wrap items-center gap-6 mb-10 pb-10">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-10 pb-10">
                 <div className="flex items-center gap-2 pr-6 border-r border-white/10">
                   <span className="text-xl">⭐</span>
                   <span className="text-lg font-bold text-yellow-400">4.2</span>
@@ -261,7 +261,7 @@ const CourseDetail: React.FC = () => {
               </div>
 
               {/* Feature Pills Box */}
-              <div className="bg-[#1A0B3B]/40 backdrop-blur-md border border-[#6C2BFF]/20 rounded-2xl p-6 flex flex-wrap gap-8 justify-between items-center">
+              <div className="bg-[#1A0B3B]/40 backdrop-blur-md border border-[#6C2BFF]/20 rounded-2xl p-4 sm:p-6 flex flex-wrap gap-4 sm:gap-8 justify-between items-center">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#05050A] border border-[#6C2BFF]/30 flex items-center justify-center">
                     <Award className="w-5 h-5 text-[#A88CFF]" />
@@ -356,18 +356,18 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 2. WHAT YOU'LL GET SECTION (LIGHT) */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-gray-50">
+      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 tracking-tight">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-3 tracking-tight">
               What You'll Get With <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] to-[#A88CFF]">This Course</span>
             </h2>
             <p className="text-gray-600 text-lg">Everything you need to start, learn, and grow in AI — from basics to real-world applications.</p>
             <img src="/images/prompt_mastery_1779792771105.png" alt="Prompt Mastery" className="my-6 rounded-lg" />
           </div>
 
-          <div className="bg-white border border-gray-200 shadow-sm rounded-[2rem] p-8 md:p-12 relative overflow-hidden">
-            <div className={`grid md:grid-cols-2 gap-12 transition-all duration-500 ${isDetailsExpanded ? '' : 'h-[300px] overflow-hidden'}`}>
+          <div className="bg-white border border-gray-200 shadow-sm rounded-[2rem] p-4 sm:p-8 md:p-12 relative overflow-hidden">
+            <div className={`grid md:grid-cols-2 gap-6 sm:gap-12 transition-all duration-500 ${isDetailsExpanded ? '' : 'h-[300px] overflow-hidden'}`}>
 
               <div className="space-y-12">
                 <div>
@@ -431,16 +431,16 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 3. LEARNING JOURNEY (LIGHT) */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-white">
+      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 text-center md:text-left">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 tracking-tight">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-3 tracking-tight">
               Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] to-[#A88CFF]">Learning Journey</span>
             </h2>
             <p className="text-gray-600 text-lg">A step-by-step roadmap from beginner to AI-ready.</p>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-6 relative">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-6 relative">
             {/* Connecting line for desktop */}
             <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-[#6C2BFF]/10 via-[#6C2BFF]/30 to-[#6C2BFF]/10 -translate-y-1/2 z-0 border-t border-dashed border-[#6C2BFF]/40" />
 
@@ -470,8 +470,8 @@ const CourseDetail: React.FC = () => {
 
 
       {/* 5 & 6. CURRICULUM & WHY THIS COURSE (LIGHT) */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-16">
+      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-white">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 sm:gap-16">
           <div className="lg:col-span-2">
             <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Course Curriculum</h2>
             <div className="flex items-center justify-between text-gray-500 font-medium text-sm mb-8">
@@ -558,13 +558,13 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 7. WHERE THIS CAN TAKE YOU (LIGHT) */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-gray-50">
+      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="mb-10 text-center md:text-left">
-            <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Where This Can Take You</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 tracking-tight">Where This Can Take You</h2>
             <p className="text-gray-600 text-lg">High growth career paths in AI</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             {[
               { t: 'AI Engineer', s: '₹12L - ₹28L' },
               { t: 'Prompt Engineer', s: '₹10L - ₹24L' },
@@ -585,14 +585,14 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 8. CERTIFICATE (DARK) */}
-      <div className="py-20 px-6 bg-[#05050A]">
-        <div className="max-w-7xl mx-auto bg-gradient-to-r from-[#1A0B3B] to-[#0A0514] border border-white/10 rounded-[2rem] p-8 md:p-16 flex flex-col lg:flex-row items-center gap-12 overflow-hidden relative">
+      <div className="py-20 px-3 sm:px-6 bg-[#05050A]">
+        <div className="max-w-7xl mx-auto bg-gradient-to-r from-[#1A0B3B] to-[#0A0514] border border-white/10 rounded-[2rem] p-4 sm:p-8 md:p-16 flex flex-col lg:flex-row items-center gap-6 sm:gap-12 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#6C2BFF]/20 rounded-full blur-[100px]" />
           <div className="flex-1 relative z-10">
             <div className="inline-flex items-center gap-2 text-[#A88CFF] font-bold text-sm tracking-widest uppercase mb-4">
               <Award className="w-5 h-5" /> Official Credential
             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Certificate of Completion</h2>
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-black text-white mb-6">Certificate of Completion</h2>
             <p className="text-gray-300 mb-8 text-lg">Complete all modules, score 70% or more in the final quiz, and submit your final project to earn your STUDLYF Certificate.</p>
             <ul className="space-y-4 text-gray-300 font-medium">
               <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-green-400" /> 70%+ in Final Quiz</li>
@@ -624,10 +624,10 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 8.25 RELATED BLOGS */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-white">
+      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="mb-10 text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight mb-2">Related Blogs</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight mb-2">Related Blogs</h2>
             <p className="text-gray-500 font-medium text-lg max-w-2xl">Explore curated insights, guides, and resources to deepen your understanding beyond the course.</p>
           </div>
 
@@ -665,11 +665,11 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 8.5 RELATED COURSES (MOVED HERE) */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-gray-50">
+      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
             <div>
-              <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Related Courses <span className="text-[#A88CFF]">You May Like</span></h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Related Courses <span className="text-[#A88CFF]">You May Like</span></h2>
             </div>
             <button onClick={() => navigate('/learn/courses')} className="text-[#6C2BFF] font-bold text-sm flex items-center gap-1 hover:text-[#5B21D6] transition-colors">
               View All Courses <ChevronRight className="w-4 h-4" />
@@ -701,8 +701,8 @@ const CourseDetail: React.FC = () => {
       </div>
 
       {/* 9. STICKY FOOTER (LIGHT) */}
-      <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50 hidden md:block">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-sm font-bold text-gray-700">
+      <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50 md:block">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex justify-between items-center text-xs sm:text-sm font-bold text-gray-700">
           <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-[#6C2BFF]" /> 14-Day Guarantee</div>
           <div className="flex items-center gap-2"><InfinityIcon className="w-4 h-4 text-[#6C2BFF]" /> Lifetime Access</div>
           <div className="flex items-center gap-2"><Smartphone className="w-4 h-4 text-[#6C2BFF]" /> Mobile & Desktop</div>

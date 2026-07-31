@@ -264,7 +264,7 @@ const EnrollmentFlow: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] pt-32 pb-20 px-4">
+        <div className="min-h-screen bg-[#FAFAFA] pt-32 pb-20 px-3 sm:px-4">
             <style>{`
                 @keyframes premium-shimmer {
                     0%   { transform: translateX(-180%) skewX(-20deg); }
@@ -383,17 +383,17 @@ const EnrollmentFlow: React.FC = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="grid lg:grid-cols-2 gap-12 items-center"
+                            className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center"
                         >
                             <div className="space-y-8">
                                 <div>
                                     <span className="text-[10px] font-black uppercase tracking-[0.5em] mb-4 block" style={{ color: track.accent }}>Step 01 / Confirmation</span>
-                                    <h2 className="text-4xl sm:text-6xl font-black text-gray-900 tracking-tighter uppercase leading-[0.9]">
-                                        Confirm Your <br /> <span style={{ color: track.accent }}>{isSingleCourse ? 'Course' : 'Career Track'}</span>.
-                                    </h2>
+                                    <h2 className="text-2xl sm:text-4xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase leading-[0.9]">
+                                         Confirm Your <br /> <span style={{ color: track.accent }}>{isSingleCourse ? 'Course' : 'Career Track'}</span>.
+                                     </h2>
                                 </div>
                                 <p className="text-gray-500 text-lg">You have selected the <b>{isSingleCourse ? (targetCourse?.title || 'Course') : track.title}</b> {isSingleCourse ? 'course' : 'track'}. This intensive program is designed to move you from theory into verified engineering authority.</p>
-                                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-6">
+                                <div className="bg-white p-6 sm:p-8 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-4 sm:gap-6">
                                     <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-3xl shadow-inner">{track.icon}</div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Selection</p>
@@ -448,16 +448,16 @@ const EnrollmentFlow: React.FC = () => {
                         >
                             <div className="text-center max-w-2xl mx-auto">
                                 <span className="text-[10px] font-black uppercase tracking-[0.5em] mb-4 block" style={{ color: track.accent }}>Step 02 / Membership</span>
-                                <h2 className="text-4xl sm:text-6xl font-black text-gray-900 tracking-tighter uppercase leading-[0.9] mb-6">
-                                    Select Your <br /> <span style={{ color: track.accent }}>Mastery Plan</span>.
-                                </h2>
+                                <h2 className="text-2xl sm:text-4xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase leading-[0.9] mb-6">
+                                     Select Your <br /> <span style={{ color: track.accent }}>Mastery Plan</span>.
+                                 </h2>
                                 <p className="text-gray-500 font-medium">Choose how you want to invest in your engineering journey. Yearly plans include verified certification and hiring support.</p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
                                 <div
                                     onClick={() => setSelectedPlan('monthly')}
-                                    className={`bg-white rounded-[2.5rem] p-10 border-2 cursor-pointer transition-all ${selectedPlan === 'monthly' ? 'border-gray-900 shadow-2xl scale-[1.02]' : 'border-gray-100 border-dashed opacity-60'}`}
+                                    className={`bg-white rounded-[2.5rem] p-6 sm:p-10 border-2 cursor-pointer transition-all ${selectedPlan === 'monthly' ? 'border-gray-900 shadow-2xl scale-[1.02]' : 'border-gray-100 border-dashed opacity-60'}`}
                                 >
                                     <div className="flex justify-between items-start mb-10">
                                         <div>
@@ -481,7 +481,7 @@ const EnrollmentFlow: React.FC = () => {
 
                                 <div
                                     onClick={() => setSelectedPlan('yearly')}
-                                    className={`bg-white rounded-[2.5rem] p-10 border-2 cursor-pointer transition-all relative overflow-hidden ${selectedPlan === 'yearly' ? 'border-gray-900 shadow-2xl scale-[1.02]' : 'border-gray-100 border-dashed opacity-60'}`}
+                                    className={`bg-white rounded-[2.5rem] p-6 sm:p-10 border-2 cursor-pointer transition-all relative overflow-hidden ${selectedPlan === 'yearly' ? 'border-gray-900 shadow-2xl scale-[1.02]' : 'border-gray-100 border-dashed opacity-60'}`}
                                 >
                                     <div className="absolute top-6 right-6 bg-green-500 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Best Value</div>
                                     <div className="flex justify-between items-start mb-10">
@@ -505,7 +505,7 @@ const EnrollmentFlow: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-center gap-6 pt-4">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-4">
                                 <button
                                     onClick={handleBack}
                                     className="premium-btn !px-8 !py-5 !rounded-2xl"
@@ -538,7 +538,7 @@ const EnrollmentFlow: React.FC = () => {
                             className="max-w-2xl mx-auto"
                         >
                             <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100">
-                                <div className="p-10 sm:p-14 border-b border-gray-50">
+                                <div className="p-8 sm:p-10 md:p-14 border-b border-gray-50">
                                     <div className="flex justify-between items-center mb-10">
                                         <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">Order Summary</span>
                                         <div className="bg-gray-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500">{isSingleCourse ? 'Single Course' : `${selectedPlan} Plan`}</div>
@@ -562,7 +562,7 @@ const EnrollmentFlow: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="p-10 sm:p-14 bg-gray-50/50">
+                                <div className="p-8 sm:p-10 md:p-14 bg-gray-50/50">
                                     <div className="space-y-6">
                                         <div className="bg-white p-8 rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-4">
                                             <div className="flex items-center gap-4">
@@ -655,12 +655,12 @@ const EnrollmentFlow: React.FC = () => {
                                 </motion.div>
                             </div>
 
-                            <h2 className="text-5xl sm:text-7xl font-black text-gray-900 tracking-tighter uppercase mb-6 leading-[0.9]">
+                            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-gray-900 tracking-tighter uppercase mb-6 leading-[0.9]">
                                 Clinical Access <br /> <span className="text-green-500">Unlocked</span>.
                             </h2>
                             <p className="text-gray-500 text-lg font-medium mb-12 max-w-xl mx-auto">Welcome to the elite tier. Your learning dashboard is now fully unlocked with the <b>{track.title}</b> curriculum.</p>
 
-                            <div className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-sm mb-12 grid grid-cols-2 sm:grid-cols-4 gap-8">
+                            <div className="bg-white rounded-[3rem] p-6 sm:p-10 border border-gray-100 shadow-sm mb-12 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
                                 {[
                                     { label: 'Courses', val: 'Full' },
                                     { label: 'Mentors', val: 'Active' },

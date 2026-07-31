@@ -6,7 +6,7 @@ Also enforces time-based stage deadlines (e.g., registration 18:00-19:00)
 """
 
 from fastapi import HTTPException
-from db import participants_col, opportunities_col, events_col, teams_col, submission_data_col
+from db import participants_col, opportunities_col, events_col, teams_col, submission_data_col, parse_dt_ist as _parse_dt, IST
 from datetime import datetime, timezone
 from bson import ObjectId
 from services.stage_service import get_event_stages
@@ -189,18 +189,6 @@ async def _get_participant_fallback(event_id: str, user_id: str) -> Optional[dic
     except Exception as e:
         print(f"[ERROR] _get_participant_fallback: {e}")
         
-    return None
-
-
-def _parse_dt(value) -> Optional[datetime]:
-    if isinstance(value, str):
-        try:
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-            return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
-        except Exception:
-            return None
-    if isinstance(value, datetime):
-        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
     return None
 
 
@@ -538,7 +526,7 @@ async def get_stage_access_state(
             "can_submit": False,
             "has_submission": has_submission,
             "lock_reason": "not_started",
-            "lock_detail": f"This stage opens at {start_date.strftime('%Y-%m-%d %H:%M UTC')}.",
+            "lock_detail": f"This stage opens at {start_date.astimezone(IST).strftime('%Y-%m-%d %I:%M %p IST')}.",
             "status_badge": "upcoming",
         }
         if is_healed:
@@ -553,7 +541,7 @@ async def get_stage_access_state(
             "can_submit": False,
             "has_submission": has_submission,
             "lock_reason": "ended",
-            "lock_detail": f"This stage closed at {end_date.strftime('%Y-%m-%d %H:%M UTC')}.",
+            "lock_detail": f"This stage closed at {end_date.astimezone(IST).strftime('%Y-%m-%d %I:%M %p IST')}.",
             "status_badge": "completed" if has_submission else "closed",
         }
         if is_healed:
@@ -1023,13 +1011,13 @@ async def check_stage_deadline(event_id: str, stage_index: int = None, stage_nam
     
     # Convert to datetime if they're strings
     if isinstance(start_date, str):
-        start_date = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+        start_date = _parse_dt(start_date)
     if isinstance(end_date, str):
-        end_date = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+        end_date = _parse_dt(end_date)
     if isinstance(start_date, datetime) and start_date.tzinfo is None:
-        start_date = start_date.replace(tzinfo=timezone.utc)
+        start_date = start_date.replace(tzinfo=IST)
     if isinstance(end_date, datetime) and end_date.tzinfo is None:
-        end_date = end_date.replace(tzinfo=timezone.utc)
+        end_date = end_date.replace(tzinfo=IST)
     
     if not start_date or not end_date:
         # If no dates set, allow it
@@ -1040,13 +1028,13 @@ async def check_stage_deadline(event_id: str, stage_index: int = None, stage_nam
     if now < start_date:
         raise HTTPException(
             status_code=403,
-            detail=f"This stage has not started yet. It opens at {start_date.strftime('%Y-%m-%d %H:%M UTC')}"
+            detail=f"This stage has not started yet. It opens at {start_date.astimezone(IST).strftime('%Y-%m-%d %I:%M %p IST')}"
         )
     
     if now > end_date:
         raise HTTPException(
             status_code=403,
-            detail=f"This stage has ended. It closed at {end_date.strftime('%Y-%m-%d %H:%M UTC')}"
+            detail=f"This stage has ended. It closed at {end_date.astimezone(IST).strftime('%Y-%m-%d %I:%M %p IST')}"
         )
     
     return target_stage

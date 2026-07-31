@@ -24,7 +24,7 @@ const FeaturedInstitutions: React.FC = () => {
     const allInstitutions = [...institutions, ...institutions, ...institutions];
 
     return (
-        <section className="bg-white py-16 overflow-hidden relative">
+        <section className="bg-white py-10 sm:py-16 overflow-hidden relative">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes scroll-left-to-right {

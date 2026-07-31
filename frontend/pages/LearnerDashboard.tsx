@@ -150,10 +150,10 @@ const LearnerDashboard: React.FC = () => {
     switch (activeView) {
       case 'overview':
         return (
-          <div className="space-y-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-6 sm:space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
               <div>
-                <h1 className="text-4xl font-black uppercase tracking-tighter text-[#111827] leading-tight">System Overview</h1>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter text-[#111827] leading-tight">System Overview</h1>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-2">Authenticated Session: {user?.full_name}</p>
               </div>
               <button 
@@ -164,28 +164,28 @@ const LearnerDashboard: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Stats Grid */}
-              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {[
                   { label: "Profile Strength", value: `${dashboardStats?.profile_strength || 88}%`, color: "#7C3AED", icon: "✨" },
                   { label: "Course Progress", value: `${dashboardStats?.course_progress || 64}%`, color: "#0052CC", icon: "📚" },
                   { label: "Certificates Claimed", value: `${dashboardStats?.certificates || 0}`, color: "#059669", icon: "🎓" },
                   { label: "Global Rank", value: `#${dashboardStats?.global_rank || 42}`, color: "#D97706", icon: "🏆" }
                 ].map((stat, i) => (
-                  <div key={i} className="bg-white border border-gray-100 rounded-[2rem] p-8 hover:border-[#7C3AED]/30 transition-all shadow-sm group">
-                    <div className="flex items-center justify-between mb-4">
+                  <div key={i} className="bg-white border border-gray-100 rounded-[2rem] p-5 sm:p-8 hover:border-[#7C3AED]/30 transition-all shadow-sm group">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
                       <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-lg">{stat.icon}</div>
                       <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Live Sync</span>
                     </div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                    <h3 className="text-3xl font-black text-[#111827] tracking-tighter" style={{ color: stat.color }}>{stat.value}</h3>
+                    <p className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                    <h3 className="text-2xl sm:text-3xl font-black text-[#111827] tracking-tighter" style={{ color: stat.color }}>{stat.value}</h3>
                   </div>
                 ))}
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-[#111827] rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
+              <div className="bg-[#111827] rounded-[2.5rem] p-6 sm:p-10 text-white relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
                    <Sparkles className="w-32 h-32" />
                 </div>
@@ -207,9 +207,9 @@ const LearnerDashboard: React.FC = () => {
         );
       case 'knowledge':
         return (
-          <div className="space-y-8">
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-[#111827]">Knowledge Graph</h2>
-            <div className="bg-white border border-gray-100 rounded-[2rem] p-12 flex flex-col items-center text-center space-y-8 shadow-sm relative overflow-hidden">
+          <div className="space-y-6 sm:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter text-[#111827]">Knowledge Graph</h2>
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 sm:p-8 md:p-12 flex flex-col items-center text-center space-y-6 sm:space-y-8 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#7C3AED] to-[#A78BFA]" />
               <div className="w-24 h-24 bg-[#F5F3FF] rounded-full flex items-center justify-center text-4xl shadow-inner relative">
                 <span className="relative z-10">🕸️</span>
@@ -224,7 +224,7 @@ const LearnerDashboard: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl mt-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-4xl mt-4 sm:mt-8">
                 {[
                   { label: "System Design", score: 92, draft: "High" },
                   { label: "Algorithms", score: 85, draft: "Mid" },
@@ -233,7 +233,7 @@ const LearnerDashboard: React.FC = () => {
                   { label: "Security", score: 95, draft: "Elite" },
                   { label: "DevOps", score: 82, draft: "Mid" }
                 ].map((skill, i) => (
-                  <div key={i} className="bg-gray-50 rounded-2xl p-6 border border-gray-100 flex flex-col items-start gap-3 hover:border-[#7C3AED]/30 transition-all group cursor-default">
+                  <div key={i} className="bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-100 flex flex-col items-start gap-2 sm:gap-3 hover:border-[#7C3AED]/30 transition-all group cursor-default">
                     <div className="w-full flex justify-between items-start">
                       <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{skill.draft} Tier</span>
                       <div className="w-2 h-2 rounded-full bg-[#7C3AED]" />
@@ -251,8 +251,8 @@ const LearnerDashboard: React.FC = () => {
         );
       case 'leaderboard':
         return (
-          <div className="space-y-8">
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-[#111827]">Global Rankings</h2>
+          <div className="space-y-6 sm:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter text-[#111827]">Global Rankings</h2>
             <div className="bg-white border border-gray-100 rounded-[2rem] overflow-hidden shadow-sm">
               {(globalRankings.length > 0 ? globalRankings : [
                 { rank: 1, name: "Sarah Q.", score: 98.2, status: "Verified", movement: "▲" },
@@ -261,8 +261,8 @@ const LearnerDashboard: React.FC = () => {
                 { rank: 4, name: "Mira K.", score: 74.1, status: "Active", movement: "▼" },
                 { rank: 5, name: "Chen W.", score: 72.8, status: "Active", movement: "▲" }
               ]).map((u, i) => (
-                <div key={i} className={`flex items-center justify-between p-6 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors ${u.highlighted ? 'bg-[#F5F3FF] hover:bg-[#F5F3FF]' : ''}`}>
-                  <div className="flex items-center gap-6">
+                <div key={i} className={`flex items-center justify-between p-4 sm:p-6 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors ${u.highlighted ? 'bg-[#F5F3FF] hover:bg-[#F5F3FF]' : ''}`}>
+                  <div className="flex items-center gap-3 sm:gap-6">
                     <div className={`w-8 h-8 flex items-center justify-center font-black ${i < 3 ? 'text-[#7C3AED]' : 'text-gray-400'}`}>
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#0${u.rank}`}
                     </div>
@@ -271,7 +271,7 @@ const LearnerDashboard: React.FC = () => {
                     </div>
                     <span className="font-bold text-sm uppercase tracking-tight text-[#111827]">{u.name}</span>
                   </div>
-                  <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-3 sm:gap-8">
                     <span className="hidden sm:inline-block text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest bg-white px-3 py-1 rounded-md border border-[#7C3AED]/10">{u.status}</span>
                     <div className="text-right">
                       <span className="block font-black text-lg tracking-tighter text-[#111827]">{u.score}</span>
@@ -288,11 +288,11 @@ const LearnerDashboard: React.FC = () => {
         );
       case 'certificates':
         return (
-          <div className="space-y-8">
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-[#111827]">Certifications</h2>
+          <div className="space-y-6 sm:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter text-[#111827]">Certifications</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {certificates.map((cert) => (
-                <div key={cert.certificate_id} className="bg-white border border-gray-100 rounded-[2rem] p-8 flex flex-col justify-between group hover:border-[#7C3AED]/30 transition-all shadow-sm">
+                <div key={cert.certificate_id} className="bg-white border border-gray-100 rounded-[2rem] p-5 sm:p-8 flex flex-col justify-between group hover:border-[#7C3AED]/30 transition-all shadow-sm">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-[10px] font-black tracking-[0.2em] text-[#7C3AED] uppercase">Official Credential</span>
@@ -348,11 +348,11 @@ const LearnerDashboard: React.FC = () => {
             <div
               id="cert-preview-modal"
               style={{ display: 'none' }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] flex items-center justify-center p-6"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] flex items-center justify-center p-3 sm:p-6"
               onClick={(e) => { if ((e.target as HTMLElement).id === 'cert-preview-modal') { (document.getElementById('cert-preview-modal') as HTMLElement).style.display = 'none'; } }}
             >
               <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-5xl flex flex-col">
-                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
+                <div className="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-5 border-b border-gray-100">
                   <span className="text-sm font-black text-[#111827] uppercase tracking-widest">Certificate Preview</span>
                   <div className="flex gap-3">
                     <button
@@ -396,9 +396,9 @@ const LearnerDashboard: React.FC = () => {
         );
       case 'resume':
         return (
-          <div className="space-y-8">
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-[#111827]">My Resume</h2>
-            <div className="bg-white border border-gray-100 rounded-[2rem] p-12 flex flex-col items-center text-center space-y-8 shadow-sm relative overflow-hidden">
+          <div className="space-y-6 sm:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter text-[#111827]">My Resume</h2>
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 sm:p-8 md:p-12 flex flex-col items-center text-center space-y-6 sm:space-y-8 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#7C3AED] to-[#A78BFA]" />
               <div className="w-24 h-24 bg-[#F5F3FF] rounded-full flex items-center justify-center text-4xl shadow-inner relative">
                 <span className="relative z-10">📄</span>
@@ -461,8 +461,8 @@ const LearnerDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex flex-col font-sans text-[#111827] selection:bg-[#7C3AED] selection:text-white pt-20">
-      <main className="flex-grow p-4 sm:p-12 overflow-y-auto">
+    <div className="min-h-screen bg-[#FFFFFF] flex flex-col font-sans text-[#111827] selection:bg-[#7C3AED] selection:text-white pt-20 overflow-x-hidden">
+      <main className="flex-grow p-4 sm:p-6 lg:p-12 overflow-y-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeView}

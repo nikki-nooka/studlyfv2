@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
         <motion.aside
             initial={false}
             animate={{ width: isCollapsed ? '80px' : '280px' }}
-            className="h-screen bg-[#1E1B4B] border-r border-white/5 flex flex-col sticky top-0 z-50 transition-all duration-300 ease-in-out"
+            className="h-screen w-[280px] bg-[#1E1B4B] border-r border-white/5 flex flex-col md:sticky top-0 z-50 transition-all duration-300 ease-in-out"
         >
             {/* Header / Logo */}
             <div className="p-6 flex items-center justify-between">

@@ -1239,17 +1239,12 @@ const OpportunityDetails: React.FC = () => {
             return;
         }
 
-        if (!checkStageAuthorization(s)) {
-            alert(`This stage is locked. You must be approved or shortlisted to proceed.`);
-            return;
-        }
-
         // Check if stage is active based on dates
         const start = s.startDate || s.start_date;
         const end = s.endDate || s.end_date;
         const now = new Date();
         
-        if (start && new Date(start) > now) {
+        if (start && new Date(start) > now && stageStatus !== 'upcoming') {
             alert(`This stage hasn't started yet. It will start on ${new Date(start).toLocaleString()}.`);
             return;
         }
@@ -1270,7 +1265,8 @@ const OpportunityDetails: React.FC = () => {
         if ((stype === 'TEAM_FORMATION' || sname.includes('TEAM')) && oppPath) {
             navigate(`${oppPath}?tab=team`);
         } else if ((stype === 'SUBMISSION' || sname.includes('SUBMISSION')) && oppPath) {
-            navigate(`${oppPath}?tab=submissions`);
+            const stageQueryParam = s.id || s.name || '';
+            navigate(`${oppPath}?tab=submissions&stage=${encodeURIComponent(stageQueryParam)}`);
         } else if (stype === 'QUIZ' || stype === 'ASSESSMENT' || sname.includes('QUIZ') || sname.includes('ASSESSMENT')) {
             const quizId = s.config?.quiz_id || s.quiz_id || s.config?.quizId || s.quizId;
             if (quizId) {
@@ -1513,7 +1509,7 @@ const OpportunityDetails: React.FC = () => {
                 </div>
             </header>
 
-            <div className="max-w-[1400px] mx-auto px-4 pt-10 pb-20 flex flex-col lg:flex-row gap-8 relative items-start">
+            <div className="max-w-[1400px] mx-auto px-3 sm:px-4 pt-6 sm:pt-10 pb-16 sm:pb-20 flex flex-col lg:flex-row gap-6 sm:gap-8 relative items-start">
                 <div className="flex-1 min-w-0 w-full space-y-8">
                 <button
                     type="button"
@@ -1541,6 +1537,7 @@ const OpportunityDetails: React.FC = () => {
                                 eventId={eventId}
                                 participationType={opportunity?.participationType}
                                 stagesFromOpportunity={stagesList}
+                                selectedStageId={new URLSearchParams(location.search).get('stage')}
                             />
                         ) : (
                             <div className="bg-white p-6 rounded-lg shadow-md text-slate-600">
@@ -1695,7 +1692,7 @@ const OpportunityDetails: React.FC = () => {
                                     <meta name="twitter:description" content={opportunity.seo?.description || opportunity.description?.slice(0, 160) || ''} />
                                     {opportunity.banner_url && <meta name="twitter:image" content={getImageUrl(opportunity.banner_url)} />}
                                 </Helmet>
-                                <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 tracking-tight leading-tight uppercase relative mb-3">
+                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 tracking-tight leading-tight uppercase relative mb-3">
                                     {opportunity.title}
                                 </h1>
                                 <p className="text-lg font-bold text-slate-700 flex items-center gap-2 mb-4">
@@ -1985,6 +1982,10 @@ const OpportunityDetails: React.FC = () => {
                                             const stype = s.type?.toUpperCase();
                                             const sname = s.name?.toUpperCase() || '';
 
+                                            const stageStatus = computeStageStatus(s);
+                                            const isAuthorized = checkStageAuthorization(s);
+                                            const canAct = (stageStatus === 'active' || stageStatus === 'upcoming') && isAuthorized;
+
                                             let actionLabel = 'Unlock';
                                             if (stype === 'REGISTRATION' || sname.includes('REGISTER') || sname.includes('REGISTRATION')) {
                                                 actionLabel = isApplied || effectiveRegStatus === 'APPROVED' ? 'Registered' : 'Apply Now';
@@ -1997,15 +1998,9 @@ const OpportunityDetails: React.FC = () => {
                                             } else {
                                                 actionLabel = 'View Stage';
                                             }
-
-                                            const stageStatus = computeStageStatus(s);
-                                            const isAuthorized = checkStageAuthorization(s);
-                                            
-                                            // Stage is interactive only if it is the current active stage and authorized
-                                            const canAct = (stageStatus === 'active') && isAuthorized;
                                             
                                             // Stage is visible only if it is authorized or already past the start date
-                                            const isVisible = isAuthorized || (s.startDate && new Date(s.startDate) <= new Date());
+                                            const isVisible = isAuthorized || (s.startDate || s.start_date) && new Date(s.startDate || s.start_date) <= new Date();
                                             
                                             if (!isVisible) return null;
 
@@ -2093,7 +2088,11 @@ const OpportunityDetails: React.FC = () => {
 
                                                             <div className="flex items-center gap-2 shrink-0">
                                                                 {canAct && (
-                                                                    <button type="button" className="px-5 py-2.5 bg-[#6C3BFF] text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-purple-700 transition-colors">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => { e.stopPropagation(); handleStageClick(s); }}
+                                                                        className="px-5 py-2.5 bg-[#6C3BFF] text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-purple-700 transition-colors"
+                                                                    >
                                                                         {actionLabel}
                                                                     </button>
                                                                 )}

@@ -294,12 +294,12 @@ const DashboardHome: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/20" />
           </div>
 
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 relative z-10 pt-32">
+          <div className="max-w-[1600px] mx-auto px-3 sm:px-8 lg:px-12 relative z-10 pt-24 sm:pt-32">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
-              className="mb-16 rounded-[4rem] overflow-hidden pt-12 pb-20 flex flex-col items-center justify-center gap-12 relative bg-transparent border border-white/10 shadow-2xl"
+              className="mb-16 rounded-[2rem] sm:rounded-[4rem] overflow-hidden pt-8 sm:pt-12 pb-12 sm:pb-20 flex flex-col items-center justify-center gap-8 sm:gap-12 relative bg-transparent border border-white/10 shadow-2xl"
             >
               <motion.div
                 animate={{ x: ['100%', '-100%'], opacity: [0, 1, 0] }}
@@ -326,7 +326,7 @@ const DashboardHome: React.FC = () => {
                 </p>
               </div>
 
-              <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 relative z-20 mt-8 px-6 sm:px-12">
+              <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 relative z-20 mt-8 px-4 sm:px-12">
                 {/* Connected With */}
                 <div className="flex flex-col items-center gap-6 md:gap-8">
                   <span className="text-[10px] sm:text-[12px] font-black text-black uppercase tracking-[0.4em] leading-none text-center">Built By Poeple From</span>
@@ -371,7 +371,7 @@ const DashboardHome: React.FC = () => {
           </div>
 
           {/* SECOND SECTION: COURSES FOR EVERY ambition */}
-          <section className="px-6 sm:px-16 py-12 sm:py-20 bg-white relative z-10 w-full overflow-hidden">
+          <section className="px-4 sm:px-16 py-10 sm:py-20 bg-white relative z-10 w-full overflow-hidden">
             <div className="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 lg:gap-16 items-center">
               {/* LEFT SIDE TYPOGRAPHY */}
               <div className="flex flex-col text-center lg:text-left">
@@ -391,13 +391,13 @@ const DashboardHome: React.FC = () => {
               <div
                 ref={carouselRef}
                 id="course-carousel"
-                className="flex gap-8 overflow-x-scroll pb-6 pt-4 no-scrollbar"
+                className="flex gap-4 sm:gap-8 overflow-x-scroll pb-6 pt-4 no-scrollbar"
               >
                 {courses.map((course, idx) => (
                   <div
                     key={idx}
                     onClick={() => navigate(`/learn/courses/${createSlug(course.title, course._id)}`)}
-                    className="min-w-[220px] sm:min-w-[260px] lg:min-w-[290px] h-[400px] lg:h-[440px] relative rounded-[2rem] overflow-hidden group hover:scale-[1.02] transition-all duration-700 cursor-pointer shadow-lg border border-black/[0.03]"
+                    className="min-w-[200px] sm:min-w-[260px] lg:min-w-[290px] h-[340px] sm:h-[400px] lg:h-[440px] relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden group hover:scale-[1.02] transition-all duration-700 cursor-pointer shadow-lg border border-black/[0.03]"
                   >
                     <img
                       src={course.image || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop'}
@@ -423,52 +423,52 @@ const DashboardHome: React.FC = () => {
             </div>
 
             {/* FULL WIDTH NAVIGATION ROW - Placed outside the grid for absolute visibility */}
-            <div className="flex flex-col items-center justify-center gap-8 mt-4 w-full relative z-30">
-              <div className="flex items-center gap-10">
+            <div className="flex flex-col items-center justify-center gap-6 sm:gap-8 mt-4 w-full relative z-30">
+              <div className="flex items-center gap-6 sm:gap-10">
                 <button
                   onClick={() => scrollCarousel('left')}
-                  className="w-16 h-16 rounded-full border border-gray-100 bg-white flex items-center justify-center cursor-pointer shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] hover:bg-gray-50 transition-all hover:scale-110 active:scale-95 group/nav"
+                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border border-gray-100 bg-white flex items-center justify-center cursor-pointer shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] hover:bg-gray-50 transition-all hover:scale-110 active:scale-95 group/nav"
                 >
-                  <ChevronLeft size={30} className="text-gray-400 group-hover/nav:text-[#7C3AED] transition-colors" />
+                  <ChevronLeft size={24} className="text-gray-400 group-hover/nav:text-[#7C3AED] transition-colors" />
                 </button>
 
-                <div className="flex items-center gap-4">
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                  <div className="w-10 h-2.5 rounded-full bg-[#7C3AED] shadow-sm shadow-[#7C3AED]/30" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gray-200" />
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gray-200" />
+                  <div className="w-8 h-2 sm:w-10 sm:h-2.5 rounded-full bg-[#7C3AED] shadow-sm shadow-[#7C3AED]/30" />
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gray-200" />
                 </div>
 
                 <button
                   onClick={() => scrollCarousel('right')}
-                  className="w-16 h-16 rounded-full border border-gray-100 bg-white flex items-center justify-center cursor-pointer shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] hover:bg-gray-50 transition-all hover:scale-110 active:scale-95 group/nav"
+                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border border-gray-100 bg-white flex items-center justify-center cursor-pointer shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] hover:bg-gray-50 transition-all hover:scale-110 active:scale-95 group/nav"
                 >
-                  <ChevronRight size={30} className="text-gray-400 group-hover/nav:text-[#7C3AED] transition-colors" />
+                  <ChevronRight size={24} className="text-gray-400 group-hover/nav:text-[#7C3AED] transition-colors" />
                 </button>
               </div>
             </div>
 
             {/* Trust & Certification Footer */}
-<div className="mt-20 max-w-[1800px] mx-auto pt-16 border-t border-black/5 flex flex-col items-center px-6">
-  <div className="flex flex-col items-center text-center gap-10">
-    <span className="text-2xl md:text-3xl font-black text-black uppercase tracking-[0.3em]">
+<div className="mt-12 sm:mt-20 max-w-[1800px] mx-auto pt-10 sm:pt-16 border-t border-black/5 flex flex-col items-center px-4 sm:px-6">
+  <div className="flex flex-col items-center text-center gap-6 sm:gap-10">
+    <span className="text-lg sm:text-2xl md:text-3xl font-black text-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">
       Curriculum built by people from
     </span>
 
-    <div className="flex items-center justify-center gap-10 md:gap-16 flex-wrap max-w-6xl">
-      <img src="/images/meta.png" className="h-12 md:h-16 object-contain" alt="Meta" />
-      <img src="/images/netflix.png" className="h-12 md:h-16 object-contain" alt="Netflix" />
-      <img src="/images/apple.png" className="h-12 md:h-16 object-contain" alt="Apple" />
-      <img src="/images/nvidia.png" className="h-12 md:h-16 object-contain" alt="Nvidia" />
-      <img src="/images/virtusa.png" className="h-12 md:h-16 object-contain" alt="virtusa" />
+    <div className="flex items-center justify-center gap-6 sm:gap-10 md:gap-16 flex-wrap max-w-6xl">
+      <img src="/images/meta.png" className="h-8 sm:h-12 md:h-16 object-contain" alt="Meta" />
+      <img src="/images/netflix.png" className="h-8 sm:h-12 md:h-16 object-contain" alt="Netflix" />
+      <img src="/images/apple.png" className="h-8 sm:h-12 md:h-16 object-contain" alt="Apple" />
+      <img src="/images/nvidia.png" className="h-8 sm:h-12 md:h-16 object-contain" alt="Nvidia" />
+      <img src="/images/virtusa.png" className="h-8 sm:h-12 md:h-16 object-contain" alt="virtusa" />
       <img
         src="https://tse1.mm.bing.net/th/id/OIP.eBtPsy_IK1WHX15SO7OgUgHaEK?pid=Api&P=0&h=180"
-        className="h-12 md:h-16 object-contain"
+        className="h-8 sm:h-12 md:h-16 object-contain"
         alt="Deloitte"
       />
       <img
         src="https://indiancompanies.in/wp-content/uploads/2020/05/TCS-Logo-Tata-consultancy-service.png"
-        className="h-12 md:h-16 object-contain"
+        className="h-8 sm:h-12 md:h-16 object-contain"
         alt="TCS"
       />
     </div>
@@ -478,7 +478,7 @@ const DashboardHome: React.FC = () => {
         </div>
 
         {/* Advertisements Section */}
-        <div className="relative z-20 mb-20 px-4 sm:px-12">
+        <div className="relative z-20 mb-12 sm:mb-20 px-3 sm:px-12">
           <AdsCarousel />
         </div>
       </div>
@@ -486,25 +486,25 @@ const DashboardHome: React.FC = () => {
 
 
       {/* SECTION 4: REST OF CONTENT */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 relative z-10 pb-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 relative z-10 pb-12 sm:pb-20">
         {/* Learner widgets */}
         {user ? (
           <>
 
             {myEvents.length > 0 && (
               <section className="mb-16">
-                <div className="bg-white border border-purple-100 rounded-[2rem] p-6 sm:p-8 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#7C3AED] to-[#A78BFA]" />
-                  <div className="flex items-end justify-between gap-6">
+                  <div className="bg-white border border-purple-100 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-8 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#7C3AED] to-[#A78BFA]" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 sm:gap-6">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Your activities</p>
-                      <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-2">My events & opportunities</h3>
+                      <h3 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900 mt-2">My events & opportunities</h3>
                       <p className="text-sm font-medium text-slate-500 mt-2">
                         Track your stage progress across events and opportunities.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-6 space-y-4">
+                  <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                     {myEvents.map((ev: any) => (
                       <div
                         key={ev.event_id}
@@ -514,7 +514,7 @@ const DashboardHome: React.FC = () => {
                             : `/events/${ev.event_id}/hub`;
                           navigate(path);
                         }}
-                        className="p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:bg-white transition-all cursor-pointer"
+                        className="p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:bg-white transition-all cursor-pointer"
                       >
                         <div className="flex items-center justify-between gap-4 mb-3">
                           <div className="min-w-0">
@@ -558,7 +558,7 @@ const DashboardHome: React.FC = () => {
           </>) : null}
 
         {/* Infinite Scrolling Logo (Left to Right) */}
-        <div className="mb-24 relative flex w-full flex-col items-center justify-center overflow-hidden py-10 border-b border-black/5 bg-white">
+        <div className="mb-16 sm:mb-24 relative flex w-full flex-col items-center justify-center overflow-hidden py-6 sm:py-10 border-b border-black/5 bg-white">
           <style>
             {`
               @keyframes slideRight {
@@ -588,13 +588,13 @@ const DashboardHome: React.FC = () => {
         </div>
 
         {/* AI Era Integration (Career Synergy) */}
-        <section className="mb-24">
+        <section className="mb-16 sm:mb-24">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             style={{ clipPath: window.innerWidth > 640 ? 'polygon(0% 0%, 55% 0%, 62% 10%, 100% 10%, 100% 100%, 0% 100%)' : 'none' }}
-            className="bg-gradient-to-br from-[#F5F3FF] via-[#EDE9FE] to-[#F3E8FF] rounded-[2rem] sm:rounded-[3rem] py-12 sm:py-24 px-6 sm:px-24 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16 relative overflow-hidden border border-[#7C3AED]/10 shadow-sm"
+            className="bg-gradient-to-br from-[#F5F3FF] via-[#EDE9FE] to-[#F3E8FF] rounded-[1.5rem] sm:rounded-[3rem] py-8 sm:py-24 px-4 sm:px-12 lg:px-24 flex flex-col lg:flex-row items-center justify-between gap-8 sm:gap-12 lg:gap-16 relative overflow-hidden border border-[#7C3AED]/10 shadow-sm"
           >
             <div className="absolute top-0 right-0 w-1/2 h-full bg-[#7C3AED]/[0.02] rotate-12 translate-x-1/4 pointer-events-none" />
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#7C3AED]/10 rounded-full blur-3xl pointer-events-none" />
@@ -603,18 +603,18 @@ const DashboardHome: React.FC = () => {
             <div className="flex flex-col lg:flex-row items-center justify-between w-full relative z-10 gap-10 lg:gap-16">
               <div className="flex flex-col gap-4 sm:gap-6 lg:w-1/2 text-center lg:text-left">
                 <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.4em]">Career Synergy</span>
-                <h2 className="text-3xl sm:text-6xl font-black text-black tracking-tighter leading-tight">
+                <h2 className="text-2xl sm:text-4xl lg:text-6xl font-black text-black tracking-tighter leading-tight">
                   Streamline Your Career <br /> in <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">AI Era</span>.
                 </h2>
               </div>
               <div className="lg:w-1/2 flex flex-col items-center lg:items-end justify-center gap-0 pt-4 lg:pt-8">
-                <h2 className="text-2xl sm:text-5xl font-bold tracking-tighter text-center lg:text-right lowercase flex flex-col items-center lg:items-end">
+                <h2 className="text-xl sm:text-3xl lg:text-5xl font-bold tracking-tighter text-center lg:text-right lowercase flex flex-col items-center lg:items-end">
                   <span className="text-black lg:mr-12 sm:lg:mr-20">i am</span>
                   <AuroraText className="bg-gradient-to-r from-[#84CC16] via-[#06B6D4] to-[#10B981] lg:translate-x-2 sm:lg:translate-x-4 mt-2">career dreamer</AuroraText>
                 </h2>
                 <Link
                   to="/learn/career-onboarding"
-                  className="px-10 sm:px-14 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-lg sm:text-xl transition-all shadow-xl lg:mr-12 sm:lg:mr-20 mt-8 glow-btn glow-btn-blue"
+                  className="px-8 sm:px-14 py-2.5 sm:py-4 rounded-lg sm:rounded-2xl font-bold text-base sm:text-xl transition-all shadow-xl lg:mr-12 sm:lg:mr-20 mt-6 sm:mt-8 glow-btn glow-btn-blue"
                 >
                   <span className="glow-orb glow-orb-1" />
                   <span className="glow-orb glow-orb-2" />
@@ -637,11 +637,11 @@ const DashboardHome: React.FC = () => {
 
       </div>
 
-      <div className="mb-20">
+      <div className="mb-12 sm:mb-20">
         <StudlyfSteps />
       </div>
 
-      <div className="mb-20">
+      <div className="mb-12 sm:mb-20">
         <GetHiredSection />
       </div>
 

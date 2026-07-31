@@ -122,11 +122,11 @@ const StudentManagement: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-3 sm:space-y-6">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Student Management</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Student Management</h1>
                     <p className="text-white/50 mt-1">Manage, track, and support the entire student community.</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -175,12 +175,12 @@ const StudentManagement: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white/[0.02] border-b border-white/10">
-                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Student</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Course & College</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider text-center">Skill Score</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Joined</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider text-right">Actions</th>
+                                <th className="px-3 sm:px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Student</th>
+                                <th className="px-3 sm:px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Course & College</th>
+                                <th className="px-3 sm:px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider text-center">Skill Score</th>
+                                <th className="px-3 sm:px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Status</th>
+                                <th className="px-3 sm:px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Joined</th>
+                                <th className="px-3 sm:px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -191,7 +191,7 @@ const StudentManagement: React.FC = () => {
                                     animate={{ opacity: 1 }}
                                     className={`hover:bg-white/[0.02] transition-colors group ${student.restricted ? 'opacity-50 grayscale' : ''}`}
                                 >
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 sm:px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500/20 to-blue-500/20 border border-white/10 flex items-center justify-center font-bold text-white/80">
                                                 {student.name.charAt(0)}
@@ -205,11 +205,11 @@ const StudentManagement: React.FC = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 sm:px-6 py-4">
                                         <div className="text-sm text-white/80">{student.course}</div>
                                         <div className="text-xs text-white/40">{student.college}</div>
                                     </td>
-                                    <td className="px-6 py-4 text-center">
+                                    <td className="px-3 sm:px-6 py-4 text-center">
                                         <div className={`text-sm font-bold ${student.score >= 90 ? 'text-green-400' : student.score >= 75 ? 'text-blue-400' : 'text-orange-400'}`}>
                                             {student.score}%
                                         </div>
@@ -217,7 +217,7 @@ const StudentManagement: React.FC = () => {
                                             <div className={`h-full rounded-full ${student.score >= 90 ? 'bg-green-500' : student.score >= 75 ? 'bg-blue-500' : 'bg-orange-500'}`} style={{ width: `${student.score}%` }} />
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 sm:px-6 py-4">
                                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${student.status === 'Placed' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
                                             student.status === 'Hiring Ready' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
                                                 student.status === 'Interviewing' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
@@ -227,10 +227,10 @@ const StudentManagement: React.FC = () => {
                                             {student.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-white/40 font-mono">
+                                    <td className="px-3 sm:px-6 py-4 text-sm text-white/40 font-mono">
                                         {student.joined}
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-3 sm:px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <a href={`mailto:${student.email}`} className="p-2 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-all shadow-sm" title="Send Email">
                                                 <Mail size={16} />

@@ -77,7 +77,7 @@ const personalities = [
 ];
 
 const QuoteCard = ({ person }: { person: typeof personalities[0] }) => (
-    <div className="flex-shrink-0 w-[240px] sm:w-[260px] md:w-[280px] lg:w-[320px] aspect-[3/4.5] relative rounded-[1rem] overflow-hidden group transition-all duration-700 hover:-translate-y-2 cursor-pointer shadow-2xl">
+    <div className="flex-shrink-0 w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] aspect-[3/4.5] relative rounded-[1rem] overflow-hidden group transition-all duration-700 hover:-translate-y-2 cursor-pointer shadow-2xl">
         {/* Background Image - Color by default */}
         <img
             src={person.image}
@@ -95,7 +95,7 @@ const QuoteCard = ({ person }: { person: typeof personalities[0] }) => (
         <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90"></div>
 
         {/* Content Overlay */}
-        <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-20 text-white">
+        <div className="absolute inset-0 p-4 sm:p-6 md:p-8 flex flex-col justify-end z-20 text-white">
             <p className="text-sm md:text-base font-['Poppins'] font-medium mb-6 leading-relaxed text-white/95">
                 "{person.quote}"
             </p>
@@ -120,7 +120,7 @@ const VoicesThatInspire: React.FC = () => {
     const allPersonalities = [...personalities, ...personalities, ...personalities];
 
     return (
-        <section className="bg-white pt-0 pb-12 md:pb-16 overflow-hidden relative">
+        <section className="bg-white pt-0 pb-8 sm:pb-12 md:pb-16 overflow-hidden relative">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes scroll {
@@ -146,10 +146,10 @@ const VoicesThatInspire: React.FC = () => {
 
             <div className="relative">
                 {/* Refined Edge Blurring */}
-                <div className="absolute inset-y-0 left-0 w-32 md:w-64 bg-gradient-to-r from-white via-white/20 to-transparent z-30 pointer-events-none"></div>
-                <div className="absolute inset-y-0 right-0 w-32 md:w-64 bg-gradient-to-l from-white via-white/20 to-transparent z-30 pointer-events-none"></div>
+                <div className="absolute inset-y-0 left-0 w-16 sm:w-32 md:w-64 bg-gradient-to-r from-white via-white/20 to-transparent z-30 pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-16 sm:w-32 md:w-64 bg-gradient-to-l from-white via-white/20 to-transparent z-30 pointer-events-none"></div>
 
-                <div className="scroll-container py-4 px-4">
+                <div className="scroll-container py-4 px-3 sm:px-4">
                     {allPersonalities.map((person, index) => (
                         <QuoteCard key={`${person.name}-${index}`} person={person} />
                     ))}

@@ -95,7 +95,7 @@ const JudgeManagement: React.FC = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 flex items-center gap-3">
                         <Gavel className="text-[#6C3BFF]" size={28} />
@@ -139,7 +139,7 @@ const JudgeManagement: React.FC = () => {
                     <div className="w-10 h-10 border-4 border-[#6C3BFF] border-t-transparent rounded-full animate-spin" />
                 </div>
             ) : filteredJudges.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                     {filteredJudges.map((judge) => (
                         <motion.div 
                             key={judge._id}
@@ -217,7 +217,7 @@ const JudgeManagement: React.FC = () => {
                     ))}
                 </div>
             ) : (
-                <div className="bg-white rounded-[3rem] border border-slate-100 p-16 text-center shadow-sm">
+                <div className="bg-white rounded-[3rem] border border-slate-100 p-8 sm:p-16 text-center shadow-sm">
                     <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
                         <Gavel size={40} />
                     </div>

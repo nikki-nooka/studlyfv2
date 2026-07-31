@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../AuthContext';
-import { Bell, Search, LogOut, Settings as SettingsIcon, Zap, Info, Clock, Building2, ChevronDown } from 'lucide-react';
+import { Bell, Search, LogOut, Settings as SettingsIcon, Zap, Info, Clock, Building2, ChevronDown, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL, authHeaders } from '../../apiConfig';
 import { institutionIdFromUser } from '../../utils/institutionScope';
 
-const InstitutionNavbar: React.FC<{ refreshKey?: number, onNavigate?: (tab: string) => void, onNavigateToSettings?: () => void }> = ({ refreshKey, onNavigate, onNavigateToSettings }) => {
+const InstitutionNavbar: React.FC<{ refreshKey?: number, onNavigate?: (tab: string) => void, onNavigateToSettings?: () => void, onOpenMobileSidebar?: () => void }> = ({ refreshKey, onNavigate, onNavigateToSettings, onOpenMobileSidebar }) => {
     const { user, role, logout } = useAuth();
     const navigate = useNavigate();
     const displayName = user?.institution_name || user?.full_name || 'Institutional Portal';
@@ -273,7 +273,7 @@ const InstitutionNavbar: React.FC<{ refreshKey?: number, onNavigate?: (tab: stri
     };
 
     return (
-        <div className="w-full font-sans px-6 pt-4">
+        <div className="w-full font-sans px-3 sm:px-6 pt-4">
             <motion.div 
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -281,6 +281,15 @@ const InstitutionNavbar: React.FC<{ refreshKey?: number, onNavigate?: (tab: stri
             >
                 {/* 1. Left (Empty to match old layout) */}
                 <div className="w-12 shrink-0 hidden lg:block" />
+                {/* Mobile hamburger */}
+                {onOpenMobileSidebar && (
+                    <button
+                        onClick={onOpenMobileSidebar}
+                        className="md:hidden p-2 mr-2 rounded-xl bg-white/20 text-white hover:bg-white/30 transition-colors"
+                    >
+                        <Menu size={18} />
+                    </button>
+                )}
 
                 {/* 2. Search (Centered & Visible) */}
                 <div className="flex-1 max-w-xl mx-auto relative z-10 hidden md:block">

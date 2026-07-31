@@ -77,7 +77,7 @@ const FAQ: React.FC = () => {
   const iconMap: any = [HelpCircle, Zap, Layers, Clock, CheckCircle];
 
   return (
-    <section className="bg-white py-12 sm:py-20 px-6">
+    <section className="bg-white py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10 sm:mb-14">
           <motion.h2 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[10px] font-black text-[#7C3AED] uppercase tracking-[0.4em] mb-3">FAQ</motion.h2>

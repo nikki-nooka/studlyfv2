@@ -87,9 +87,9 @@ const RightHoverPanel: React.FC = () => {
           ref={handleRef}
           aria-label="Open guide"
           onClick={(e) => { e.stopPropagation(); console.log('Guide open (fixed) clicked'); openGuide(); }}
-          className={`fixed right-4 bottom-5 z-[99999] flex items-center justify-center w-12 h-28 rounded-full bg-gradient-to-b from-purple-700 to-indigo-600 shadow-2xl text-white transition-all duration-500 ease-out cursor-pointer ${menuMounted ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto hover:scale-105'}`}
+          className={`fixed right-2 bottom-3 sm:right-4 sm:bottom-5 z-[99999] flex items-center justify-center w-10 h-24 sm:w-12 sm:h-28 rounded-full bg-gradient-to-b from-purple-700 to-indigo-600 shadow-2xl text-white transition-all duration-500 ease-out cursor-pointer ${menuMounted ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto hover:scale-105'}`}
         >
-          <div className="rotate-90 tracking-wide text-sm">GUIDE</div>
+          <div className="rotate-90 tracking-wide text-xs sm:text-sm font-bold">GUIDE</div>
         </button>
       )}
 

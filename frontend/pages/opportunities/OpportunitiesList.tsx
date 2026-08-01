@@ -434,15 +434,15 @@ const OpportunitiesList: React.FC = () => {
             </div>
 
             {/* Category filters bridging dark/light */}
-            <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
-                <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar -mx-6 px-6 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest mr-2 shrink-0">Discover:</span>
+            <div className="sticky top-14 sm:top-20 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-all">
+                <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Discover:</span>
                         {typeOptions.map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setSelectedType(type)}
-                                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${selectedType === type
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${selectedType === type
                                     ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20'
                                     : 'bg-slate-100 text-slate-600 border border-transparent hover:border-slate-300 hover:bg-slate-50'
                                     }`}
@@ -452,10 +452,10 @@ const OpportunitiesList: React.FC = () => {
                         ))}
                     </div>
 
-                    <div className="flex items-center shrink-0 gap-2 flex-wrap sm:flex-nowrap">
+                    <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 mt-1 sm:mt-0">
                         <button
                             onClick={() => setIsFilterDropdownOpen((v) => !v)}
-                            className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${isFilterDropdownOpen
+                            className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-widest transition-all ${isFilterDropdownOpen
                                 ? 'bg-purple-100 text-purple-700 border border-purple-200'
                                 : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:shadow-sm'
                                 }`}
@@ -475,7 +475,7 @@ const OpportunitiesList: React.FC = () => {
                                     window.location.href = '/login?role=institution&next=' + encodeURIComponent('/institution-dashboard?post=true');
                                 }
                             }}
-                            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-slate-900 text-white border border-slate-900 hover:bg-slate-800 transition-all"
+                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-widest bg-slate-900 text-white border border-slate-900 hover:bg-slate-800 transition-all shadow-sm"
                         >
                             <Plus size={14} /> Post Opportunity
                         </button>
@@ -612,7 +612,7 @@ const OpportunitiesList: React.FC = () => {
                                         </button>
                                     </div>
 
-                                    <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
+                                    <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 snap-x snap-mandatory hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
                                         {section.items.map((opp: any, idx: number) => {
                                             const isApplied = appliedIds.includes(opp._id);
                                             const likelyEligible = clientSideEligible(opp, user);
@@ -626,7 +626,7 @@ const OpportunitiesList: React.FC = () => {
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: idx * 0.05, duration: 0.3 }}
                                                     onClick={() => checkEligibilityThenNavigate(opp)}
-                                                    className={`w-80 shrink-0 snap-start bg-white rounded-2xl border border-slate-200/80 p-5 transition-all duration-300 flex flex-col ${likelyEligible ? 'hover:shadow-lg hover:shadow-purple-900/5 hover:-translate-y-1 hover:border-purple-300/60 cursor-pointer' : 'opacity-70'}`}
+                                                    className={`w-[280px] sm:w-80 shrink-0 snap-start bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 transition-all duration-300 flex flex-col ${likelyEligible ? 'hover:shadow-lg hover:shadow-purple-900/5 hover:-translate-y-1 hover:border-purple-300/60 cursor-pointer' : 'opacity-70'}`}
                                                 >
                                                     <div className="flex items-start justify-between mb-3">
                                                         <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
       
       // SAFE: Only public, non-sensitive values
       'import.meta.env.FRONTEND_URL': JSON.stringify(env.FRONTEND_URL || process.env.FRONTEND_URL || 'http://localhost:3000'),
-      'import.meta.env.RENDER_EXTERNAL_URL': JSON.stringify(env.RENDER_EXTERNAL_URL || process.env.RENDER_EXTERNAL_URL || 'https://api.studlyf.in'),
+      'import.meta.env.RENDER_EXTERNAL_URL': JSON.stringify(env.RENDER_EXTERNAL_URL && env.RENDER_EXTERNAL_URL !== 'http://localhost:8000' ? env.RENDER_EXTERNAL_URL : 'https://studlyf-tlkk.onrender.com'),
       'import.meta.env.VITE_ENABLE_ANALYTICS': JSON.stringify(env.VITE_ENABLE_ANALYTICS || 'true'),
       'import.meta.env.VITE_ENABLE_SENTRY': JSON.stringify(env.VITE_ENABLE_SENTRY || 'true')
     },

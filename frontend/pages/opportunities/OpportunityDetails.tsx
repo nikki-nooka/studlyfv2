@@ -1417,7 +1417,7 @@ const OpportunityDetails: React.FC = () => {
         'opportunity-rich-text text-slate-600 font-medium leading-relaxed [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_a]:text-purple-600 [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-purple-600 [&_blockquote]:pl-4 [&_blockquote]:my-4 [&_blockquote]:text-slate-700 [&_h1]:text-xl [&_h1]:font-black [&_h1]:mb-2 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-bold';
 
     return (
-        <div className="min-h-screen bg-[#eef2f7] pb-16 font-sans text-slate-800">
+        <div className="min-h-screen bg-[#eef2f7] pt-14 sm:pt-20 pb-16 font-sans text-slate-800">
             {opportunity.listingPendingPublish ? (
                 <div className="bg-amber-50 border-b border-amber-100 text-amber-900 text-sm font-bold text-center py-3 px-4">
                     This listing is not public yet. You can open it because you already applied.
@@ -1425,9 +1425,9 @@ const OpportunityDetails: React.FC = () => {
             ) : null}
 
             {/* Sub navigation — reference: Details / Reviews / FAQs */}
-            <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-                <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-                    <nav className="flex items-center gap-1 sm:gap-6 text-sm font-bold text-slate-500 overflow-x-auto whitespace-nowrap" style={{ scrollbarWidth: 'none' }}>
+            <header className="sticky top-14 sm:top-20 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all">
+                <div className="max-w-6xl mx-auto px-3 sm:px-4 h-12 sm:h-14 flex items-center justify-between gap-3">
+                    <nav className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold text-slate-500 overflow-x-auto whitespace-nowrap hide-scrollbar px-1 py-1" style={{ scrollbarWidth: 'none' }}>
                         <button
                             type="button"
                             onClick={() => scrollToSection('details')}
@@ -1480,13 +1480,13 @@ const OpportunityDetails: React.FC = () => {
                             FAQs &amp; Discussions
                         </button>
                     </nav>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                         <button
                             type="button"
                             onClick={handleBack}
-                            className="hidden sm:inline-flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-purple-600"
+                            className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-slate-500 hover:text-purple-600"
                         >
-                            <ChevronLeft size={18} /> Back
+                            <ChevronLeft size={16} /> Back
                         </button>
                         {user ? (
                             activeTab !== 'submissions' ? (
@@ -1500,7 +1500,7 @@ const OpportunityDetails: React.FC = () => {
                         ) : (
                             <Link
                                 to={`/login?next=${encodeURIComponent(window.location.pathname)}`}
-                                className="text-sm font-bold text-purple-600"
+                                className="text-xs sm:text-sm font-bold text-purple-600"
                             >
                                 Login
                             </Link>
@@ -1509,15 +1509,8 @@ const OpportunityDetails: React.FC = () => {
                 </div>
             </header>
 
-            <div className="max-w-[1400px] mx-auto px-3 sm:px-4 pt-6 sm:pt-10 pb-16 sm:pb-20 flex flex-col lg:flex-row gap-6 sm:gap-8 relative items-start">
+            <div className="max-w-[1400px] mx-auto px-3 sm:px-4 pt-4 sm:pt-10 pb-16 sm:pb-20 flex flex-col lg:flex-row gap-6 sm:gap-8 relative items-start">
                 <div className="flex-1 min-w-0 w-full space-y-8">
-                <button
-                    type="button"
-                    onClick={handleBack}
-                    className="sm:hidden flex items-center gap-1 text-sm font-bold text-slate-500 mb-4"
-                >
-                    <ChevronLeft size={18} /> Back
-                </button>
 
                 {/* Conditional rendering for tabs */}
                 {activeTab === 'team' && opportunity ? (

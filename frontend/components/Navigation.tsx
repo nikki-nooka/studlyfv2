@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { API_BASE_URL } from '../apiConfig';
-import { ShoppingCart, User, BookOpen, Briefcase, LogOut } from 'lucide-react';
+import { ShoppingCart, User, BookOpen, Briefcase, LogOut, ChevronDown, Sparkles, Compass, Layers, Code, FileText, Bot } from 'lucide-react';
 import AvatarImage from './AvatarImage';
 
 const StudlyfLogo = ({ className = "h-8 sm:h-10" }: { className?: string }) => (
@@ -131,6 +131,7 @@ const Navigation: React.FC = () => {
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedMobileSection, setExpandedMobileSection] = useState<string | null>(null);
   const [activeMobileOverlay, setActiveMobileOverlay] = useState<string | null>(null);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
@@ -475,32 +476,128 @@ const Navigation: React.FC = () => {
                     <div className="space-y-4">
                       <p className="text-[10px] font-black text-[#7C3AED] uppercase tracking-[0.4em]">Curated Tracks</p>
                       <div className="grid gap-3">
-                        <button
-                          onClick={() => { setActiveMobileOverlay('learn'); setMobileMenuOpen(false); }}
-                          className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-[#7C3AED]/30 transition-all hover:bg-[#7C3AED]/10 group text-left"
-                        >
-                          <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#A78BFA]">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-white uppercase tracking-wider">Learn</p>
-                            <p className="text-[10px] text-white/40">Courses & Modules</p>
-                          </div>
-                        </button>
 
-                        <button
-                          onClick={() => { setActiveMobileOverlay('jobprep'); setMobileMenuOpen(false); }}
-                          className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-[#7C3AED]/30 transition-all hover:bg-[#7C3AED]/10 group text-left"
-                        >
-                          <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#A78BFA]">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-white uppercase tracking-wider">Job Prep</p>
-                            <p className="text-[10px] text-white/40">Portfolio & Career Tools</p>
-                          </div>
-                        </button>
+                        {/* LEARN (Expandable Accordion) */}
+                        <div className="bg-white/5 rounded-2xl border border-white/5 overflow-hidden transition-all">
+                          <button
+                            onClick={() => setExpandedMobileSection(expandedMobileSection === 'learn' ? null : 'learn')}
+                            className="w-full flex items-center justify-between p-4 hover:bg-[#7C3AED]/10 text-left transition-all"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#A78BFA]">
+                                <BookOpen className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">Learn</p>
+                                <p className="text-[10px] text-white/40">Courses & Modules</p>
+                              </div>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-white/60 transition-transform duration-300 ${expandedMobileSection === 'learn' ? 'rotate-180 text-[#A78BFA]' : ''}`} />
+                          </button>
 
+                          <AnimatePresence>
+                            {expandedMobileSection === 'learn' && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-black/30 border-t border-white/5 px-4 py-3 space-y-2 text-xs"
+                              >
+                                <Link
+                                  to="/company-modules"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <Layers className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Company Modules</span>
+                                </Link>
+                                <Link
+                                  to="/courses"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <BookOpen className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>All Courses</span>
+                                </Link>
+                                <Link
+                                  to="/learn"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <Compass className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Learning Tracks</span>
+                                </Link>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        {/* JOB PREP (Expandable Accordion) */}
+                        <div className="bg-white/5 rounded-2xl border border-white/5 overflow-hidden transition-all">
+                          <button
+                            onClick={() => setExpandedMobileSection(expandedMobileSection === 'jobprep' ? null : 'jobprep')}
+                            className="w-full flex items-center justify-between p-4 hover:bg-[#7C3AED]/10 text-left transition-all"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#A78BFA]">
+                                <Briefcase className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">Job Prep</p>
+                                <p className="text-[10px] text-white/40">Portfolio & Career Tools</p>
+                              </div>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-white/60 transition-transform duration-300 ${expandedMobileSection === 'jobprep' ? 'rotate-180 text-[#A78BFA]' : ''}`} />
+                          </button>
+
+                          <AnimatePresence>
+                            {expandedMobileSection === 'jobprep' && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-black/30 border-t border-white/5 px-4 py-3 space-y-2 text-xs"
+                              >
+                                <Link
+                                  to="/job-prep/resume-builder"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <FileText className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Resume Builder</span>
+                                </Link>
+                                <Link
+                                  to="/job-prep/mock-interview"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <Bot className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Mock Tests & Interviews</span>
+                                </Link>
+                                <Link
+                                  to="/job-prep/projects"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <Code className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Build A Project</span>
+                                </Link>
+                                <Link
+                                  to="/portfolio-builder"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                  <Sparkles className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Portfolio Builder</span>
+                                </Link>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        {/* STUDOTT */}
                         <Link
                           to="/studott"
                           onClick={() => setMobileMenuOpen(false)}
@@ -515,6 +612,25 @@ const Navigation: React.FC = () => {
                           </div>
                         </Link>
 
+                        {/* OPPORTUNITIES (ADDED FOR FULL PARITY) */}
+                        <Link
+                          to="/opportunities"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-[#7C3AED]/30 transition-all hover:bg-[#7C3AED]/10 group text-left relative overflow-hidden"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#A78BFA]">
+                            <Briefcase className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-white uppercase tracking-wider">OPPORTUNITIES</p>
+                              <span className="text-[9px] font-extrabold bg-[#7C3AED] text-white px-2 py-0.5 rounded-full uppercase">New</span>
+                            </div>
+                            <p className="text-[10px] text-white/40">Internships, Jobs & Events</p>
+                          </div>
+                        </Link>
+
+                        {/* COMMUNITY */}
                         <Link
                           to="/community"
                           onClick={() => setMobileMenuOpen(false)}

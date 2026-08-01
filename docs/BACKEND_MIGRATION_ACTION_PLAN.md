@@ -75,25 +75,25 @@
 ### 1.4 Migration Phases
 
 ```
-Phase 0: Setup (Week 1-2)
+Phase 0: Setup (Week 1)
     → Project scaffolding, CI/CD, staging environment
     
-Phase 1: Foundation (Week 3-4)
+Phase 1: Foundation (Week 1)
     → Auth, Config, Database, Middleware
     
-Phase 2: Core Features (Week 5-10)
+Phase 2: Core Features (Week 2)
     → Users, Events, Opportunities, Teams, Submissions
     
-Phase 3: Advanced Features (Week 11-14)
+Phase 3: Advanced Features (Week 2)
     → Institution Dashboard, Judging, Certificates, Leaderboard
     
-Phase 4: AI & Specialty (Week 15-17)
+Phase 4: AI & Specialty (Week 2)
     → Career, Interview, Assessment, Company Simulator
     
-Phase 5: Admin & Support (Week 18-19)
+Phase 5: Admin & Support (Week 3)
     → Admin Panel, Notifications, Community, SDL
     
-Phase 6: Cutover (Week 20)
+Phase 6: Cutover (Week 3)
     → Final testing, performance validation, full switchover
 ```
 

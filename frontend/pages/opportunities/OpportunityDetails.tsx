@@ -1425,7 +1425,7 @@ const OpportunityDetails: React.FC = () => {
             ) : null}
 
             {/* Sub navigation — reference: Details / Reviews / FAQs */}
-            <header className="sticky top-14 sm:top-20 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all">
+            <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all pt-14 sm:pt-20">
                 <div className="max-w-6xl mx-auto px-3 sm:px-4 h-12 sm:h-14 flex items-center justify-between gap-3">
                     <nav className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold text-slate-500 overflow-x-auto whitespace-nowrap hide-scrollbar px-1 py-1" style={{ scrollbarWidth: 'none' }}>
                         <button

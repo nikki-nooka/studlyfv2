@@ -31,7 +31,7 @@ const clientSideEligible = (opp: any, user: any) => {
     return false;
 }
 
-const typeOptions = ['All', 'Hackathon', 'Job', 'Internship', 'Competition', 'Workshop', 'Conference'];
+const typeOptions = ['All'];
 
 const normalizeText = (value: unknown) => String(value ?? '').toLowerCase();
 
@@ -262,7 +262,7 @@ const OpportunitiesList: React.FC = () => {
                 )}
             </AnimatePresence>
             {/* Header Section */}
-            <div className="relative pt-20 sm:pt-40 pb-8 sm:pb-36 px-4 sm:px-6 overflow-hidden bg-white isolate">
+            <div className="relative pt-24 sm:pt-40 pb-16 sm:pb-36 px-3 sm:px-6 overflow-hidden bg-white isolate">
                 {/* Image Background */}
                 <div
                     className="absolute inset-0 z-[-1] opacity-10 mix-blend-multiply transition-opacity duration-1000"
@@ -274,24 +274,24 @@ const OpportunitiesList: React.FC = () => {
                 <div className="max-w-7xl mx-auto relative z-10">
                     <button
                         onClick={() => navigate('/dashboard/learner')}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 transition-all font-bold text-xs mb-6 sm:mb-8 group backdrop-blur-md shadow-sm"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 transition-all font-bold text-xs mb-8 group backdrop-blur-md shadow-sm"
                     >
                         <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
                         Back to Dashboard
                     </button>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* Left Column: Messaging & Search */}
-                        <div className="col-span-1 lg:col-span-7 space-y-6 sm:space-y-8">
+                        <div className="col-span-1 lg:col-span-7 space-y-8">
                             <div>
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-600 font-black text-[10px] uppercase tracking-[0.2em] border border-purple-100 mb-4 sm:mb-6 shadow-sm">
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-600 font-black text-[10px] uppercase tracking-[0.2em] border border-purple-100 mb-6 shadow-sm">
                                     Discovery Engine
                                 </div>
-                                <h1 className="text-2xl sm:text-5xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1]">
+                                <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.05]">
                                     Find Opportunities. <br className="hidden sm:block" />
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">Build Your Future.</span>
                                 </h1>
-                                <p className="text-slate-600 text-sm sm:text-xl font-medium max-w-2xl mt-3 sm:mt-6 leading-relaxed">
+                                <p className="text-slate-600 text-lg sm:text-xl font-medium max-w-2xl mt-6 leading-relaxed">
                                     Connect with top-tier organizations, showcase your expertise, and discover high-value roles that propel your career forward.
                                 </p>
                             </div>
@@ -300,19 +300,19 @@ const OpportunitiesList: React.FC = () => {
                             <div className="relative group max-w-2xl">
                                 <div className="absolute inset-0 bg-gradient-to-r from-purple-200 to-indigo-200 rounded-2xl blur-md opacity-40 group-focus-within:opacity-70 transition duration-500"></div>
                                 <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl border border-slate-200 shadow-xl flex items-center overflow-hidden transition-all focus-within:border-purple-300">
-                                    <div className="pl-4 sm:pl-6 text-slate-400">
-                                        <Search size={18} className="sm:w-[22px] sm:h-[22px] group-focus-within:text-purple-600 transition-colors" />
+                                    <div className="pl-6 text-slate-400">
+                                        <Search size={22} className="group-focus-within:text-purple-600 transition-colors" />
                                     </div>
                                     <input
                                         type="text"
                                         placeholder="Search roles, companies, keywords..."
-                                        className="w-full px-3 sm:px-5 py-3.5 sm:py-5 bg-transparent outline-none text-slate-900 text-sm sm:text-base font-bold placeholder-slate-400"
+                                        className="w-full px-5 py-5 bg-transparent outline-none text-slate-900 text-base font-bold placeholder-slate-400"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                     {searchQuery && (
-                                        <button onClick={() => setSearchQuery('')} className="pr-4 sm:pr-6 text-slate-400 hover:text-slate-600 transition-colors">
-                                            <X size={18} />
+                                        <button onClick={() => setSearchQuery('')} className="pr-6 text-slate-400 hover:text-slate-600 transition-colors">
+                                            <X size={20} />
                                         </button>
                                     )}
                                     <button className="hidden sm:flex mr-2 px-6 py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-colors shadow-md">
@@ -321,8 +321,8 @@ const OpportunitiesList: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Stats/Trust Bar (hidden on small mobile to avoid header overlap) */}
-                            <div className="hidden sm:flex flex-wrap items-center gap-4 sm:gap-8 pt-4">
+                            {/* Stats/Trust Bar */}
+                            <div className="flex flex-wrap items-center gap-4 sm:gap-8 pt-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center border border-purple-100">
                                         <Zap size={18} className="text-purple-600" />
@@ -332,7 +332,7 @@ const OpportunitiesList: React.FC = () => {
                                         <div className="text-slate-500 text-[10px] uppercase font-bold tracking-widest mt-1">Active Roles</div>
                                     </div>
                                 </div>
-                                <div className="w-px h-10 bg-slate-200"></div>
+                                <div className="hidden sm:block w-px h-10 bg-slate-200"></div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
                                         <Building2 size={18} className="text-indigo-600" />
@@ -342,7 +342,7 @@ const OpportunitiesList: React.FC = () => {
                                         <div className="text-slate-500 text-[10px] uppercase font-bold tracking-widest mt-1">Organizations</div>
                                     </div>
                                 </div>
-                                <div className="w-px h-10 bg-slate-200"></div>
+                                <div className="hidden sm:block w-px h-10 bg-slate-200"></div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
                                         <TrendingUp size={18} className="text-emerald-600" />
@@ -434,7 +434,7 @@ const OpportunitiesList: React.FC = () => {
             </div>
 
             {/* Category filters bridging dark/light */}
-            <div className="sticky top-14 sm:top-20 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-all">
+            <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-all pt-14 sm:pt-20">
                 <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
                         <span className="text-xs font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Discover:</span>

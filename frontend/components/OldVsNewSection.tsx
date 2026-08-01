@@ -101,7 +101,7 @@ const OldVsNewSection: React.FC = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                className="w-[95%] max-w-[1400px] bg-zinc-800 rounded-[2rem] sm:rounded-[60px] relative overflow-hidden pt-12 sm:pt-20 pb-24 sm:pb-40 px-4 sm:px-6 md:px-12 shadow-[0_40px_100px_rgba(0,0,0,0.2)] mx-auto"
+                className="w-[95%] max-w-[1400px] bg-zinc-800 rounded-[60px] relative overflow-hidden pt-20 pb-40 px-6 md:px-12 shadow-[0_40px_100px_rgba(0,0,0,0.2)] mx-auto"
             >
                 {/* Ambient Glows */}
                 <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
@@ -117,7 +117,7 @@ const OldVsNewSection: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
-                            className="text-3xl sm:text-4xl md:text-6xl font-['Poppins'] font-extrabold text-white mb-6 tracking-tight uppercase"
+                            className="text-4xl md:text-6xl font-['Poppins'] font-extrabold text-white mb-6 tracking-tight uppercase"
                         >
                             The Era of Human Authority
                         </motion.h2>
@@ -126,7 +126,7 @@ const OldVsNewSection: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                            className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-['Poppins']"
+                            className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-['Poppins']"
                         >
                             From outdated methods to intelligent, outcome-driven learning.
                         </motion.p>
@@ -273,12 +273,12 @@ const OldVsNewSection: React.FC = () => {
                     </div>
 
                     {/* Mobile Layout */}
-                    <div className="md:hidden flex flex-col gap-6 sm:gap-8">
-                        <div className="bg-zinc-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/5">
-                            <h3 className="text-red-400 text-xs font-['Poppins'] uppercase tracking-widest mb-6 sm:mb-8 text-center font-bold">Old Way</h3>
-                            <div className="space-y-3 sm:space-y-4 text-center">
+                    <div className="md:hidden flex flex-col gap-8">
+                        <div className="bg-zinc-900 rounded-3xl p-8 border border-white/5">
+                            <h3 className="text-red-400 text-xs font-['Poppins'] uppercase tracking-widest mb-8 text-center font-bold">Old Way</h3>
+                            <div className="space-y-4 text-center">
                                 {learningMethods.map((item, i) => (
-                                    <p key={i} className="text-gray-500 text-base sm:text-lg font-['Poppins']">{item.old}</p>
+                                    <p key={i} className="text-gray-500 text-lg font-['Poppins']">{item.old}</p>
                                 ))}
                             </div>
                         </div>
@@ -289,12 +289,12 @@ const OldVsNewSection: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="bg-zinc-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/5 shadow-2xl">
-                            <h3 className="text-green-400 text-xs font-['Poppins'] uppercase tracking-widest mb-6 sm:mb-8 text-center font-bold">New Way</h3>
-                            <div className="space-y-4 sm:space-y-6">
+                        <div className="bg-zinc-900 rounded-3xl p-8 border border-white/5 shadow-2xl">
+                            <h3 className="text-green-400 text-xs font-['Poppins'] uppercase tracking-widest mb-8 text-center font-bold">New Way</h3>
+                            <div className="space-y-6">
                                 {learningMethods.map((item, i) => (
-                                    <div key={i} className="flex items-center gap-3 bg-white/5 p-3 sm:p-4 rounded-xl shadow-sm border border-white/5">
-                                        <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center shrink-0">
+                                    <div key={i} className="flex items-center gap-3 bg-white/5 p-4 rounded-xl shadow-sm border border-white/5">
+                                        <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center">
                                             <Check className="w-3.5 h-3.5 text-white" />
                                         </div>
                                         <p className="text-white text-base font-['Poppins'] font-semibold">{item.new}</p>

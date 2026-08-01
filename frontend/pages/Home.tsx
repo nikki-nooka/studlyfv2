@@ -17,7 +17,7 @@ import RoadmapSection from '../components/RoadmapSection';
 
 const Home: React.FC = () => {
   return (
-    <div className="bg-white min-h-screen overflow-x-hidden">
+    <div className="bg-white min-h-screen">
       <div className="min-h-screen flex flex-col relative overflow-hidden pt-12 sm:pt-20 pb-24">
         <LandingNavbar />
         <LandingHero />

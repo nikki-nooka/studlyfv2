@@ -67,7 +67,7 @@ const MentorCredibility: React.FC = () => {
     }, []);
 
     return (
-        <section className="relative w-full min-h-screen flex flex-col items-center justify-center py-16 sm:py-24 overflow-hidden bg-white">
+        <section className="relative w-full min-h-screen flex flex-col items-center justify-center py-24 overflow-hidden bg-white">
             {/* Ambient Background Gradient Glows */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-purple-100/30 blur-[120px] rounded-full" />
@@ -152,7 +152,7 @@ const MentorCredibility: React.FC = () => {
                         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                         className="inline-block"
                     >
-                        <h2 className="text-4xl sm:text-5xl md:text-7xl font-['Poppins'] font-extrabold text-black mb-6 tracking-tight uppercase leading-[1.1]">
+                        <h2 className="text-5xl md:text-7xl font-['Poppins'] font-extrabold text-black mb-6 tracking-tight uppercase leading-[1.1]">
                             OUR MENTORS<br />
                             ARE FROM<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">50+ MNCS</span>

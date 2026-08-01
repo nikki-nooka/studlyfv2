@@ -142,15 +142,15 @@ const WhoWeServe: React.FC = () => {
                 />
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="max-w-7xl mx-auto px-6 relative z-10">
                 {/* Top Centered Title */}
-                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                <div className="text-center mb-10 md:mb-12">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
-                        className="text-4xl sm:text-5xl md:text-7xl font-['Poppins'] font-extrabold text-black tracking-tight uppercase leading-[1.1]"
+                        className="text-5xl md:text-7xl font-['Poppins'] font-extrabold text-black tracking-tight uppercase leading-[1.1]"
                     >
                         WHO WE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B]">SERVE</span>
                     </motion.h2>
@@ -168,7 +168,7 @@ const WhoWeServe: React.FC = () => {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="text-2xl sm:text-3xl md:text-5xl font-['Poppins'] font-black uppercase leading-tight lg:whitespace-nowrap lg:pl-6"
+                            className="text-3xl md:text-5xl font-['Poppins'] font-black uppercase leading-tight whitespace-nowrap lg:pl-6"
                         >
                             <span className="block mb-4">
                                 <div className="bg-white p-3 rounded-2xl inline-block shadow-sm">
@@ -183,7 +183,7 @@ const WhoWeServe: React.FC = () => {
                     </div>
 
                     {/* Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                         {cardData.map((card, index) => (
                             <motion.div
                                 key={card.title}
@@ -308,7 +308,7 @@ const WhoWeServe: React.FC = () => {
                                 <X size={24} strokeWidth={2} />
                             </button>
 
-                            <div className="relative z-10 pt-10 sm:pt-12 pb-6 px-4 sm:px-6 md:px-10 text-center">
+                            <div className="relative z-10 pt-12 pb-6 px-6 sm:px-10 text-center">
                                 <h2 className="text-3xl md:text-5xl font-['Poppins'] font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#6C4DFF] via-[#EC4899] to-[#FF5B5B] mb-4">
                                     {modalData[activeModal].heading}
                                 </h2>
@@ -317,7 +317,7 @@ const WhoWeServe: React.FC = () => {
                                 </p>
                             </div>
 
-                            <div className="relative z-10 px-4 sm:px-6 md:px-10 pb-8 sm:pb-10">
+                            <div className="relative z-10 px-6 sm:px-10 pb-10">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                     {modalData[activeModal].features.map((feature, idx) => (
                                         <div key={idx} className="p-6 rounded-2xl bg-white/70 hover:bg-white backdrop-blur-md border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(108,77,255,0.1)] transition-all duration-300 group flex flex-col items-start gap-4">

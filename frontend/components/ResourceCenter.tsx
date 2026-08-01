@@ -211,8 +211,8 @@ const ResourceCenter: React.FC = () => {
     return (
         <section id="resource-center" className="relative w-full bg-white overflow-hidden font-poppins text-[#111827]">
             {/* 🌑 Deep Purple/Navy Header Area */}
-            <div className="max-w-[1600px] mx-auto sm:px-8 relative">
-                <div className="bg-[#2D0B5A] pt-12 pb-32 px-6 sm:px-8 text-center relative overflow-hidden rounded-[2.5rem] sm:rounded-[5rem]">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 relative">
+                <div className="bg-[#2D0B5A] pt-12 sm:pt-16 pb-14 sm:pb-20 px-6 sm:px-8 text-center relative overflow-hidden rounded-[2.5rem] sm:rounded-[3.5rem]">
                     {/* Subtle Brand Glow */}
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#2563EB]/15 rounded-full blur-[120px] pointer-events-none" />
 
@@ -267,7 +267,7 @@ const ResourceCenter: React.FC = () => {
             </div>
 
             {/* ⚪ Premium Light Body Area */}
-            <div className="pb-8 -mt-24 pt-0 px-4 md:px-12 relative z-20">
+            <div className="pb-16 pt-8 px-4 md:px-12 relative z-20">
                 <div className="max-w-[1300px] mx-auto">
                     <motion.div
                         variants={containerVariants}

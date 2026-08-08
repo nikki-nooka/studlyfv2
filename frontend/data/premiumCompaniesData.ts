@@ -424,7 +424,7 @@ public class Solution {
         approach: 'Use two pointers left and right starting from both ends. Track left_max and right_max as the maximum height seen from each side. At each step, move the pointer with the smaller max height inward. Water trapped at each position = max_height - height[pos].',
         time: 'O(N)',
         space: 'O(1)',
-        visualizerType: 'two-pointers',
+        visualizerType: 'rain-water',
         code: {
           python: `def trap(height):
     if not height:
@@ -2946,7 +2946,7 @@ public int[] maxSlidingWindow(int[] nums, int k) {
         approach: 'Use two pointers from both ends. Track left_max and right_max. At each step, process the pointer with the smaller max - water trapped = max - height at that position.',
         time: 'O(N) single pass',
         space: 'O(1)',
-        visualizerType: 'sliding-window',
+        visualizerType: 'rain-water',
         code: {
           python: `def trap(height):
     if not height:

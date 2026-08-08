@@ -722,7 +722,7 @@ const CompanyModulesContent: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col lg:flex-row gap-8"
+            className="flex flex-col lg:flex-row items-start gap-8"
           >
             
             {/* LEFT GLOWING SIDEBAR */}
@@ -1154,6 +1154,93 @@ const CompanyModulesContent: React.FC = () => {
                                         </motion.div>
                                       );
                                     })}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Dynamic Rain Water Elevation Chart Visualizer */}
+                                {(selectedQuestion.visualizerType === 'rain-water' || selectedQuestion.title === 'Trapping Rain Water') && visualizerState && !visualizerState.unsupported && (
+                                  <div className="flex flex-col items-center justify-center space-y-6 w-full px-4 sm:px-8 py-4">
+                                    <div className="flex items-end justify-center gap-2 sm:gap-3 w-full max-w-3xl h-64 px-4 bg-black/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md relative shadow-2xl">
+                                      {(() => {
+                                        const heightArr = visualizerState.height || [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1];
+                                        const step = visualizerState?.steps?.[visStep] || {};
+                                        const trappedArr = step.trappedWater || new Array(heightArr.length).fill(0);
+                                        const maxBarVal = Math.max(...heightArr, 1);
+                                        const scaleFactor = 150 / maxBarVal;
+
+                                        return heightArr.map((hVal: number, idx: number) => {
+                                          const isLeft = step.left === idx;
+                                          const isRight = step.right === idx;
+                                          const isActive = step.activeIdx === idx;
+                                          const waterVal = trappedArr[idx] || 0;
+
+                                          const barPx = Math.max(16, hVal * scaleFactor);
+                                          const waterPx = waterVal * scaleFactor;
+
+                                          return (
+                                            <div key={idx} className="flex flex-col items-center relative group flex-1 max-w-[48px]">
+                                              <div className="absolute -top-10 flex flex-col items-center z-30 transition-all duration-300">
+                                                {isLeft && (
+                                                  <span className="bg-purple-600 border border-purple-300 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-[0_0_15px_rgba(168,85,247,0.8)] animate-bounce">
+                                                    LEFT
+                                                  </span>
+                                                )}
+                                                {isRight && !isLeft && (
+                                                  <span className="bg-yellow-400 border border-yellow-200 text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-bounce">
+                                                    RIGHT
+                                                  </span>
+                                                )}
+                                                {isLeft && isRight && (
+                                                  <span className="bg-emerald-500 border border-emerald-300 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-bounce">
+                                                    MEET
+                                                  </span>
+                                                )}
+                                              </div>
+
+                                              {waterPx > 0 && (
+                                                <motion.div
+                                                  initial={{ scaleY: 0 }}
+                                                  animate={{ scaleY: 1 }}
+                                                  transition={{ duration: 0.4 }}
+                                                  style={{ height: `${waterPx}px` }}
+                                                  className="w-full bg-gradient-to-t from-cyan-600/80 to-cyan-400/90 border border-cyan-300/60 rounded-t-lg flex items-center justify-center text-[10px] font-black text-white shadow-[0_0_15px_rgba(6,182,212,0.6)] backdrop-blur-sm z-10"
+                                                >
+                                                  +{waterVal}
+                                                </motion.div>
+                                              )}
+
+                                              <div
+                                                style={{ height: `${barPx}px` }}
+                                                className={`w-full rounded-t-md border-x border-t transition-all duration-300 flex flex-col items-center justify-between py-1 font-black text-xs ${
+                                                  isActive
+                                                    ? 'bg-gradient-to-t from-purple-800 to-purple-500 border-purple-300 text-white shadow-[0_0_25px_rgba(168,85,247,0.8)] scale-105 z-20'
+                                                    : 'bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700 border-slate-600 text-slate-200 shadow-md'
+                                                }`}
+                                              >
+                                                <span>{hVal}</span>
+                                              </div>
+
+                                              <span className="text-[9px] text-slate-400 font-mono mt-2">{idx}</span>
+                                            </div>
+                                          );
+                                        });
+                                      })()}
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-black uppercase text-slate-200 bg-black/60 px-6 py-2.5 rounded-full border border-purple-500/20 backdrop-blur-md shadow-xl">
+                                      <span className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.8)]" /> 
+                                        Trapped Water: <span className="text-cyan-300 text-sm">{visualizerState?.steps?.[visStep]?.totalWater ?? 0} Units</span>
+                                      </span>
+                                      <span className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-purple-400" /> 
+                                        Left Max: <span className="text-purple-300">{visualizerState?.steps?.[visStep]?.leftMax ?? 0}</span>
+                                      </span>
+                                      <span className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" /> 
+                                        Right Max: <span className="text-yellow-300">{visualizerState?.steps?.[visStep]?.rightMax ?? 0}</span>
+                                      </span>
                                     </div>
                                   </div>
                                 )}

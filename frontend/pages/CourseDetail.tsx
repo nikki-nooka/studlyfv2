@@ -34,57 +34,7 @@ interface Course {
   user_state?: 'NOT_PURCHASED' | 'IN_CART' | 'ENROLLED';
 }
 
-const MOCK_COURSES: Course[] = [
-  {
-    _id: 'm1',
-    title: 'Generative AI',
-    description: 'Your complete beginner-to-advanced roadmap to understand, build and apply AI in real-world scenarios using modern tools.',
-    role_tag: 'AI Fundamentals',
-    difficulty: 'Beginner',
-    skills: ['AI Basics', 'Generative AI', 'Prompt Engineering', 'AI Tools', 'AI Projects'],
-    duration: '8.5 hrs',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80',
-    price: 799,
-    rating: 4.8,
-    total_reviews: 2310,
-    total_hours: 8.5,
-    instructor: 'Adarsh Singh',
-    is_bestseller: true
-  },
-  {
-    _id: 'm2',
-    title: 'Prompt Engineering Mastery',
-    description: 'Master Prompts. Get Better Outputs. Build Smarter.',
-    role_tag: 'AI',
-    difficulty: 'Beginner',
-    image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80',
-    price: 599,
-    rating: 4.7,
-    total_reviews: 1800,
-  },
-  {
-    _id: 'm3',
-    title: 'AI Tools & Productivity Masterclass',
-    description: 'Work Smarter with AI Tools & Automation.',
-    role_tag: 'AI',
-    difficulty: 'Intermediate',
-    image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80',
-    price: 699,
-    rating: 4.8,
-    total_reviews: 2110,
-  },
-  {
-    _id: 'm4',
-    title: 'Build AI Agents From Scratch',
-    description: 'Create AI Agents Using LangChain & OpenAI.',
-    role_tag: 'AI',
-    difficulty: 'Advanced',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
-    price: 799,
-    rating: 4.6,
-    total_reviews: 945,
-  }
-];
+
 
 const MOCK_BLOGS = [
   {
@@ -137,24 +87,29 @@ const CourseDetail: React.FC = () => {
     return parts.length > 1 ? parts[parts.length - 1] : slug;
   };
 
+  const [relatedCourses, setRelatedCourses] = useState<Course[]>([]);
+
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
         setLoading(true);
         const courseRes = await fetch(`${API_BASE_URL}/api/courses`);
         const coursesDataFromApi = await courseRes.json();
-        const allCourses = [...MOCK_COURSES, ...(coursesDataFromApi || [])];
+        const apiList: Course[] = Array.isArray(coursesDataFromApi) ? coursesDataFromApi : [];
         const courseIdFromSlug = extractCourseId(courseId);
-        const foundCourse = allCourses.find((c: Course) => c._id === courseIdFromSlug);
+        const foundCourse = apiList.find((c: Course) => c._id === courseIdFromSlug);
 
         if (!foundCourse) {
-          navigate('/learn/courses', { replace: true });
+          navigate('/learn/courses-overview', { replace: true });
           return;
         }
 
         setCourse(foundCourse);
-
         setCourseModules(getDetailedCurriculum(courseIdFromSlug));
+
+        // Filter out current course for related courses
+        const otherCourses = apiList.filter((c: Course) => c._id !== foundCourse._id);
+        setRelatedCourses(otherCourses.slice(0, 3));
 
         if (userId) {
           const stateRes = await fetch(`${API_BASE_URL}/api/user-courses/${userId}`);
@@ -164,7 +119,7 @@ const CourseDetail: React.FC = () => {
           else setUserState('NOT_PURCHASED');
         }
       } catch (err) {
-        navigate('/learn/courses', { replace: true });
+        navigate('/learn/courses-overview', { replace: true });
       } finally {
         setLoading(false);
       }
@@ -664,41 +619,43 @@ const CourseDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* 8.5 RELATED COURSES (MOVED HERE) */}
-      <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Related Courses <span className="text-[#A88CFF]">You May Like</span></h2>
-            </div>
-            <button onClick={() => navigate('/learn/courses')} className="text-[#6C2BFF] font-bold text-sm flex items-center gap-1 hover:text-[#5B21D6] transition-colors">
-              View All Courses <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {MOCK_COURSES.slice(1, 4).map(rc => (
-              <div key={rc._id} className="bg-white border border-gray-200 shadow-sm rounded-2xl overflow-hidden hover:border-[#6C2BFF]/50 transition-colors group cursor-pointer">
-                <div className="h-40 overflow-hidden relative">
-                  <img src={rc.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={rc.title} />
-                </div>
-                <div className="p-5">
-                  <h4 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{rc.title}</h4>
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">{rc.description}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500 mb-4 font-medium">
-                    <span className="flex items-center gap-1"><Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {rc.rating}</span>
-                    <span>{rc.total_reviews} reviews</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="font-black text-gray-900 text-xl">₹{rc.price}</span>
-                    <button className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg text-xs font-bold hover:bg-[#6C2BFF] hover:text-white transition-colors">View Details</button>
-                  </div>
-                </div>
+      {/* 8.5 RELATED COURSES (DYNAMIC - REAL DATABASE COURSES ONLY) */}
+      {relatedCourses.length > 0 && (
+        <div className="py-20 px-3 sm:px-6 border-t border-gray-100 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Related Courses <span className="text-[#A88CFF]">You May Like</span></h2>
               </div>
-            ))}
+              <button onClick={() => navigate('/learn/courses-overview')} className="text-[#6C2BFF] font-bold text-sm flex items-center gap-1 hover:text-[#5B21D6] transition-colors">
+                View All Courses <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedCourses.map(rc => (
+                <div key={rc._id} onClick={() => navigate(`/learn/courses/${rc._id}`)} className="bg-white border border-gray-200 shadow-sm rounded-2xl overflow-hidden hover:border-[#6C2BFF]/50 transition-colors group cursor-pointer">
+                  <div className="h-40 overflow-hidden relative">
+                    <img src={rc.image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={rc.title} />
+                  </div>
+                  <div className="p-5">
+                    <h4 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{rc.title}</h4>
+                    <p className="text-sm text-gray-500 mb-4 line-clamp-2">{rc.description}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-4 font-medium">
+                      <span className="flex items-center gap-1"><Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {rc.rating || 4.8}</span>
+                      <span>{rc.total_reviews || 0} reviews</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="font-black text-gray-900 text-xl">₹{rc.price || 0}</span>
+                      <button className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg text-xs font-bold hover:bg-[#6C2BFF] hover:text-white transition-colors">View Details</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 9. STICKY FOOTER (LIGHT) */}
       <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50 md:block">

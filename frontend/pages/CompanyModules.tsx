@@ -1581,19 +1581,19 @@ const CompanyModulesContent: React.FC = () => {
                               <div className="lg:col-span-2 space-y-6">
                                 <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
                                   <h4 className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                                    <Bot className="w-5 h-5 text-purple-400" /> AI Conceptual Breakdown
+                                    <Bot className="w-5 h-5 text-purple-600" /> AI Conceptual Breakdown
                                   </h4>
                                   <div>
-                                    <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest block mb-2">Intuition & Mechanics</span>
-                                    <p className="text-xs text-slate-400 leading-relaxed font-semibold">{selectedQuestion.explanation.intuition}</p>
+                                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-2">Intuition & Mechanics</span>
+                                    <p className="text-xs text-slate-600 leading-relaxed font-semibold">{selectedQuestion.explanation.intuition}</p>
                                   </div>
                                   <div>
-                                    <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest block mb-2">Brute Force Approach</span>
-                                    <p className="text-xs text-slate-400 leading-relaxed mb-3">{selectedQuestion.explanation.brute}</p>
+                                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-2">Brute Force Approach</span>
+                                    <p className="text-xs text-slate-600 leading-relaxed mb-3">{selectedQuestion.explanation.brute}</p>
                                   </div>
                                   <div>
-                                    <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest block mb-2">Optimized System Strategy</span>
-                                    <p className="text-xs text-slate-400 leading-relaxed mb-4">{selectedQuestion.explanation.optimized}</p>
+                                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-2">Optimized System Strategy</span>
+                                    <p className="text-xs text-slate-600 leading-relaxed mb-4">{selectedQuestion.explanation.optimized}</p>
                                   </div>
                                 </div>
 
@@ -1621,24 +1621,24 @@ const CompanyModulesContent: React.FC = () => {
 
                               {/* Sidebar edgecases & tips */}
                               <div className="space-y-6">
-                                <div className="bg-[#120D26]/60 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
-                                  <h4 className="text-lg font-bold text-slate-700">Edge Cases</h4>
+                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
+                                  <h4 className="text-lg font-bold text-slate-800">Edge Cases</h4>
                                   <ul className="space-y-3">
                                     {selectedQuestion.explanation?.edgeCases?.map((ec, idx) => (
-                                      <li key={idx} className="text-xs text-slate-400 leading-relaxed flex items-start gap-2">
-                                        <span className="text-purple-400 mt-1">•</span>
+                                      <li key={idx} className="text-xs text-slate-600 leading-relaxed flex items-start gap-2">
+                                        <span className="text-purple-600 font-bold mt-0.5">•</span>
                                         <span>{ec}</span>
                                       </li>
                                     ))}
                                   </ul>
                                 </div>
 
-                                <div className="bg-[#120D26]/60 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
-                                  <h4 className="text-lg font-bold text-slate-700">Interview Tips</h4>
+                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
+                                  <h4 className="text-lg font-bold text-slate-800">Interview Tips</h4>
                                   <ul className="space-y-3">
                                     {selectedQuestion.explanation?.tips?.map((tip, idx) => (
-                                      <li key={idx} className="text-xs text-slate-400 leading-relaxed flex items-start gap-2">
-                                        <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                                      <li key={idx} className="text-xs text-slate-600 leading-relaxed flex items-start gap-2">
+                                        <Check className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                                         <span>{tip}</span>
                                       </li>
                                     ))}
@@ -2055,13 +2055,13 @@ const CompanyModulesContent: React.FC = () => {
                           <div className="space-y-6">
                             
                             {/* ATS SCORE CARD */}
-                            <div className="bg-[#120B2E] border border-gray-200 rounded-[2rem] p-6 lg:p-8 flex flex-col items-center justify-center text-center shadow-2xl relative">
-                              <h4 className="text-base font-black uppercase text-slate-700 mb-6">ATS Compatibility</h4>
+                            <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 flex flex-col items-center justify-center text-center shadow-xs relative">
+                              <h4 className="text-base font-black uppercase text-slate-800 mb-6">ATS Compatibility</h4>
                               
                               {/* Glowing Circle ring */}
                               <div className="relative w-40 h-40 flex items-center justify-center mb-6">
                                 <svg className="transform -rotate-90" width={160} height={160}>
-                                  <circle cx={80} cy={80} r={65} stroke="rgba(255,255,255,0.02)" strokeWidth={10} fill="transparent" />
+                                  <circle cx={80} cy={80} r={65} stroke="rgba(0,0,0,0.06)" strokeWidth={10} fill="transparent" />
                                   <circle
                                     cx={80}
                                     cy={80}
@@ -2076,38 +2076,38 @@ const CompanyModulesContent: React.FC = () => {
                                   />
                                 </svg>
                                 <div className="absolute flex flex-col items-center">
-                                  <span className="text-4xl font-black text-slate-800">{atsScore}</span>
-                                  <span className="text-[7px] uppercase tracking-wider text-slate-400 font-bold mt-1">SDE Ready</span>
+                                  <span className="text-4xl font-black text-slate-900">{atsScore}</span>
+                                  <span className="text-[7px] uppercase tracking-wider text-slate-500 font-bold mt-1">SDE Ready</span>
                                 </div>
                               </div>
 
                               <button
                                 onClick={() => setShowImprovementList(!showImprovementList)}
-                                className="text-xs font-black uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-all flex items-center gap-1.5"
+                                className="text-xs font-black uppercase tracking-wider text-purple-600 hover:text-purple-700 transition-all flex items-center gap-1.5 cursor-pointer"
                               >
                                 {showImprovementList ? 'Hide details' : 'Show suggested improvements'}
                                 <ChevronDown className={`w-4 h-4 transition-transform ${showImprovementList ? 'rotate-180' : ''}`} />
                               </button>
 
                               {showImprovementList && (
-                                <div className="mt-6 w-full text-left bg-gray-100/40 p-4 rounded-xl border border-white/[0.02] text-xs text-slate-400 space-y-2.5">
-                                  <div className="flex gap-2 items-start"><Check className="w-4 h-4 text-green-400 flex-shrink-0" /> <span>Valid GitHub & LinkedIn connection linked.</span></div>
-                                  <div className="flex gap-2 items-start"><Check className="w-4 h-4 text-green-400 flex-shrink-0" /> <span>Strong core programming stack matching Google.</span></div>
-                                  <div className="flex gap-2 items-start"><Sparkles className="w-4 h-4 text-purple-400 flex-shrink-0" /> <span>Add more metrics-driven achievements (e.g. Optimized speed by 25%).</span></div>
+                                <div className="mt-6 w-full text-left bg-white p-4 rounded-xl border border-gray-200 text-xs text-slate-700 space-y-2.5 shadow-xs font-medium">
+                                  <div className="flex gap-2 items-start"><Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" /> <span className="text-slate-700">Valid GitHub & LinkedIn connection linked.</span></div>
+                                  <div className="flex gap-2 items-start"><Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" /> <span className="text-slate-700">Strong core programming stack matching Google.</span></div>
+                                  <div className="flex gap-2 items-start"><Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" /> <span className="text-slate-700">Add more metrics-driven achievements (e.g. Optimized speed by 25%).</span></div>
                                 </div>
                               )}
                             </div>
 
                             {/* Portfolio preview buttons */}
-                            <div className="bg-gray-50/80 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
-                              <h4 className="text-lg font-bold text-slate-700">Share Public URL</h4>
-                              <p className="text-xs text-slate-400 font-semibold leading-relaxed">Publish your resume-portfolio directly into global placement pools.</p>
-                              <div className="bg-gray-100 p-4 rounded-xl border border-gray-100 text-xs font-mono text-purple-400 break-all select-all select-none">
+                            <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
+                              <h4 className="text-lg font-bold text-slate-800">Share Public URL</h4>
+                              <p className="text-xs text-slate-600 font-semibold leading-relaxed">Publish your resume-portfolio directly into global placement pools.</p>
+                              <div className="bg-gray-100 p-4 rounded-xl border border-gray-200 text-xs font-mono text-purple-600 break-all select-all">
                                 https://studlyf.pro/portfolio/{selectedCompany.id}_candidate_772
                               </div>
                               <button
                                 onClick={() => triggerToast('Share link copied to clipboard!')}
-                                className="w-full py-3 bg-gray-100 border border-gray-200 hover:border-purple-500/30 text-purple-400 rounded-xl font-black text-[10px] uppercase tracking-wider"
+                                className="w-full py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-600 hover:text-purple-700 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer"
                               >
                                 Copy Shareable Link
                               </button>

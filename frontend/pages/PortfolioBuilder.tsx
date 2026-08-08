@@ -1077,11 +1077,10 @@ const PortfolioBuilder: React.FC = () => {
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     onClick={() => setSelectedTemplate(template.id)}
-                    className={`cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
-                      selectedTemplate === template.id
+                    className={`cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-200 ${selectedTemplate === template.id
                         ? 'border-purple-500 shadow-[0_0_0_4px_rgba(124,58,237,0.12)]'
                         : 'border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.05)]'
-                    }`}
+                      }`}
                   >
                     <div className="relative overflow-hidden group w-full h-[220px]">
                       <motion.div

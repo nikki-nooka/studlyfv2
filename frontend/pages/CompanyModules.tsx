@@ -726,8 +726,8 @@ const CompanyModulesContent: React.FC = () => {
           >
             
             {/* LEFT GLOWING SIDEBAR */}
-            <div className={`flex-shrink-0 transition-all duration-300 w-full lg:w-72`}>
-              <div className="sticky top-28 bg-white backdrop-blur-xl border border-gray-200 shadow-sm rounded-[2rem] p-5 shadow-2xl space-y-6">
+            <div className="flex-shrink-0 transition-all duration-300 w-full lg:w-72 lg:sticky lg:top-28 z-30 self-start">
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] p-5 shadow-2xl space-y-5 max-h-[calc(100vh-8.5rem)] overflow-y-auto custom-scrollbar">
                 
                 {/* Header Back Button */}
                 <div className="flex items-center justify-between border-b border-gray-200 pb-4">

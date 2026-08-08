@@ -46,23 +46,24 @@ const DashboardFooter: React.FC<DashboardFooterProps> = ({ variant = 'student' }
 
     const studentLinks = {
         col2: [
-            { name: 'Courses', to: '/learn/courses-overview' },
-            { name: 'Company Modules', to: '/learn/company-modules' },
-            { name: 'Blogs', to: '/blog' },
+            { name: 'COURSES', to: '/learn/courses-overview' },
+            { name: 'COMPANY MODULES', to: '/learn/company-modules' },
+            { name: 'BLOGS', to: '/blog' },
         ],
         col3: [
-            { name: 'Portfolio', to: '/job-prep/portfolio' },
-            { name: 'Resume', to: '/job-prep/resume-builder' },
-            { name: 'Interviews', to: '/job-prep/mock-interview' },
-            { name: 'Project', to: '/job-prep/projects' },
+            { name: 'PORTFOLIO', to: '/job-prep/portfolio' },
+            { name: 'RESUME', to: '/job-prep/resume-builder' },
+            { name: 'SKILLS ASSIGNMENT', to: '/learn/assessment-intro' },
+            { name: 'INTERVIEWS', to: '/job-prep/mock-interview' },
+            { name: 'PROJECT', to: '/job-prep/projects' },
         ],
         col4: [
-            { name: 'AI Tools', to: '/ai-tools' },
+            { name: 'AI TOOLS', to: '/ai-tools' },
         ],
         col5: [
-            { name: 'About Application', to: '/about' },
-            { name: 'Contact Us', to: 'mailto:saieshwarerelli10@gmail.com' },
-            { name: 'Resources', to: '/' },
+            { name: 'ABOUT APPLICATION', to: '/about' },
+            { name: 'CONTACT US', to: 'mailto:support@studlyf.com' },
+            { name: 'RESOURCES', to: '/roadmaps' },
         ],
     };
 

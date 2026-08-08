@@ -1551,14 +1551,14 @@ const CompanyModulesContent: React.FC = () => {
                               </div>
 
                               {/* Custom input controls */}
-                              <div className="flex flex-col sm:flex-row items-center gap-4 mt-6 bg-gray-50/80 border border-gray-100 p-4 rounded-2xl">
-                                <span className="text-xs font-bold text-slate-400 whitespace-nowrap">Custom Visualizer Input:</span>
+                              <div className="flex flex-col sm:flex-row items-center gap-4 mt-6 bg-gray-50 border border-gray-200 p-4 rounded-2xl shadow-xs">
+                                <span className="text-xs font-bold text-slate-700 whitespace-nowrap">Custom Visualizer Input:</span>
                                 <input
                                   type="text"
                                   placeholder={selectedQuestion.input}
                                   value={customInput}
                                   onChange={(e) => setCustomInput(e.target.value)}
-                                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-purple-500 text-slate-700"
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-purple-500 text-slate-900 font-mono shadow-xs"
                                 />
                                 <button
                                   onClick={() => {
@@ -1566,7 +1566,7 @@ const CompanyModulesContent: React.FC = () => {
                                     setVisStep(0);
                                     setVisPlaying(false);
                                   }}
-                                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[10px] font-black uppercase text-slate-400 rounded-xl"
+                                  className="px-4 py-2 bg-gray-100 hover:bg-purple-100 border border-gray-200 text-[10px] font-black uppercase text-slate-700 hover:text-purple-700 rounded-xl transition-all cursor-pointer"
                                 >
                                   Reset
                                 </button>
@@ -1579,28 +1579,28 @@ const CompanyModulesContent: React.FC = () => {
                               
                               {/* Conceptual Details */}
                               <div className="lg:col-span-2 space-y-6">
-                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
-                                  <h4 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6 shadow-xs">
+                                  <h4 className="text-xl font-black text-slate-900 flex items-center gap-3">
                                     <Bot className="w-5 h-5 text-purple-600" /> AI Conceptual Breakdown
                                   </h4>
                                   <div>
                                     <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-2">Intuition & Mechanics</span>
-                                    <p className="text-xs text-slate-600 leading-relaxed font-semibold">{selectedQuestion.explanation.intuition}</p>
+                                    <p className="text-xs text-slate-800 leading-relaxed font-semibold">{selectedQuestion.explanation.intuition}</p>
                                   </div>
                                   <div>
                                     <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-2">Brute Force Approach</span>
-                                    <p className="text-xs text-slate-600 leading-relaxed mb-3">{selectedQuestion.explanation.brute}</p>
+                                    <p className="text-xs text-slate-800 leading-relaxed mb-3 font-medium">{selectedQuestion.explanation.brute}</p>
                                   </div>
                                   <div>
                                     <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-2">Optimized System Strategy</span>
-                                    <p className="text-xs text-slate-600 leading-relaxed mb-4">{selectedQuestion.explanation.optimized}</p>
+                                    <p className="text-xs text-slate-800 leading-relaxed mb-4 font-medium">{selectedQuestion.explanation.optimized}</p>
                                   </div>
                                 </div>
 
                                 {/* Live Code Editor Preview */}
                                 <div className="bg-[#05020F] border border-gray-200 rounded-[2rem] p-6 lg:p-8">
                                   <div className="flex justify-between items-center mb-6">
-                                    <span className="text-xs font-black uppercase tracking-wider text-slate-300">Algorithmic Production Code</span>
+                                    <span className="text-xs font-black uppercase tracking-wider text-slate-200">Algorithmic Production Code</span>
                                     <div className="relative flex items-center">
                                       <select
                                         value={codeLanguage}
@@ -1621,25 +1621,25 @@ const CompanyModulesContent: React.FC = () => {
 
                               {/* Sidebar edgecases & tips */}
                               <div className="space-y-6">
-                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
-                                  <h4 className="text-lg font-bold text-slate-800">Edge Cases</h4>
+                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-5 shadow-xs">
+                                  <h4 className="text-lg font-black text-slate-900">Edge Cases</h4>
                                   <ul className="space-y-3">
                                     {selectedQuestion.explanation?.edgeCases?.map((ec, idx) => (
-                                      <li key={idx} className="text-xs text-slate-600 leading-relaxed flex items-start gap-2">
-                                        <span className="text-purple-600 font-bold mt-0.5">•</span>
-                                        <span>{ec}</span>
+                                      <li key={idx} className="text-xs text-slate-800 font-medium leading-relaxed flex items-start gap-2.5">
+                                        <span className="text-purple-600 font-bold text-sm mt-0.5 flex-shrink-0">•</span>
+                                        <span className="text-slate-800">{ec}</span>
                                       </li>
                                     ))}
                                   </ul>
                                 </div>
 
-                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-6">
-                                  <h4 className="text-lg font-bold text-slate-800">Interview Tips</h4>
+                                <div className="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 lg:p-8 space-y-5 shadow-xs">
+                                  <h4 className="text-lg font-black text-slate-900">Interview Tips</h4>
                                   <ul className="space-y-3">
                                     {selectedQuestion.explanation?.tips?.map((tip, idx) => (
-                                      <li key={idx} className="text-xs text-slate-600 leading-relaxed flex items-start gap-2">
+                                      <li key={idx} className="text-xs text-slate-800 font-medium leading-relaxed flex items-start gap-2.5">
                                         <Check className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                                        <span>{tip}</span>
+                                        <span className="text-slate-800">{tip}</span>
                                       </li>
                                     ))}
                                   </ul>

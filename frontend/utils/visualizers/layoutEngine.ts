@@ -18,6 +18,88 @@ export interface LayoutEdge {
 
 export class LayoutEngine {
   /**
+   * Generates a clean, deterministic topological/sequential 2D layout for DAGs and Graphs.
+   * Nodes are arranged systematically in layers.
+   */
+  static generateTopologicalLayout(
+    nodes: LayoutNode[],
+    edges: LayoutEdge[],
+    width: number = 400,
+    height: number = 260
+  ): LayoutNode[] {
+    const n = nodes.length;
+    if (n === 0) return nodes;
+
+    const inDegree = new Map<string | number, number>();
+    const adj = new Map<string | number, (string | number)[]>();
+    nodes.forEach(node => {
+      inDegree.set(node.id, 0);
+      adj.set(node.id, []);
+    });
+
+    edges.forEach(edge => {
+      if (inDegree.has(edge.to)) {
+        inDegree.set(edge.to, (inDegree.get(edge.to) || 0) + 1);
+      }
+      if (adj.has(edge.from)) {
+        adj.get(edge.from)!.push(edge.to);
+      }
+    });
+
+    const layers: (string | number)[][] = [];
+    let currentLayer: (string | number)[] = [];
+    const tempInDegree = new Map(inDegree);
+
+    nodes.forEach(node => {
+      if ((tempInDegree.get(node.id) || 0) === 0) {
+        currentLayer.push(node.id);
+      }
+    });
+
+    const visited = new Set<string | number>();
+    while (currentLayer.length > 0) {
+      layers.push(currentLayer);
+      currentLayer.forEach(id => visited.add(id));
+
+      const nextLayer: (string | number)[] = [];
+      currentLayer.forEach(u => {
+        (adj.get(u) || []).forEach(v => {
+          tempInDegree.set(v, (tempInDegree.get(v) || 0) - 1);
+          if (tempInDegree.get(v) === 0 && !visited.has(v)) {
+            nextLayer.push(v);
+          }
+        });
+      });
+      currentLayer = nextLayer;
+    }
+
+    const unvisited = nodes.filter(node => !visited.has(node.id)).map(node => node.id);
+    if (unvisited.length > 0) {
+      layers.push(unvisited);
+    }
+
+    const totalLayers = layers.length;
+    const xStep = width / (totalLayers + 1);
+
+    layers.forEach((layerNodes, layerIdx) => {
+      const x = xStep * (layerIdx + 1);
+      const layerSize = layerNodes.length;
+      const yStep = height / (layerSize + 1);
+
+      layerNodes.forEach((nodeId, idx) => {
+        const node = nodes.find(n => n.id === nodeId);
+        if (node) {
+          node.x = x;
+          const offset = (idx % 2 === 1) ? 12 : -12;
+          node.y = yStep * (idx + 1) + (layerSize > 1 ? offset : 0);
+        }
+      });
+    });
+
+    return nodes;
+  }
+
+  /**
    * Generates an automatic 2D force-directed layout for a generic graph.
    * Eliminates the need for dummy x/y coordinates.
    */
@@ -28,20 +110,25 @@ export class LayoutEngine {
     height: number = 300,
     iterations: number = 100
   ): LayoutNode[] {
+    // If graph is small or DAG, prefer topological layout
+    if (nodes.length <= 12) {
+      return LayoutEngine.generateTopologicalLayout(nodes, edges, width, height);
+    }
+
     const K = Math.sqrt((width * height) / (nodes.length || 1));
     const repulsion = (distance: number) => (K * K) / (distance || 1);
     const attraction = (distance: number) => (distance * distance) / K;
 
-    // Initialize random positions
+    // Deterministic initial positions based on index
     nodes.forEach((node, i) => {
-      node.x = node.x ?? (Math.random() * width * 0.8 + width * 0.1);
-      node.y = node.y ?? (Math.random() * height * 0.8 + height * 0.1);
+      const angle = (i / nodes.length) * 2 * Math.PI;
+      node.x = node.x ?? (width / 2 + (width * 0.35) * Math.cos(angle));
+      node.y = node.y ?? (height / 2 + (height * 0.35) * Math.sin(angle));
       node.vx = 0;
       node.vy = 0;
     });
 
     for (let iter = 0; iter < iterations; iter++) {
-      // Calculate repulsive forces
       for (let i = 0; i < nodes.length; i++) {
         for (let j = 0; j < nodes.length; j++) {
           if (i !== j) {
@@ -55,7 +142,6 @@ export class LayoutEngine {
         }
       }
 
-      // Calculate attractive forces based on edges
       edges.forEach((edge) => {
         const u = nodes.find(n => n.id === edge.from);
         const v = nodes.find(n => n.id === edge.to);
@@ -74,8 +160,7 @@ export class LayoutEngine {
         }
       });
 
-      // Update positions
-      const temperature = Math.max(10, 50 * Math.pow(0.9, iter)); // Cooling
+      const temperature = Math.max(10, 50 * Math.pow(0.9, iter));
       nodes.forEach((node) => {
         const vLength = Math.sqrt(node.vx! * node.vx! + node.vy! * node.vy!);
         if (vLength > 0) {
@@ -83,7 +168,6 @@ export class LayoutEngine {
           node.y! += (node.vy! / vLength) * Math.min(vLength, temperature);
         }
         
-        // Boundaries constraint
         node.x = Math.max(30, Math.min(width - 30, node.x!));
         node.y = Math.max(30, Math.min(height - 30, node.y!));
         

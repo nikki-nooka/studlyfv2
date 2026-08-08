@@ -1067,6 +1067,19 @@ const CompanyModulesContent: React.FC = () => {
                               {/* Canvas visualizer viewport */}
                               <div className="w-full min-h-[550px] bg-gradient-to-br from-[#1e1b4b] via-[#0C061E] to-black border border-gray-800 rounded-3xl flex items-center justify-center overflow-hidden relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" style={{ perspective: '1000px' }}>
                                 
+                                {/* Dynamic Step Action Header Overlay */}
+                                {visualizerState && !visualizerState.unsupported && (
+                                  <div className="absolute top-4 right-4 z-20 max-w-xs sm:max-w-md bg-black/70 backdrop-blur-md border border-purple-500/30 px-4 py-2.5 rounded-2xl shadow-xl">
+                                    <div className="flex items-center gap-2 text-[9px] font-black text-purple-300 uppercase tracking-widest mb-1">
+                                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                                      Step {visStep + 1} of {visualizerState?.steps?.length || 1}
+                                    </div>
+                                    <p className="text-xs text-slate-100 font-medium leading-snug">
+                                      {visualizerState?.steps?.[visStep]?.desc || 'Executing algorithm...'}
+                                    </p>
+                                  </div>
+                                )}
+
                                 {/* Unsupported Visualizer Fallback */}
                                 {visualizerState?.unsupported && (
                                   <div className="flex flex-col items-center justify-center w-full h-full text-center p-6 text-gray-400">
@@ -1344,6 +1357,7 @@ const CompanyModulesContent: React.FC = () => {
                                             y2={toNode.y}
                                             stroke={edgeState === 'processed' ? '#22c55e' : edgeState === 'processing' ? '#eab308' : '#ffffff'}
                                             strokeWidth={edgeState === 'normal' ? 3 : 5}
+                                            markerEnd={edgeState === 'processed' ? 'url(#arrow-processed)' : edgeState === 'processing' ? 'url(#arrow-processing)' : 'url(#arrow)'}
                                           />
                                         );
                                       })}

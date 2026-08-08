@@ -120,11 +120,16 @@ const CompanyModulesContent: React.FC = () => {
   const [flashcardFlipped, setFlashcardFlipped] = useState(false);
 
   // --- HR Round States ---
+  const [hrIndex, setHrIndex] = useState(0);
   const [hrAnswer, setHrAnswer] = useState('');
   const [hrEvaluation, setHrEvaluation] = useState<any>(null);
   const [evaluatingHr, setEvaluatingHr] = useState(false);
   const [starTab, setStarTab] = useState<'S' | 'T' | 'A' | 'R'>('S');
   const [starInputs, setStarInputs] = useState({ S: '', T: '', A: '', R: '' });
+
+  // --- DSA Matrix Search & Filter ---
+  const [dsaFilter, setDsaFilter] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
+  const [dsaSearch, setDsaSearch] = useState('');
 
   // HR Simulator State
   const [chatMessages, setChatMessages] = useState<any[]>([]);
@@ -137,15 +142,21 @@ const CompanyModulesContent: React.FC = () => {
   const [groqApiKey, setGroqApiKey] = useState(localStorage.getItem('groq_api_key') || '');
 
   // --- Resume Portfolio States ---
-  const [portfolioData, setPortfolioData] = useState({
-    about: 'Enthusiastic SDE looking to build dynamic, scalable systems utilizing Modern React and Node.js.',
-    skills: 'React, TypeScript, Node.js, Python, MongoDB, System Design, SQL, Docker',
-    projects: 'Studlyf - Placement Prep, Smart IoT Controller, Cloud Scale Analytics System',
-    experience: 'Summer Internship at Google (Cloud Engineering Intern), Hackathon Lead Dev',
-    certifications: 'Google Cloud Associate, AWS Solutions Architect Associate, DSA Mastery Certificate',
-    achievements: 'Winner of National Hackathon 2025, Top 1% in Algorithmic Code Competition',
-    github: 'https://github.com/studlyf-pro',
-    linkedin: 'https://linkedin.com/in/studlyf'
+  const [portfolioData, setPortfolioData] = useState(() => {
+    const saved = localStorage.getItem('studlyf_portfolio_data');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      about: 'Enthusiastic SDE looking to build dynamic, scalable systems utilizing Modern React and Node.js.',
+      skills: 'React, TypeScript, Node.js, Python, MongoDB, System Design, SQL, Docker',
+      projects: 'Studlyf - Placement Prep, Smart IoT Controller, Cloud Scale Analytics System',
+      experience: 'Summer Internship at Google (Cloud Engineering Intern), Hackathon Lead Dev',
+      certifications: 'Google Cloud Associate, AWS Solutions Architect Associate, DSA Mastery Certificate',
+      achievements: 'Winner of National Hackathon 2025, Top 1% in Algorithmic Code Competition',
+      github: 'https://github.com/studlyf-pro',
+      linkedin: 'https://linkedin.com/in/studlyf'
+    };
   });
   const [atsScore, setAtsScore] = useState(78);
   const [showImprovementList, setShowImprovementList] = useState(false);
@@ -531,7 +542,7 @@ const CompanyModulesContent: React.FC = () => {
   const handleResumeChange = (field: string, val: string) => {
     setPortfolioData(prev => {
       const updated = { ...prev, [field]: val };
-      // compute simulated ATS score based on word length / keyword density
+      localStorage.setItem('studlyf_portfolio_data', JSON.stringify(updated));
       const textLen = Object.values(updated).join(' ').length;
       const skillsCount = updated.skills.split(',').length;
       let score = 65;
@@ -2252,13 +2263,13 @@ const CompanyModulesContent: React.FC = () => {
                                 placeholder="gsk_..."
                                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-purple-500 focus:outline-none bg-white shadow-sm"
                               />
-                              <p className="text-[10px] text-slate-400 mt-2 text-left">Required to run the Neural Placement Simulator.</p>
+                              <p className="text-[10px] text-slate-400 mt-2 text-left">Optional. Built-in AI engine will run if no Groq API Key is provided.</p>
                             </div>
 
                             <button
                               onClick={launchHrSimulator}
-                              disabled={isSimLoading || !groqApiKey.trim()}
-                              className="px-12 py-5 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.25em] shadow-xl shadow-purple-100/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={isSimLoading}
+                              className="px-12 py-5 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.25em] shadow-xl shadow-purple-100/40 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                               {isSimLoading ? 'Initializing...' : 'Initialize Neural Round'}
                             </button>

@@ -164,6 +164,18 @@
 /* label sits above orbs/shimmer */
 .glow-label { position: relative; z-index: 5; }
 
+/* ── Hide Scrollbar Utility ─────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* ── Custom Scrollbar Styling for Modal Content ─────────────────── */
 .custom-scrollbar {
   scrollbar-width: thin;

@@ -141,6 +141,45 @@ const CompanyModulesContent: React.FC = () => {
   const [isSimLoading, setIsSimLoading] = useState(false);
   const [groqApiKey, setGroqApiKey] = useState(localStorage.getItem('groq_api_key') || '');
 
+  // --- ATS Dynamic Scoring Helper ---
+  const calculateAtsScore = (data: any) => {
+    if (!data) return 75;
+    let score = 0;
+
+    // 1. About section (max 20 pts)
+    const aboutStr = data.about || '';
+    const aboutWords = aboutStr.trim().split(/\s+/).filter(Boolean).length;
+    if (aboutWords >= 3) score += 5;
+    if (aboutWords >= 12) score += 10;
+    if (/\b(built|engineered|developed|designed|scalable|lead|optimized|created|managed|architected|implemented)\b/i.test(aboutStr)) score += 5;
+
+    // 2. Technical Skills (max 25 pts)
+    const skillList = (data.skills || '').split(/[,;\n]/).map((s: string) => s.trim()).filter(Boolean);
+    score += Math.min(25, skillList.length * 3);
+
+    // 3. Projects (max 20 pts)
+    const projStr = data.projects || '';
+    const projWords = projStr.trim().split(/\s+/).filter(Boolean).length;
+    if (projWords >= 3) score += 10;
+    if (projWords >= 10) score += 10;
+
+    // 4. Experience (max 15 pts)
+    const expStr = data.experience || '';
+    const expWords = expStr.trim().split(/\s+/).filter(Boolean).length;
+    if (expWords >= 3) score += 8;
+    if (expWords >= 8) score += 7;
+
+    // 5. Certifications & Achievements (max 10 pts)
+    if ((data.certifications || '').trim().length > 3) score += 5;
+    if ((data.achievements || '').trim().length > 3) score += 5;
+
+    // 6. Profiles (max 10 pts)
+    if ((data.github || '').includes('github.com')) score += 5;
+    if ((data.linkedin || '').includes('linkedin.com')) score += 5;
+
+    return Math.min(98, Math.max(20, score));
+  };
+
   // --- Resume Portfolio States ---
   const [portfolioData, setPortfolioData] = useState(() => {
     const saved = localStorage.getItem('studlyf_portfolio_data');
@@ -158,7 +197,25 @@ const CompanyModulesContent: React.FC = () => {
       linkedin: 'https://linkedin.com/in/studlyf'
     };
   });
-  const [atsScore, setAtsScore] = useState(78);
+  const [atsScore, setAtsScore] = useState(() => {
+    const savedScore = localStorage.getItem('studlyf_ats_score');
+    if (savedScore) {
+      const parsed = parseInt(savedScore, 10);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+    const savedData = localStorage.getItem('studlyf_portfolio_data');
+    const dataToUse = savedData ? (function() { try { return JSON.parse(savedData); } catch (e) { return null; } })() : null;
+    return calculateAtsScore(dataToUse || {
+      about: 'Enthusiastic SDE looking to build dynamic, scalable systems utilizing Modern React and Node.js.',
+      skills: 'React, TypeScript, Node.js, Python, MongoDB, System Design, SQL, Docker',
+      projects: 'Studlyf - Placement Prep, Smart IoT Controller, Cloud Scale Analytics System',
+      experience: 'Summer Internship at Google (Cloud Engineering Intern), Hackathon Lead Dev',
+      certifications: 'Google Cloud Associate, AWS Solutions Architect Associate, DSA Mastery Certificate',
+      achievements: 'Winner of National Hackathon 2025, Top 1% in Algorithmic Code Competition',
+      github: 'https://github.com/studlyf-pro',
+      linkedin: 'https://linkedin.com/in/studlyf'
+    });
+  });
   const [showImprovementList, setShowImprovementList] = useState(false);
   const [portfolioPreviewDevice, setPortfolioPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [isSavedToastOpen, setIsSavedToastOpen] = useState(false);
@@ -538,19 +595,14 @@ const CompanyModulesContent: React.FC = () => {
     triggerToast('Practice quiz graded successfully!');
   };
 
-  // Resume Analyzer simulated scoring updating
+  // Resume Analyzer dynamic scoring update
   const handleResumeChange = (field: string, val: string) => {
     setPortfolioData(prev => {
       const updated = { ...prev, [field]: val };
       localStorage.setItem('studlyf_portfolio_data', JSON.stringify(updated));
-      const textLen = Object.values(updated).join(' ').length;
-      const skillsCount = updated.skills.split(',').length;
-      let score = 65;
-      if (textLen > 400) score += 10;
-      if (skillsCount > 5) score += 10;
-      if (updated.github.includes('github.com')) score += 5;
-      if (updated.linkedin.includes('linkedin.com')) score += 5;
-      setAtsScore(Math.min(98, score));
+      const newScore = calculateAtsScore(updated);
+      setAtsScore(newScore);
+      localStorage.setItem('studlyf_ats_score', newScore.toString());
       return updated;
     });
   };
@@ -568,7 +620,7 @@ const CompanyModulesContent: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 font-['Poppins'] selection:bg-purple-600 selection:text-white pt-24 pb-12 transition-colors duration-500 overflow-x-hidden relative">
+    <div className="min-h-screen bg-white text-slate-800 font-['Poppins'] selection:bg-purple-600 selection:text-white pt-28 sm:pt-32 pb-12 transition-colors duration-500 relative">
       
       {/* Background Neon Glowing Orbs */}
       <div className="absolute top-10 left-10 w-[400px] h-[400px] bg-purple-100/30 blur-[120px] rounded-full pointer-events-none z-0" />
@@ -731,17 +783,17 @@ const CompanyModulesContent: React.FC = () => {
           
           /* ACTIVE COMPANY TARGET DASHBOARD */
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="flex flex-col lg:flex-row items-start gap-8"
           >
             
             {/* LEFT GLOWING SIDEBAR */}
-            <div className="flex-shrink-0 transition-all duration-300 w-full lg:w-72 lg:sticky lg:top-28 z-30 self-start">
-              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] p-5 shadow-2xl space-y-5 max-h-[calc(100vh-8.5rem)] overflow-y-auto custom-scrollbar">
+            <div className="flex-shrink-0 transition-all duration-300 w-full lg:w-72 lg:sticky lg:top-28 z-20 self-start">
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] p-3.5 sm:p-4 shadow-2xl space-y-3.5 max-h-[calc(100vh-8.5rem)] overflow-y-auto no-scrollbar">
                 
                 {/* Header Back Button */}
-                <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2.5">
                   <button
                     onClick={handleBackToCompanies}
                     className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-colors"
@@ -752,24 +804,24 @@ const CompanyModulesContent: React.FC = () => {
                 </div>
 
                 {/* Company logo profile */}
-                <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                  <div className="w-12 h-12 bg-white p-2 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="flex items-center gap-3 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                  <div className="w-10 h-10 bg-white p-1.5 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
                     <img src={selectedCompany.logo} alt="" className="max-w-full max-h-full object-contain" onError={(e) => { const t = e.currentTarget; const domain = selectedCompany.id === 'flipkart' ? 'flipkart.com' : selectedCompany.id === 'tcs' ? 'tcs.com' : selectedCompany.id === 'atlassian' ? 'atlassian.com' : selectedCompany.id + '.com'; t.onerror = null; t.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`; }} />
                   </div>
-                  <div>
-                    <h3 className="font-black text-sm text-slate-800 uppercase tracking-wider">{selectedCompany.name}</h3>
-                    <p className="text-[10px] text-slate-400 font-semibold">{selectedCompany.difficulty} Target</p>
+                  <div className="min-w-0">
+                    <h3 className="font-black text-xs text-slate-800 uppercase tracking-wider truncate">{selectedCompany.name}</h3>
+                    <p className="text-[9px] text-slate-400 font-semibold">{selectedCompany.difficulty} Target</p>
                   </div>
                 </div>
 
                 {/* Required Skills Highlight */}
-                <div className="bg-purple-50/50 p-3.5 rounded-2xl border border-purple-100/50">
-                  <h4 className="text-[10px] font-black uppercase text-purple-800 tracking-wider mb-2 flex items-center gap-1">
+                <div className="bg-purple-50/50 p-2.5 rounded-xl border border-purple-100/50">
+                  <h4 className="text-[9px] font-black uppercase text-purple-800 tracking-wider mb-1.5 flex items-center gap-1">
                     <Star className="w-3 h-3" /> Required Skills
                   </h4>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {selectedCompany.hiringRoles?.map((role, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-white border border-purple-200 text-purple-700 rounded-md text-[9px] font-bold">
+                      <span key={idx} className="px-1.5 py-0.5 bg-white border border-purple-200 text-purple-700 rounded-md text-[8px] font-bold">
                         {role}
                       </span>
                     ))}
@@ -777,7 +829,7 @@ const CompanyModulesContent: React.FC = () => {
                 </div>
 
                 {/* Navigation items */}
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   {[
                     { id: 'overview', label: 'Company Overview', icon: Info },
                     { id: 'dsa', label: 'DSA Matrix', icon: Terminal },
@@ -794,22 +846,22 @@ const CompanyModulesContent: React.FC = () => {
                         setSimActive(false);
                         setSelectedQuestion(null);
                       }}
-                      className={`w-full flex items-center justify-between p-3.5 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all ${activeTab === t.id
-                        ? 'bg-purple-500/10 border-purple-500/40 text-purple-700 shadow-lg shadow-purple-100/20'
+                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-[11px] font-black uppercase tracking-wider transition-all ${activeTab === t.id
+                        ? 'bg-purple-500/10 border-purple-500/40 text-purple-700 shadow-sm'
                         : 'bg-transparent border-transparent text-slate-700 hover:bg-white hover:text-slate-900'
                         }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <t.icon className="w-4 h-4" />
+                      <div className="flex items-center gap-2.5">
+                        <t.icon className="w-3.5 h-3.5" />
                         <span>{t.label}</span>
                       </div>
-                      {activeTab === t.id && <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400" />}
+                      {activeTab === t.id && <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-sm" />}
                     </button>
                   ))}
                 </div>
 
                 {/* Status Indicator */}
-                <div className="bg-[#130E26]/80 p-4 rounded-2xl border border-gray-100">
+                <div className="bg-[#130E26]/90 p-3 rounded-xl border border-gray-100">
                   <div className="flex justify-between items-center text-[9px] uppercase font-black text-slate-400">
                     <span>Gate Status</span>
                     <span className={`px-2 py-0.5 rounded border ${
@@ -1069,27 +1121,26 @@ const CompanyModulesContent: React.FC = () => {
                             </header>
 
                             {/* 3D DSA VISUALIZER SCREEN */}
-                            <div className="bg-gray-100 rounded-[2.5rem] border border-gray-200 p-6 lg:p-8 shadow-2xl relative overflow-hidden">
-                              <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
-                                <span className="text-[9px] font-black uppercase tracking-wider text-purple-400">STUDLYF 3D Visualizer</span>
-                              </div>
+                            <div className="bg-gray-100 rounded-[2rem] border border-gray-200 p-4 sm:p-6 shadow-xl relative overflow-hidden">
+
+                              {/* Dynamic Step Action Header Bar */}
+                              {visualizerState && !visualizerState.unsupported && (
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 bg-[#0C061E] text-white p-3.5 sm:px-5 sm:py-3 rounded-2xl border border-purple-500/30 shadow-lg">
+                                  <div className="flex items-center gap-2.5 shrink-0">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-purple-300">
+                                      Step {visStep + 1} of {visualizerState?.steps?.length || 1}
+                                    </span>
+                                    <span className="text-[9px] font-black uppercase tracking-wider text-purple-400/60 hidden md:inline-block">| STUDLYF 3D Visualizer</span>
+                                  </div>
+                                  <p className="text-xs text-slate-200 font-semibold leading-snug sm:text-right">
+                                    {visualizerState?.steps?.[visStep]?.desc || 'Executing algorithm...'}
+                                  </p>
+                                </div>
+                              )}
 
                               {/* Canvas visualizer viewport */}
-                              <div className="w-full min-h-[550px] bg-gradient-to-br from-[#1e1b4b] via-[#0C061E] to-black border border-gray-800 rounded-3xl flex items-center justify-center overflow-hidden relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" style={{ perspective: '1000px' }}>
-                                
-                                {/* Dynamic Step Action Header Overlay */}
-                                {visualizerState && !visualizerState.unsupported && (
-                                  <div className="absolute top-4 right-4 z-20 max-w-xs sm:max-w-md bg-black/70 backdrop-blur-md border border-purple-500/30 px-4 py-2.5 rounded-2xl shadow-xl">
-                                    <div className="flex items-center gap-2 text-[9px] font-black text-purple-300 uppercase tracking-widest mb-1">
-                                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                                      Step {visStep + 1} of {visualizerState?.steps?.length || 1}
-                                    </div>
-                                    <p className="text-xs text-slate-100 font-medium leading-snug">
-                                      {visualizerState?.steps?.[visStep]?.desc || 'Executing algorithm...'}
-                                    </p>
-                                  </div>
-                                )}
+                              <div className="w-full min-h-[280px] sm:min-h-[360px] lg:min-h-[400px] bg-gradient-to-br from-[#1e1b4b] via-[#0C061E] to-black border border-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center overflow-hidden relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" style={{ perspective: '1000px' }}>
 
                                 {/* Unsupported Visualizer Fallback */}
                                 {visualizerState?.unsupported && (
@@ -1102,8 +1153,8 @@ const CompanyModulesContent: React.FC = () => {
 
                                 {/* 3D Traversal rendering */}
                                 {selectedQuestion.visualizerType === 'tree' && visualizerState && !visualizerState.unsupported && (
-                                  <div className="w-full h-full min-h-[500px] flex items-center justify-center relative">
-                                    <div className="relative w-[400px] h-[300px] scale-[1.3] md:scale-[1.6]">
+                                  <div className="w-full h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[360px] flex items-center justify-center relative overflow-hidden py-6 sm:py-8">
+                                    <div className="relative w-[320px] sm:w-[380px] h-[240px] sm:h-[280px] scale-[0.8] sm:scale-[1.0] md:scale-[1.2] lg:scale-[1.3]">
                                       <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
                                       {/* Render link connections */}
                                       {(visualizerState.nodes || []).map((node: any) => {
@@ -1171,8 +1222,8 @@ const CompanyModulesContent: React.FC = () => {
 
                                 {/* Dynamic Rain Water Elevation Chart Visualizer */}
                                 {(selectedQuestion.visualizerType === 'rain-water' || selectedQuestion.title === 'Trapping Rain Water') && visualizerState && !visualizerState.unsupported && (
-                                  <div className="flex flex-col items-center justify-center space-y-6 w-full px-4 sm:px-8 py-4">
-                                    <div className="flex items-end justify-center gap-2 sm:gap-3 w-full max-w-3xl h-64 px-4 bg-black/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md relative shadow-2xl">
+                                  <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 w-full px-2 sm:px-8 py-4">
+                                    <div className="flex items-end justify-center gap-1.5 sm:gap-3 w-full max-w-3xl h-56 sm:h-64 px-2 sm:px-4 bg-black/40 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-md relative shadow-2xl overflow-x-auto no-scrollbar">
                                       {(() => {
                                         const heightArr = visualizerState.height || [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1];
                                         const step = visualizerState?.steps?.[visStep] || {};
@@ -1239,10 +1290,10 @@ const CompanyModulesContent: React.FC = () => {
                                       })()}
                                     </div>
 
-                                    <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-black uppercase text-slate-200 bg-black/60 px-6 py-2.5 rounded-full border border-purple-500/20 backdrop-blur-md shadow-xl">
+                                    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-xs font-black uppercase text-slate-200 bg-black/60 px-4 py-2 sm:px-6 sm:py-2.5 rounded-2xl sm:rounded-full border border-purple-500/20 backdrop-blur-md shadow-xl">
                                       <span className="flex items-center gap-2">
                                         <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.8)]" /> 
-                                        Trapped Water: <span className="text-cyan-300 text-sm">{visualizerState?.steps?.[visStep]?.totalWater ?? 0} Units</span>
+                                        Trapped Water: <span className="text-cyan-300 text-xs sm:text-sm">{visualizerState?.steps?.[visStep]?.totalWater ?? 0} Units</span>
                                       </span>
                                       <span className="flex items-center gap-2">
                                         <div className="w-2.5 h-2.5 rounded-full bg-purple-400" /> 
@@ -1422,8 +1473,8 @@ const CompanyModulesContent: React.FC = () => {
 
                                 {/* Graph visualizer rendering */}
                                 {selectedQuestion.visualizerType === 'graph' && visualizerState && !visualizerState.unsupported && (
-                                  <div className="w-full h-full min-h-[500px] flex items-center justify-center relative">
-                                    <div className="relative w-[400px] h-[300px] scale-[1.3] md:scale-[1.6]">
+                                  <div className="w-full h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[360px] flex items-center justify-center relative overflow-hidden">
+                                    <div className="relative w-[320px] sm:w-[380px] h-[240px] sm:h-[280px] scale-[0.8] sm:scale-[1.0] md:scale-[1.25] lg:scale-[1.35]">
                                       <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
                                       <defs>
                                         <marker id="arrow" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -1492,7 +1543,7 @@ const CompanyModulesContent: React.FC = () => {
 
                                     {/* Stats panel for graph */}
                                     {(visualizerState?.steps?.[visStep]?.queue || visualizerState?.steps?.[visStep]?.inDegrees) && (
-                                      <div className="absolute bottom-4 left-4 flex gap-4 text-[9px] font-black uppercase text-slate-400 z-10 bg-[#0C061E]/80 backdrop-blur border border-purple-500/10 px-3 py-1.5 rounded-xl">
+                                      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 flex flex-wrap gap-2 text-[9px] font-black uppercase text-slate-300 z-10 bg-[#0C061E]/90 backdrop-blur border border-purple-500/20 px-3 py-1.5 rounded-xl max-w-[calc(100%-1.5rem)]">
                                         {visualizerState?.steps?.[visStep]?.queue && <span>Queue: [{visualizerState.steps[visStep].queue.join(', ')}]</span>}
                                         {visualizerState?.steps?.[visStep]?.inDegrees && <span>In-degrees: {JSON.stringify(visualizerState.steps[visStep].inDegrees)}</span>}
                                       </div>
@@ -1502,7 +1553,7 @@ const CompanyModulesContent: React.FC = () => {
 
                                 {/* Matrix visualizer rendering */}
                                 {selectedQuestion.visualizerType === 'matrix' && visualizerState && !visualizerState.unsupported && (
-                                  <div className="flex flex-col items-center justify-center space-y-6 w-full h-full px-4">
+                                  <div className="flex flex-col items-center justify-center space-y-6 w-full h-full px-4 overflow-x-auto no-scrollbar py-4">
                                     <div 
                                       className="grid gap-2" 
                                       style={{ gridTemplateColumns: `repeat(${visualizerState.matrix?.[0]?.length || 1}, minmax(0, 1fr))` }}
@@ -1516,7 +1567,7 @@ const CompanyModulesContent: React.FC = () => {
                                           return (
                                             <div
                                               key={`${rIdx}-${cIdx}`}
-                                              className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 relative ${
+                                              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 relative ${
                                                 isActive
                                                   ? 'bg-yellow-400 border-yellow-200 text-black scale-110 z-20 shadow-[0_0_20px_rgba(250,204,21,0.8)]'
                                                   : isVisited
@@ -1538,56 +1589,29 @@ const CompanyModulesContent: React.FC = () => {
 
                                 {/* Binary Search / Two Pointers visualizer rendering */}
                                 {(selectedQuestion.visualizerType === 'binary-search' || selectedQuestion.visualizerType === 'two-pointers') && visualizerState && !visualizerState.unsupported && (
-                                  <div className="flex flex-col items-center justify-center w-full h-full gap-10 px-4">
+                                  <div className="flex flex-col items-center justify-center w-full h-full gap-6 sm:gap-10 px-2 sm:px-4 overflow-x-auto no-scrollbar py-6">
                                     {/* Array 1 */}
-                                    <div className="flex gap-2 relative">
-                                      <span className="absolute -left-16 top-3 text-[10px] font-black text-slate-500">nums1</span>
-                                      {(visualizerState.nums1 || visualizerState.arr || visualizerState.chars || []).map((val: number, idx: number) => {
-                                        const step = visualizerState?.steps?.[visStep] || {};
-                                        const isLeftPartition = step.i !== undefined ? idx < step.i : false;
-                                        const isRightPartition = step.i !== undefined ? idx >= step.i : false;
-                                        const isLo = step.lo === idx || step.left === idx;
-                                        const isHi = step.hi === idx || step.right === idx;
-                                        const isMid = step.mid === idx || step.i === idx;
-                                        
-                                        return (
-                                          <div key={`n1-${idx}`} className="flex flex-col items-center relative">
-                                            {isLo && <span className="absolute -top-6 text-[9px] font-black text-purple-400">{step.left !== undefined ? "left" : "lo"}</span>}
-                                            {isHi && <span className="absolute -top-6 text-[9px] font-black text-blue-400">{step.right !== undefined ? "right" : "hi"}</span>}
-                                            {isMid && <span className="absolute -bottom-6 text-[9px] font-black text-yellow-400">mid</span>}
-                                            <div
-                                              className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
-                                                isMid
-                                                  ? 'bg-yellow-400 border-yellow-200 text-black scale-110 z-20 shadow-[0_0_20px_rgba(250,204,21,0.8)]'
-                                                  : isLeftPartition
-                                                  ? 'bg-fuchsia-500/80 border-fuchsia-300 text-white z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
-                                                  : isRightPartition
-                                                  ? 'bg-blue-500/80 border-blue-300 text-white z-10 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
-                                                  : 'bg-white/5 border-white/10 text-slate-300 shadow-lg'
-                                              }`}
-                                            >
-                                              {val}
-                                            </div>
-                                            <span className="text-[8px] text-slate-500 mt-2">{idx}</span>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                    
-                                    {/* Array 2 (if exists) */}
-                                    {visualizerState.nums2 && (
-                                      <div className="flex gap-2 relative">
-                                        <span className="absolute -left-16 top-3 text-[10px] font-black text-slate-500">nums2</span>
-                                        {visualizerState.nums2.map((val: number, idx: number) => {
+                                    <div className="flex items-center gap-2 sm:gap-4 max-w-full">
+                                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 w-12 text-right">nums1</span>
+                                      <div className="flex gap-1.5 sm:gap-2 relative">
+                                        {(visualizerState.nums1 || visualizerState.arr || visualizerState.chars || []).map((val: number, idx: number) => {
                                           const step = visualizerState?.steps?.[visStep] || {};
-                                          const isLeftPartition = step.j !== undefined ? idx < step.j : false;
-                                          const isRightPartition = step.j !== undefined ? idx >= step.j : false;
+                                          const isLeftPartition = step.i !== undefined ? idx < step.i : false;
+                                          const isRightPartition = step.i !== undefined ? idx >= step.i : false;
+                                          const isLo = step.lo === idx || step.left === idx;
+                                          const isHi = step.hi === idx || step.right === idx;
+                                          const isMid = step.mid === idx || step.i === idx;
                                           
                                           return (
-                                            <div key={`n2-${idx}`} className="flex flex-col items-center relative">
+                                            <div key={`n1-${idx}`} className="flex flex-col items-center relative">
+                                              {isLo && <span className="absolute -top-6 text-[9px] font-black text-purple-400">{step.left !== undefined ? "left" : "lo"}</span>}
+                                              {isHi && <span className="absolute -top-6 text-[9px] font-black text-blue-400">{step.right !== undefined ? "right" : "hi"}</span>}
+                                              {isMid && <span className="absolute -bottom-6 text-[9px] font-black text-yellow-400">mid</span>}
                                               <div
-                                                className={`w-12 h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
-                                                  isLeftPartition
+                                                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
+                                                  isMid
+                                                    ? 'bg-yellow-400 border-yellow-200 text-black scale-110 z-20 shadow-[0_0_20px_rgba(250,204,21,0.8)]'
+                                                    : isLeftPartition
                                                     ? 'bg-fuchsia-500/80 border-fuchsia-300 text-white z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
                                                     : isRightPartition
                                                     ? 'bg-blue-500/80 border-blue-300 text-white z-10 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
@@ -1601,6 +1625,37 @@ const CompanyModulesContent: React.FC = () => {
                                           );
                                         })}
                                       </div>
+                                    </div>
+                                    
+                                    {/* Array 2 (if exists) */}
+                                    {visualizerState.nums2 && (
+                                      <div className="flex items-center gap-2 sm:gap-4 max-w-full">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0 w-12 text-right">nums2</span>
+                                        <div className="flex gap-1.5 sm:gap-2 relative">
+                                          {visualizerState.nums2.map((val: number, idx: number) => {
+                                            const step = visualizerState?.steps?.[visStep] || {};
+                                            const isLeftPartition = step.j !== undefined ? idx < step.j : false;
+                                            const isRightPartition = step.j !== undefined ? idx >= step.j : false;
+                                            
+                                            return (
+                                              <div key={`n2-${idx}`} className="flex flex-col items-center relative">
+                                                <div
+                                                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl border backdrop-blur-md flex items-center justify-center font-black transition-all duration-300 ${
+                                                    isLeftPartition
+                                                      ? 'bg-fuchsia-500/80 border-fuchsia-300 text-white z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
+                                                      : isRightPartition
+                                                      ? 'bg-blue-500/80 border-blue-300 text-white z-10 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
+                                                      : 'bg-white/5 border-white/10 text-slate-300 shadow-lg'
+                                                  }`}
+                                                >
+                                                  {val}
+                                                </div>
+                                                <span className="text-[8px] text-slate-500 mt-2">{idx}</span>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
                                     )}
                                   </div>
                                 )}
@@ -1612,7 +1667,7 @@ const CompanyModulesContent: React.FC = () => {
                                   <span className="block font-black text-slate-700 mb-1">Current State Description:</span>
                                   <p className="font-semibold text-[11px] leading-relaxed">{visualizerState?.steps?.[visStep]?.desc || 'Ready to run.'}</p>
                                 </div>
-                                <div className="flex items-center gap-5">
+                                <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 w-full md:w-auto">
                                   {/* Speed Slider */}
                                   <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-2xl border border-gray-200">
                                     <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -2155,8 +2210,13 @@ const CompanyModulesContent: React.FC = () => {
                             </div>
 
                             <button
-                              onClick={() => triggerToast('Portfolio changes compiled & successfully saved!')}
-                              className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em]"
+                              onClick={() => {
+                                const score = calculateAtsScore(portfolioData);
+                                setAtsScore(score);
+                                localStorage.setItem('studlyf_ats_score', score.toString());
+                                triggerToast(`Portfolio compiled & saved! ATS Readiness Score: ${score}%`);
+                              }}
+                              className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-purple-200 transition-all cursor-pointer"
                             >
                               Compile & Re-Score Portfolio
                             </button>

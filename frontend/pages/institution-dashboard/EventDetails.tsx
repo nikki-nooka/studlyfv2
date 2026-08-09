@@ -2642,7 +2642,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack, institutio
                         <button
                             type="button"
                             onClick={() => setSubmissionSubTab('assessments')}
-                            className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${submissionSubTab === 'assessments' ? 'bg-white text-purple-700 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                            className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${(submissionSubTab as string) === 'assessments' ? 'bg-white text-purple-700 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
                         >
                             Quizzes & Assessments
                         </button>

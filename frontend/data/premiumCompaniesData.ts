@@ -12,7 +12,7 @@ export interface DSAQuestion {
   space: string;
   acceptanceRate?: number;
   estimatedRounds?: string;
-  visualizerType: 'tree' | 'sliding-window' | 'linked-list' | 'dp' | 'sorting' | 'graph' | 'array' | 'matrix' | 'binary-search' | 'two-pointers' | 'heap' | 'hashmap' | 'string' | 'trie' | 'stack' | 'queue' | 'circular' | 'cache' | 'timeline' | 'grid';
+  visualizerType: 'tree' | 'sliding-window' | 'linked-list' | 'dp' | 'sorting' | 'graph' | 'array' | 'matrix' | 'binary-search' | 'two-pointers' | 'heap' | 'hashmap' | 'string' | 'trie' | 'stack' | 'queue' | 'circular' | 'cache' | 'timeline' | 'grid' | 'rain-water';
   explanation: {
     intuition: string;
     brute: string;

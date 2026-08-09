@@ -219,7 +219,8 @@ export class LayoutEngine {
     }
 
     const maxDepth = Math.max(...Array.from(depths.keys()));
-    const ySpacing = height / (maxDepth + 1.5);
+    const availableHeight = Math.max(120, height - 100);
+    const ySpacing = maxDepth > 0 ? availableHeight / maxDepth : 0;
 
     depths.forEach((nodesAtDepth, depth) => {
       const xSpacing = width / (nodesAtDepth.length + 1);
@@ -227,7 +228,7 @@ export class LayoutEngine {
         const node = nodes.find(n => n.id === nodeId);
         if (node) {
           node.x = xSpacing * (idx + 1);
-          node.y = 30 + (depth * ySpacing);
+          node.y = 55 + (depth * ySpacing);
         }
       });
     });

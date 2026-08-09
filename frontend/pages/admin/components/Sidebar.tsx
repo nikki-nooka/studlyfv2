@@ -104,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
             </div>
 
             {/* Nav Items */}
-            <div className="flex-grow overflow-y-auto px-4 py-2 custom-scrollbar">
+            <div className="flex-grow overflow-y-auto px-4 py-2 no-scrollbar">
                 <nav className="space-y-1.5">
                     {navItems.map((item) => {
                         const isActive = location.pathname === item.path;

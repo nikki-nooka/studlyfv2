@@ -227,6 +227,7 @@ const PostOpportunityModal: React.FC<PostOpportunityModalProps> = ({ isOpen, onC
                     eventStartDate: '',
                     eventEndDate: '',
                     stages: [],
+                    submission_requirements: [],
                     contacts: []
                 });
                 setLogoPreview(null);

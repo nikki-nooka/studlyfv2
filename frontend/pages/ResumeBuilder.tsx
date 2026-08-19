@@ -390,6 +390,26 @@ export default function ResumeBuilder() {
     const [publicAccess, setPublicAccess] = useState(true);
 
     useEffect(() => {
+        // First load from local storage for instant state recovery
+        try {
+            const localSaved = localStorage.getItem('studlyf_saved_resume');
+            if (localSaved) {
+                const parsed = JSON.parse(localSaved);
+                if (parsed && typeof parsed === 'object') {
+                    setResumeData(prev => ({
+                        ...prev,
+                        ...parsed,
+                        personalInfo: { ...prev.personalInfo, ...(parsed.personalInfo || {}) },
+                        skills: { ...prev.skills, ...(parsed.skills || {}) },
+                        additional: { ...prev.additional, ...(parsed.additional || {}) }
+                    }));
+                    setHasExistingData(true);
+                }
+            }
+        } catch (e) {
+            console.error("LocalStorage read error:", e);
+        }
+
         async function fetchConfig() {
             if (!user?.uid) return;
             try {
@@ -421,6 +441,7 @@ export default function ResumeBuilder() {
                         }
                         setResumeData(migratedData);
                         setHasExistingData(true);
+                        localStorage.setItem('studlyf_saved_resume', JSON.stringify(migratedData));
                     }
                 }
             } catch (err) { console.error("Migration error:", err); }
@@ -428,16 +449,34 @@ export default function ResumeBuilder() {
         fetchConfig();
     }, [user?.uid]);
 
+    // Auto-save debounced whenever resumeData changes
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (resumeData && (resumeData.personalInfo.firstName || resumeData.personalInfo.email || resumeData.experience.length > 0)) {
+                handleSave(true);
+            }
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, [resumeData]);
+
     const handleSave = async (silent = false) => {
-        if (!user?.uid) return;
         if (!silent) setIsSaving(true);
         try {
-            await fetch(`${API_BASE_URL}/api/resume/${user.uid}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ config: resumeData })
-            });
-            if (!silent) { setSaveStatus("saved"); setTimeout(() => setSaveStatus("idle"), 2000); }
+            // Save to localStorage
+            localStorage.setItem('studlyf_saved_resume', JSON.stringify(resumeData));
+            setHasExistingData(true);
+
+            // Save to backend API if user is logged in
+            if (user?.uid) {
+                await fetch(`${API_BASE_URL}/api/resume/${user.uid}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ config: resumeData })
+                });
+            }
+            if (!silent) { setSaveStatus("saved"); setTimeout(() => setSaveStatus("idle"), 2500); }
+        } catch (e) {
+            console.error("Save error:", e);
         } finally { setIsSaving(false); }
     };
 
@@ -1135,18 +1174,35 @@ export default function ResumeBuilder() {
                             <Edit3 size={13} className="text-gray-400" />
                         </button>
                     )}
-                    <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        Saved
-                    </span>
+                    <button 
+                        onClick={() => setStep('dashboard')}
+                        title="Click to view saved resumes in your cloud workspace"
+                        className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-200 transition-colors cursor-pointer"
+                    >
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Saved to Workspace</span>
+                    </button>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => handleSave()}
+                        disabled={isSaving}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                            saveStatus === 'saved'
+                                ? 'bg-emerald-600 text-white shadow-emerald-200'
+                                : 'bg-gray-900 text-white hover:bg-violet-700 shadow-gray-200'
+                        }`}
+                    >
+                        {isSaving ? <Loader2 size={13} className="animate-spin" /> : saveStatus === 'saved' ? <CheckCircle size={13} /> : <Save size={13} />}
+                        {isSaving ? 'Saving…' : saveStatus === 'saved' ? 'Saved ✓' : 'Save Resume'}
+                    </button>
+
                     <button
                         onClick={() => setShowAiPanel(true)}
-                        className="v-btn-primary !py-2 !px-4 !text-sm"
+                        className="v-btn-primary !py-2 !px-4 !text-xs"
                     >
-                        <Sparkles size={14} />
+                        <Sparkles size={13} />
                         AI Review
                     </button>
                 </div>
@@ -1437,19 +1493,19 @@ export default function ResumeBuilder() {
                 </div>
             </main>
 
-            {/* Save button */}
-            <div className="fixed bottom-5 right-5 z-50">
+            {/* Floating Save Quick Action (Positioned away from GUIDE pill) */}
+            <div className="fixed bottom-6 right-24 z-40">
                 <button
                     onClick={() => handleSave()}
                     disabled={isSaving}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold shadow-xl backdrop-blur-md transition-all border border-white/20 ${
                         saveStatus === 'saved'
                             ? 'bg-emerald-600 text-white shadow-emerald-200'
-                            : 'bg-gray-900 text-white hover:bg-violet-700 shadow-gray-300'
+                            : 'bg-gray-900/90 text-white hover:bg-violet-700 shadow-gray-400'
                     }`}
                 >
-                    {isSaving ? <Loader2 size={15} className="animate-spin" /> : saveStatus === 'saved' ? <CheckCircle size={15} /> : <Save size={15} />}
-                    {isSaving ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : 'Save'}
+                    {isSaving ? <Loader2 size={14} className="animate-spin" /> : saveStatus === 'saved' ? <CheckCircle size={14} /> : <Save size={14} />}
+                    {isSaving ? 'Saving…' : saveStatus === 'saved' ? 'Saved to Cloud ✓' : 'Save Resume'}
                 </button>
             </div>
 

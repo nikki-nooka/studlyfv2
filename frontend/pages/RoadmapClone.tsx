@@ -173,7 +173,7 @@ const RoadmapClone: React.FC = () => {
                 Start Your Roadmap
               </button>
               <button 
-                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('roles-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="w-full sm:w-auto px-8 py-4 bg-white text-[#1A1A1A] border border-gray-200 rounded-xl font-bold text-sm hover:border-gray-300 shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
               >
                 Explore Roles

@@ -132,11 +132,11 @@ const carouselCards = [
   { id: 2, title: 'Full Stack Development', subtext: 'Build modern web apps', gradient: 'from-[#4338CA] to-[#6C2BFF]', icon: Layout, route: '/roadmaps/frontend-developer' },
   { id: 3, title: 'Product & Startups', subtext: 'Build products that scale', gradient: 'from-[#EC4899] to-[#8B5CF6]', icon: Rocket, route: '/roadmaps/product-manager' },
   { id: 4, title: 'UI / UX Design', subtext: 'Design experiences people love', gradient: 'from-[#C084FC] to-[#EC4899]', icon: Monitor, route: '/roadmaps/ui-ux-designer' },
-  { id: 5, title: 'Data Science & Analytics', subtext: 'Turn data into insights', gradient: 'from-[#3730A3] to-[#8B5CF6]', icon: Database, route: '/roadmaps/data-scientist' },
-  { id: 6, title: 'Career Growth & Soft Skills', subtext: 'Prepare for placements', gradient: 'from-[#6C2BFF] to-[#EC4899]', icon: TrendingUp },
-  { id: 7, title: 'Cybersecurity', subtext: 'Secure digital systems', gradient: 'from-[#312E81] to-[#8B5CF6]', icon: Briefcase },
+  { id: 5, title: 'Data Science & Analytics', subtext: 'Turn data into insights', gradient: 'from-[#3730A3] to-[#8B5CF6]', icon: Database, route: '/roadmaps/data-analyst' },
+  { id: 6, title: 'Career Growth & Soft Skills', subtext: 'Prepare for placements', gradient: 'from-[#6C2BFF] to-[#EC4899]', icon: TrendingUp, route: '/learn/career-fit' },
+  { id: 7, title: 'Cybersecurity', subtext: 'Secure digital systems', gradient: 'from-[#312E81] to-[#8B5CF6]', icon: Briefcase, route: '/roadmaps/cybersecurity' },
   { id: 8, title: 'Backend Development', subtext: 'Build scalable servers', gradient: 'from-[#4F46E5] to-[#8B5CF6]', icon: Database, route: '/roadmaps/backend-developer' },
-  { id: 9, title: 'Interview & Placement Prep', subtext: 'Crack opportunities confidently', gradient: 'from-[#C084FC] to-[#6C2BFF]', icon: CheckCircle },
+  { id: 9, title: 'Interview & Placement Prep', subtext: 'Crack opportunities confidently', gradient: 'from-[#C084FC] to-[#6C2BFF]', icon: CheckCircle, route: '/job-prep/mock-interview' },
 ];
 
 const PremiumExploreCarousel = () => {

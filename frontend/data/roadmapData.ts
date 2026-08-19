@@ -1124,6 +1124,15 @@ export const rolesData: RoleData[] = [
     chapters: generateChapters("data")
   },
   {
+    id: "data-scientist",
+    title: "Data Scientist",
+    description: "Turn raw data into actionable business insights using advanced analytics and machine learning.",
+    timeline: "5–7 Months",
+    difficulty: "Beginner Friendly",
+    iconName: "BarChart3",
+    chapters: generateChapters("data")
+  },
+  {
     id: "devops-engineer",
     title: "DevOps Engineer",
     description: "Automate, deploy, and maintain cloud infrastructure.",

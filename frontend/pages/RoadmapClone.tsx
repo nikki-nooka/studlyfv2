@@ -395,7 +395,7 @@ const RoadmapClone: React.FC = () => {
       />
 
       <div className="flex-grow pb-32">
-        <main className="max-w-4xl mx-auto px-6 pt-32">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24">
           
           {/* Track Header & Hero Info */}
         <div className="mb-12">

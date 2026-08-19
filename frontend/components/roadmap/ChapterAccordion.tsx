@@ -11,6 +11,7 @@ interface ChapterAccordionProps {
   isFuture: boolean;
   completedNodes: string[];
   onNodeClick: (node: RoadmapNodeData) => void;
+  chapterIndex?: number;
 }
 
 const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
@@ -19,9 +20,14 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
   isPast,
   isFuture,
   completedNodes,
-  onNodeClick
+  onNodeClick,
+  chapterIndex = 0
 }) => {
   const isChapterComplete = chapter.nodes.every(node => completedNodes.includes(node.id));
+
+  // Extract clean number from chapter ID (e.g., chapter-fullstack-01 -> "1") or fallback to index + 1
+  const numberMatch = chapter.id.match(/\d+/);
+  const phaseNum = numberMatch ? String(parseInt(numberMatch[0], 10)) : String(chapterIndex + 1);
 
   return (
     <div className={`mb-8 transition-all duration-500 ${isFuture ? 'opacity-50' : 'opacity-100'}`}>
@@ -29,29 +35,29 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
       {/* Chapter Header */}
       <div className={`flex items-center gap-4 mb-6 p-4 rounded-2xl border ${
         isActive 
-          ? 'bg-gradient-to-r from-[#6C2BFF]/5 to-transparent border-[#6C2BFF]/20' 
+          ? 'bg-gradient-to-r from-[#6C2BFF]/5 to-transparent border-[#6C2BFF]/20 shadow-sm' 
           : isPast
-            ? 'bg-green-50/50 border-green-100'
+            ? 'bg-emerald-50/50 border-emerald-100'
             : 'bg-gray-50 border-gray-100'
       }`}>
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl shadow-sm ${
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl flex-shrink-0 shadow-sm ${
           isActive 
             ? 'bg-[#6C2BFF] text-white' 
             : isPast
-              ? 'bg-green-500 text-white'
+              ? 'bg-emerald-500 text-white'
               : 'bg-gray-200 text-gray-400'
         }`}>
-          {isPast ? <CheckCircle className="w-6 h-6" /> : isFuture ? <Lock className="w-6 h-6" /> : chapter.id.split('-')[1]}
+          {isPast ? <CheckCircle className="w-6 h-6" /> : isFuture ? <Lock className="w-6 h-6" /> : phaseNum}
         </div>
         
-        <div>
+        <div className="flex-1 min-w-0">
           <span className={`text-[10px] font-black uppercase tracking-widest block mb-0.5 ${
-            isActive ? 'text-[#6C2BFF]' : isPast ? 'text-green-600' : 'text-gray-400'
+            isActive ? 'text-[#6C2BFF]' : isPast ? 'text-emerald-600' : 'text-gray-400'
           }`}>
             {isPast ? 'Completed Phase' : isFuture ? 'Locked Phase' : 'Current Phase'}
           </span>
-          <h2 className={`text-2xl font-black ${
-            isFuture ? 'text-gray-400' : 'text-[#1A1A1A]'
+          <h2 className={`text-xl sm:text-2xl font-black leading-tight ${
+            isFuture ? 'text-gray-400' : 'text-[#111827]'
           }`}>
             {chapter.title}
           </h2>

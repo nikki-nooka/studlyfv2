@@ -521,6 +521,7 @@ const RoadmapClone: React.FC = () => {
               <ChapterAccordion 
                 key={chapter.id}
                 chapter={chapter}
+                chapterIndex={index}
                 isActive={isActive}
                 isPast={isPast}
                 isFuture={isFuture}

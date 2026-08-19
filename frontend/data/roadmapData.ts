@@ -1082,11 +1082,6 @@ export const rolesData: RoleData[] = [
             title: "AI Development Toolkit",
             simpleExplanation: "The modern software tools and IDEs optimized for AI developers.",
             whyItMatters: "Using AI to write AI code speeds up development by 10x.",
-            keyConcepts: [
-              "AI Code Editors (Cursor, Copilot)",
-              "Accelerating workflows",
-              "Debugging with AI"
-            ],
             resources: [
               { title: "Cursor Editor", url: "https://cursor.sh/", type: "Best Starting Point" },
               { title: "GitHub Copilot", url: "https://github.com/features/copilot", type: "Practice Resource" }
@@ -1099,8 +1094,8 @@ export const rolesData: RoleData[] = [
   {
     id: "product-manager",
     title: "Product Manager",
-    description: "Lead product vision, strategy, user research, and cross-functional execution.",
-    timeline: "4–6 Months",
+    description: "Lead product vision, strategy, user research, backlog grooming, and cross-functional execution.",
+    timeline: "6–8 Months",
     difficulty: "Beginner Friendly",
     iconName: "Target",
     importanceDescription: "Product Managers connect user needs with business goals and technical feasibility. They define what to build, why to build it, and measure product success.",
@@ -1166,16 +1161,68 @@ export const rolesData: RoleData[] = [
       },
       {
         id: "chapter-pm-03",
-        title: "Product Analytics & Growth",
+        title: "Product UX Wireframing & Design Alignment",
         nodes: [
           {
-            id: "node-pm-05-metrics",
-            title: "Product Analytics & Success Metrics",
-            simpleExplanation: "Track North Star metrics, activation, retention, and funnel conversion rates.",
-            whyItMatters: "Data-driven PMs make objective decisions to grow retention and engagement.",
-            keyConcepts: ["North Star Metric", "AARRR Pirate Metrics", "Cohort Analysis", "Mixpanel / Amplitude basics"],
+            id: "node-pm-05-wireframe",
+            title: "Lo-Fi Wireframing for PMs",
+            simpleExplanation: "Sketch basic screen layouts in Balsamiq or Figma to communicate product ideas visually.",
+            whyItMatters: "A sketch saves hours of debate during product alignment meetings.",
+            keyConcepts: ["Lo-Fi Wireframing", "User Journey Mapping", "Figma for Non-Designers"],
+            resources: [
+              { title: "Balsamiq Wireframing Guide", url: "https://balsamiq.com/learn/", type: "Best Starting Point" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-pm-04",
+        title: "Product Analytics & Growth Loops",
+        nodes: [
+          {
+            id: "node-pm-06-metrics",
+            title: "Product Analytics & North Star Metrics",
+            simpleExplanation: "Track retention, activation, churn, and funnel conversion rates using Mixpanel or Amplitude.",
+            whyItMatters: "Data-driven PMs make objective decisions to grow active users.",
+            keyConcepts: ["North Star Metric", "AARRR Pirate Metrics", "Funnel Analysis", "Cohort Retention"],
             resources: [
               { title: "Mixpanel Product Analytics Guide", url: "https://mixpanel.com/blog/", type: "Practice Resource" }
+            ]
+          },
+          {
+            id: "node-pm-07-abtesting",
+            title: "A/B Testing & Product Experiments",
+            simpleExplanation: "Run statistical experiments to test new features before rolling out to 100% of users.",
+            whyItMatters: "Validates hypotheses with real user behavior instead of guessing.",
+            keyConcepts: ["A/B Test Design", "Statistical Significance", "Control vs Variant Groups"],
+            resources: [
+              { title: "Optimizely Experimentation Guide", url: "https://www.optimizely.com/optimization-glossary/", type: "Official Docs" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-pm-05",
+        title: "Product Launch & Career Readiness",
+        nodes: [
+          {
+            id: "node-pm-08-gtm",
+            title: "Go-to-Market Strategy & Product Launch",
+            simpleExplanation: "Plan product releases with marketing, sales, customer support, and engineering teams.",
+            whyItMatters: "Great products fail without a clear product launch and adoption strategy.",
+            keyConcepts: ["Product Launch Checklist", "Release Notes", "Sales Enablement", "Beta Testing Programs"],
+            resources: [
+              { title: "Product Hunt Launch Guide", url: "https://www.producthunt.com/ship", type: "Best Starting Point" }
+            ]
+          },
+          {
+            id: "node-pm-09-interview",
+            title: "Product Management Case Study & Interviewing",
+            simpleExplanation: "Master product design, product strategy, and metric calculation case studies for top tech interviews.",
+            whyItMatters: "PM interviews rely heavily on structured framework responses (CIRCLES, BUS).",
+            keyConcepts: ["CIRCLES Framework", "Product Design Interviewing", "Behavioral Interview Prep", "PM Portfolio"],
+            resources: [
+              { title: "Exponent PM Interview Prep", url: "https://www.tryexponent.com/", type: "Best Starting Point" }
             ]
           }
         ]
@@ -1185,8 +1232,8 @@ export const rolesData: RoleData[] = [
   {
     id: "ui-ux-designer",
     title: "UI/UX Designer",
-    description: "Design beautiful, intuitive, and user-centric digital experiences.",
-    timeline: "4–6 Months",
+    description: "Design beautiful, intuitive, accessible, and user-centric digital products.",
+    timeline: "6–8 Months",
     difficulty: "Beginner Friendly",
     iconName: "PenTool",
     importanceDescription: "UI/UX Designers create intuitive, visually stunning web and mobile interfaces that feel seamless for users.",
@@ -1199,20 +1246,47 @@ export const rolesData: RoleData[] = [
     chapters: [
       {
         id: "chapter-uiux-01",
-        title: "UX Fundamentals & Wireframing",
+        title: "UX Fundamentals & Cognitive Psychology",
         nodes: [
           {
             id: "node-uiux-01-foundations",
             title: "User Experience Foundations",
-            simpleExplanation: "Understand cognitive psychology, usability heuristics, and user journey mapping.",
+            simpleExplanation: "Understand cognitive psychology, usability heuristics, and mental models.",
             whyItMatters: "Great UI design is rooted in intuitive usability and seamless navigation.",
-            keyConcepts: ["Nielsen Norman 10 Heuristics", "Information Architecture", "User Flow Diagrams", "Mental Models"],
+            keyConcepts: ["Nielsen Norman 10 Heuristics", "Laws of UX (Fitts, Hick, Miller)", "Mental Models", "Gestalt Principles"],
             resources: [
-              { title: "NN/g 10 Usability Heuristics", url: "https://www.nngroup.com/articles/ten-usability-heuristics/", type: "Best Starting Point" }
+              { title: "Laws of UX", url: "https://lawsofux.com/", type: "Best Starting Point" },
+              { title: "NN/g 10 Usability Heuristics", url: "https://www.nngroup.com/articles/ten-usability-heuristics/", type: "Official Docs" }
             ]
           },
           {
-            id: "node-uiux-02-wireframing",
+            id: "node-uiux-02-research",
+            title: "User Research & Empathy Mapping",
+            simpleExplanation: "Gather user insights through interviews, surveys, and competitive audits.",
+            whyItMatters: "Designing without user data leads to subjective, biased interfaces.",
+            keyConcepts: ["Empathy Maps", "User Personas", "Journey Mapping", "Card Sorting"],
+            resources: [
+              { title: "Interaction Design Foundation User Research Guide", url: "https://www.interaction-design.org/", type: "Official Docs" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-uiux-02",
+        title: "Information Architecture & Wireframing",
+        nodes: [
+          {
+            id: "node-uiux-03-ia",
+            title: "Information Architecture & Site Maps",
+            simpleExplanation: "Structure content logically so users can navigate without getting lost.",
+            whyItMatters: "Clear hierarchy prevents user confusion and drop-offs.",
+            keyConcepts: ["Navigation Patterns", "Site Maps", "Tree Testing", "Content Hierarchy"],
+            resources: [
+              { title: "Information Architecture Institute", url: "https://www.iainstitute.org/", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-uiux-04-wireframing",
             title: "Wireframing & Lo-Fi Prototyping",
             simpleExplanation: "Create low-fidelity structural sketches before jumping into visual details.",
             whyItMatters: "Allows rapid iteration on core navigation and layout structure.",
@@ -1224,11 +1298,21 @@ export const rolesData: RoleData[] = [
         ]
       },
       {
-        id: "chapter-uiux-02",
-        title: "Visual UI Design & Design Systems",
+        id: "chapter-uiux-03",
+        title: "Visual UI Design & Typography",
         nodes: [
           {
-            id: "node-uiux-03-figma",
+            id: "node-uiux-05-typography",
+            title: "Color Theory & Typography Scales",
+            simpleExplanation: "Master font pairing, typographic hierarchy, color contrast ratios, and visual balance.",
+            whyItMatters: "Typography makes up 90% of web interface design.",
+            keyConcepts: ["Type Scales", "Font Pairing", "Color Psychology", "WCAG Contrast Ratios"],
+            resources: [
+              { title: "Refactoring UI Book Insights", url: "https://www.refactoringui.com/", type: "Best Starting Point" }
+            ]
+          },
+          {
+            id: "node-uiux-06-figma",
             title: "Mastering Figma & Auto Layout",
             simpleExplanation: "Master modern UI design tools, Auto Layout, component variants, and interactive prototypes.",
             whyItMatters: "Figma is the industry standard for collaborative product design.",
@@ -1236,15 +1320,32 @@ export const rolesData: RoleData[] = [
             resources: [
               { title: "Figma Official Learn Hub", url: "https://help.figma.com/hc/en-us/categories/360002051613-Learn-Figma", type: "Official Docs" }
             ]
-          },
+          }
+        ]
+      },
+      {
+        id: "chapter-uiux-04",
+        title: "Design Systems & Accessibility",
+        nodes: [
           {
-            id: "node-uiux-04-design-systems",
+            id: "node-uiux-07-design-systems",
             title: "Design Systems & Component Libraries",
             simpleExplanation: "Build scalable design systems with standard tokens, typography scales, and accessibility compliance.",
             whyItMatters: "Design systems enable teams to maintain visual consistency across massive apps.",
             keyConcepts: ["Design Tokens", "WCAG Accessibility Guidelines", "Dark Mode Tokens", "Developer Handoff"],
             resources: [
-              { title: "Material Design 3", url: "https://m3.material.io/", type: "Official Docs" }
+              { title: "Material Design 3", url: "https://m3.material.io/", type: "Official Docs" },
+              { title: "Apple Human Interface Guidelines", url: "https://developer.apple.com/design/human-interface-guidelines/", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-uiux-08-portfolio",
+            title: "UI/UX Case Studies & Portfolio Building",
+            simpleExplanation: "Document your design process in 2-3 detailed case studies that showcase problem-solving skills.",
+            whyItMatters: "Design recruiters hire based on how you solve problems, not just final pretty screens.",
+            keyConcepts: ["Case Study Structure", "Before/After Iterations", "Usability Testing Results", "Portfolio Hosting"],
+            resources: [
+              { title: "Bestfolio UI/UX Examples", url: "https://bestfolios.com/", type: "Practice Resource" }
             ]
           }
         ]
@@ -1254,8 +1355,8 @@ export const rolesData: RoleData[] = [
   {
     id: "data-analyst",
     title: "Data Analyst",
-    description: "Turn raw data into actionable business insights using SQL, Excel, and visualization dashboards.",
-    timeline: "5–7 Months",
+    description: "Turn raw data into actionable business insights using SQL, Python, Excel, and interactive dashboards.",
+    timeline: "6–8 Months",
     difficulty: "Beginner Friendly",
     iconName: "BarChart3",
     importanceDescription: "Data Analysts bridge raw databases with business decision-making through SQL queries, statistical analysis, and interactive dashboards.",
@@ -1280,17 +1381,27 @@ export const rolesData: RoleData[] = [
               { title: "Mode Analytics SQL Tutorial", url: "https://mode.com/sql-tutorial/", type: "Best Starting Point" },
               { title: "SQLZoo Practice", url: "https://sqlzoo.net/", type: "Practice Resource" }
             ]
+          },
+          {
+            id: "node-da-02-advanced-sql",
+            title: "Advanced SQL & Database Optimization",
+            simpleExplanation: "Write optimized queries, work with indexes, partition tables, and analyze query execution plans.",
+            whyItMatters: "Slow queries paralyze production business intelligence dashboards.",
+            keyConcepts: ["Indexes", "EXPLAIN ANALYZE", "Database Views", "Stored Procedures"],
+            resources: [
+              { title: "PostgreSQL Official Documentation", url: "https://www.postgresql.org/docs/", type: "Official Docs" }
+            ]
           }
         ]
       },
       {
         id: "chapter-da-02",
-        title: "Python Data Analysis & Dashboarding",
+        title: "Python Data Analysis & Cleaning",
         nodes: [
           {
-            id: "node-da-02-pandas",
-            title: "Data Cleaning with Pandas & NumPy",
-            simpleExplanation: "Clean messy real-world datasets, handle missing values, and manipulate DataFrames.",
+            id: "node-da-03-pandas",
+            title: "Data Manipulation with Pandas & NumPy",
+            simpleExplanation: "Clean messy real-world datasets, handle missing values, merge datasets, and manipulate DataFrames.",
             whyItMatters: "80% of data work involves cleaning and preparing data for analysis.",
             keyConcepts: ["DataFrames", "Handling Null Values", "Groupby & Pivots", "Time Series Analysis"],
             resources: [
@@ -1298,13 +1409,40 @@ export const rolesData: RoleData[] = [
             ]
           },
           {
-            id: "node-da-03-tableau",
-            title: "Data Visualization with Tableau / Power BI",
-            simpleExplanation: "Build interactive executive dashboards that highlight key metrics.",
+            id: "node-da-04-eda",
+            title: "Exploratory Data Analysis (EDA)",
+            simpleExplanation: "Uncover patterns, spot anomalies, and test hypotheses using Matplotlib & Seaborn.",
+            whyItMatters: "EDA transforms raw rows of numbers into meaningful stories.",
+            keyConcepts: ["Histograms & Scatter Plots", "Correlation Matrices", "Outlier Detection", "Distribution Metrics"],
+            resources: [
+              { title: "Kaggle EDA Tutorials", url: "https://www.kaggle.com/learn", type: "Practice Resource" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-da-03",
+        title: "Dashboards & Business Intelligence",
+        nodes: [
+          {
+            id: "node-da-05-tableau",
+            title: "Interactive Dashboards (Tableau / Power BI)",
+            simpleExplanation: "Build interactive executive dashboards that highlight key business metrics.",
             whyItMatters: "Stakeholders prefer visual dashboards over raw data tables.",
             keyConcepts: ["Dashboard Storytelling", "Calculated Fields", "Filters & Parameters", "Publishing Reports"],
             resources: [
-              { title: "Tableau Free Training", url: "https://www.tableau.com/learn/training", type: "Official Docs" }
+              { title: "Tableau Free Training", url: "https://www.tableau.com/learn/training", type: "Official Docs" },
+              { title: "Power BI Learning Path", url: "https://learn.microsoft.com/en-us/power-bi/", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-da-06-ab-metrics",
+            title: "Business Metrics & A/B Testing",
+            simpleExplanation: "Measure retention, CAC, LTV, conversion funnels, and run A/B test analysis.",
+            whyItMatters: "Directly connects data analysis with business revenue and user growth.",
+            keyConcepts: ["Cohort Analysis", "Customer Acquisition Cost (CAC)", "Lifetime Value (LTV)", "Hypothesis Testing"],
+            resources: [
+              { title: "Reforge Growth Metrics", url: "https://www.reforge.com/", type: "Best Starting Point" }
             ]
           }
         ]
@@ -1314,8 +1452,8 @@ export const rolesData: RoleData[] = [
   {
     id: "data-scientist",
     title: "Data Scientist",
-    description: "Turn raw data into predictive intelligence using advanced analytics, statistics, and machine learning.",
-    timeline: "5–7 Months",
+    description: "Turn raw data into predictive intelligence using advanced analytics, statistics, machine learning, and deep learning.",
+    timeline: "7–10 Months",
     difficulty: "Beginner Friendly → Intermediate",
     iconName: "BarChart3",
     importanceDescription: "Data Scientists combine computer science, mathematics, and domain knowledge to build predictive models and extract deep intelligence.",
@@ -1328,7 +1466,7 @@ export const rolesData: RoleData[] = [
     chapters: [
       {
         id: "chapter-ds-01",
-        title: "Mathematics & Exploratory Analysis",
+        title: "Mathematics & Statistics Foundations",
         nodes: [
           {
             id: "node-ds-01-stats",
@@ -1339,21 +1477,68 @@ export const rolesData: RoleData[] = [
             resources: [
               { title: "StatQuest with Josh Starmer", url: "https://statquest.org/", type: "Best Starting Point" }
             ]
+          },
+          {
+            id: "node-ds-02-linear-algebra",
+            title: "Linear Algebra & Calculus for ML",
+            simpleExplanation: "Understand matrix multiplication, eigenvectors, gradient descent, and partial derivatives.",
+            whyItMatters: "All neural networks and machine learning models are fundamentally linear algebra operations.",
+            keyConcepts: ["Vectors & Matrices", "Eigenvalues & Eigenvectors", "Gradient Descent Optimization", "Cost Functions"],
+            resources: [
+              { title: "3Blue1Brown Essence of Linear Algebra", url: "https://www.3blue1brown.com/", type: "Best Starting Point" }
+            ]
           }
         ]
       },
       {
         id: "chapter-ds-02",
-        title: "Machine Learning Foundations",
+        title: "Supervised & Unsupervised Machine Learning",
         nodes: [
           {
-            id: "node-ds-02-sklearn",
-            title: "Supervised & Unsupervised Machine Learning",
-            simpleExplanation: "Train algorithms like Decision Trees, Random Forests, XGBoost, and K-Means using Scikit-Learn.",
-            whyItMatters: "Allows computer programs to learn patterns and make predictions from data.",
-            keyConcepts: ["Train/Test Split", "Cross-Validation", "Feature Engineering", "ROC-AUC & F1 Score"],
+            id: "node-ds-03-sklearn",
+            title: "Supervised Learning Algorithms",
+            simpleExplanation: "Train models like Decision Trees, Random Forests, Gradient Boosting (XGBoost), and Support Vector Machines.",
+            whyItMatters: "Supervised learning predicts outcomes based on historical labeled training data.",
+            keyConcepts: ["Train/Test Split", "Cross-Validation", "Overfitting & Regularization (L1/L2)", "ROC-AUC & F1 Score"],
             resources: [
               { title: "Scikit-Learn User Guide", url: "https://scikit-learn.org/stable/user_guide.html", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-ds-04-clustering",
+            title: "Unsupervised Learning & Dimensionality Reduction",
+            simpleExplanation: "Group unlabeled data using K-Means, Hierarchical Clustering, and PCA (Principal Component Analysis).",
+            whyItMatters: "Discovers hidden customer segments and reduces high-dimensional data noise.",
+            keyConcepts: ["K-Means Clustering", "PCA", "t-SNE", "Anomaly Detection"],
+            resources: [
+              { title: "Kaggle Machine Learning Course", url: "https://www.kaggle.com/learn/intro-to-machine-learning", type: "Practice Resource" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-ds-03",
+        title: "Deep Learning & Model Deployment",
+        nodes: [
+          {
+            id: "node-ds-05-deep-learning",
+            title: "Neural Networks with PyTorch / TensorFlow",
+            simpleExplanation: "Build multi-layer perceptrons, Convolutional Neural Networks (CNNs), and Recurrent Neural Networks (RNNs).",
+            whyItMatters: "Deep learning powers modern computer vision, speech recognition, and generative AI.",
+            keyConcepts: ["Backpropagation", "Activation Functions (ReLU, Softmax)", "CNNs for Images", "PyTorch Tensors"],
+            resources: [
+              { title: "PyTorch Official Tutorials", url: "https://pytorch.org/tutorials/", type: "Official Docs" },
+              { title: "Fast.ai Deep Learning Course", url: "https://www.fast.ai/", type: "Best Starting Point" }
+            ]
+          },
+          {
+            id: "node-ds-06-mlops",
+            title: "MLOps & Model Deployment (FastAPI, MLflow)",
+            simpleExplanation: "Deploy trained machine learning models as REST APIs using Docker, FastAPI, and MLflow model registry.",
+            whyItMatters: "A model stuck in a Jupyter Notebook provides zero business value until deployed.",
+            keyConcepts: ["FastAPI Model Serving", "MLflow Experiment Tracking", "Model Drift", "Docker for ML"],
+            resources: [
+              { title: "MLflow Documentation", url: "https://mlflow.org/docs/latest/index.html", type: "Official Docs" }
             ]
           }
         ]
@@ -1363,8 +1548,8 @@ export const rolesData: RoleData[] = [
   {
     id: "devops-engineer",
     title: "DevOps Engineer",
-    description: "Automate, deploy, scale, and maintain modern cloud infrastructure.",
-    timeline: "6–9 Months",
+    description: "Automate, deploy, scale, and maintain cloud infrastructure and CI/CD pipelines.",
+    timeline: "7–10 Months",
     difficulty: "Intermediate",
     iconName: "CloudCog",
     importanceDescription: "DevOps Engineers bridge software development and IT operations to enable rapid, reliable software releases through automation.",
@@ -1382,7 +1567,7 @@ export const rolesData: RoleData[] = [
           {
             id: "node-devops-01-linux",
             title: "Linux Systems Administration & Bash Scripting",
-            simpleExplanation: "Navigate the Linux CLI, manage permissions, write automation scripts, and manage processes.",
+            simpleExplanation: "Navigate the Linux CLI, manage permissions, write automation scripts, and manage system processes.",
             whyItMatters: "99% of cloud infrastructure runs on Linux servers.",
             keyConcepts: ["Linux Permissions & Systemd", "Bash Shell Scripting", "SSH & Key Authentication", "Networking (IP, Ports, DNS)"],
             resources: [
@@ -1393,7 +1578,7 @@ export const rolesData: RoleData[] = [
       },
       {
         id: "chapter-devops-02",
-        title: "Containers & CI/CD Pipelines",
+        title: "Containers & Orchestration",
         nodes: [
           {
             id: "node-devops-02-docker",
@@ -1406,13 +1591,65 @@ export const rolesData: RoleData[] = [
             ]
           },
           {
-            id: "node-devops-03-cicd",
-            title: "CI/CD with GitHub Actions",
+            id: "node-devops-03-k8s",
+            title: "Kubernetes Container Orchestration",
+            simpleExplanation: "Manage cluster deployments, auto-scaling, load balancing, and self-healing for containerized apps.",
+            whyItMatters: "Kubernetes is the industry standard for production container management.",
+            keyConcepts: ["Pods & Deployments", "Services & Ingress", "ConfigMaps & Secrets", "Helm Charts"],
+            resources: [
+              { title: "Kubernetes Basics Guide", url: "https://kubernetes.io/docs/tutorials/kubernetes-basics/", type: "Official Docs" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-devops-03",
+        title: "CI/CD & Infrastructure as Code",
+        nodes: [
+          {
+            id: "node-devops-04-cicd",
+            title: "CI/CD Pipelines (GitHub Actions / Jenkins)",
             simpleExplanation: "Automate testing, building, and deployment every time code is pushed to Git.",
             whyItMatters: "Enables continuous integration and seamless deployment to staging/production.",
             keyConcepts: ["Workflows & Jobs", "Secrets Management", "Automated Testing Triggers", "Deployment Strategies"],
             resources: [
               { title: "GitHub Actions Documentation", url: "https://docs.github.com/en/actions", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-devops-05-terraform",
+            title: "Infrastructure as Code (Terraform)",
+            simpleExplanation: "Provision cloud infrastructure (VMs, DBs, Networks) using code configurations.",
+            whyItMatters: "Version controls infrastructure deployment so environments can be recreated in minutes.",
+            keyConcepts: ["Terraform State", "Providers (AWS/Azure)", "Modules", "Plan & Apply Workflows"],
+            resources: [
+              { title: "HashiCorp Terraform Tutorials", url: "https://developer.hashicorp.com/terraform/tutorials", type: "Official Docs" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-devops-04",
+        title: "Cloud Platforms & Monitoring",
+        nodes: [
+          {
+            id: "node-devops-06-aws",
+            title: "AWS Cloud Core (EC2, S3, RDS, IAM)",
+            simpleExplanation: "Configure Amazon Web Services cloud compute, storage, databases, and IAM access controls.",
+            whyItMatters: "AWS is the leading enterprise cloud infrastructure provider.",
+            keyConcepts: ["EC2 Virtual Machines", "S3 Object Storage", "RDS Relational DBs", "VPC & Subnets"],
+            resources: [
+              { title: "AWS Skill Builder", url: "https://explore.skillbuilder.aws/", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-devops-07-observability",
+            title: "Monitoring & Observability (Prometheus & Grafana)",
+            simpleExplanation: "Set up real-time server metrics, log aggregation, and alerting dashboards.",
+            whyItMatters: "Detects system downtime before users notice.",
+            keyConcepts: ["Prometheus Metrics", "Grafana Dashboards", "Log Aggregation (ELK Stack)", "Alertmanager"],
+            resources: [
+              { title: "Prometheus Documentation", url: "https://prometheus.io/docs/introduction/overview/", type: "Official Docs" }
             ]
           }
         ]
@@ -1422,7 +1659,7 @@ export const rolesData: RoleData[] = [
   {
     id: "cybersecurity",
     title: "Cybersecurity",
-    description: "Protect applications, networks, and enterprise assets against security threats.",
+    description: "Protect applications, networks, and enterprise assets against security threats and cyber attacks.",
     timeline: "8–10 Months",
     difficulty: "Intermediate",
     iconName: "ShieldCheck",
@@ -1436,7 +1673,7 @@ export const rolesData: RoleData[] = [
     chapters: [
       {
         id: "chapter-cyber-01",
-        title: "Networking & Security Basics",
+        title: "Networking & Security Fundamentals",
         nodes: [
           {
             id: "node-cyber-01-network",
@@ -1447,22 +1684,68 @@ export const rolesData: RoleData[] = [
             resources: [
               { title: "TryHackMe Networking Fundamentals", url: "https://tryhackme.com/", type: "Best Starting Point" }
             ]
+          },
+          {
+            id: "node-cyber-02-sysadmin",
+            title: "Linux & Windows Security Hardening",
+            simpleExplanation: "Configure file permissions, audit logs, manage user privileges, and disable vulnerable services.",
+            whyItMatters: "System hardening minimizes attack surface area for potential intruders.",
+            keyConcepts: ["Principle of Least Privilege", "Linux File Permissions", "Windows Active Directory Basics", "SSH Hardening"],
+            resources: [
+              { title: "CIS Benchmarks", url: "https://www.cisecurity.org/benchmark", type: "Official Docs" }
+            ]
           }
         ]
       },
       {
         id: "chapter-cyber-02",
-        title: "Web Security & Ethical Hacking",
+        title: "Web Security & Penetration Testing",
         nodes: [
           {
-            id: "node-cyber-02-owasp",
-            title: "OWASP Top 10 Vulnerabilities",
-            simpleExplanation: "Identify and exploit common web vulnerabilities like SQL Injection, XSS, and CSRF.",
+            id: "node-cyber-03-owasp",
+            title: "OWASP Top 10 Web Vulnerabilities",
+            simpleExplanation: "Identify and exploit common web vulnerabilities like SQL Injection, XSS, CSRF, and SSRF.",
             whyItMatters: "OWASP Top 10 covers the most dangerous security threats in modern web apps.",
             keyConcepts: ["SQL Injection (SQLi)", "Cross-Site Scripting (XSS)", "Broken Authentication", "Burp Suite Basics"],
             resources: [
               { title: "OWASP Top 10 Official Guide", url: "https://owasp.org/www-project-top-ten/", type: "Official Docs" },
               { title: "PortSwigger Web Security Academy", url: "https://portswigger.net/web-security", type: "Practice Resource" }
+            ]
+          },
+          {
+            id: "node-cyber-04-[#pentest]",
+            title: "Penetration Testing & Reconnaissance",
+            simpleExplanation: "Perform network scanning, vulnerability assessment, and exploit testing using Nmap, Metasploit, and Wireshark.",
+            whyItMatters: "Simulating real cyber attacks reveals weaknesses before black-hat hackers find them.",
+            keyConcepts: ["Information Gathering", "Nmap Port Scanning", "Vulnerability Scanning", "Metasploit Basics"],
+            resources: [
+              { title: "Hack The Box Academy", url: "https://academy.hackthebox.com/", type: "Best Starting Point" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-cyber-03",
+        title: "Cryptography & Incident Defense",
+        nodes: [
+          {
+            id: "node-cyber-05-crypto",
+            title: "Applied Cryptography & PKI",
+            simpleExplanation: "Understand symmetric/asymmetric encryption, hashing (SHA-256), and digital signatures.",
+            whyItMatters: "Cryptography protects data in transit and data at rest from unauthorized exposure.",
+            keyConcepts: ["AES vs RSA Encryption", "Hashing Functions", "Public Key Infrastructure (PKI)", "TLS Certificates"],
+            resources: [
+              { title: "Crypto101 Guide", url: "https://www.crypto101.io/", type: "Best Starting Point" }
+            ]
+          },
+          {
+            id: "node-cyber-06-incident",
+            title: "Incident Response & Security Operations (SOC)",
+            simpleExplanation: "Detect cyber intrusions, analyze malware signatures, and respond to security breaches using SIEM tools.",
+            whyItMatters: "Fast incident response minimizes business damage during active cyber attacks.",
+            keyConcepts: ["SIEM (Splunk/Elastic)", "Log Analysis", "Incident Response Lifecycle", "Threat Intelligence"],
+            resources: [
+              { title: "SANS Institute Incident Handler Guide", url: "https://www.sans.org/", type: "Official Docs" }
             ]
           }
         ]
@@ -1472,7 +1755,7 @@ export const rolesData: RoleData[] = [
   {
     id: "software-engineer",
     title: "Software Engineer",
-    description: "Master computer science fundamentals, data structures, algorithms, and scalable system design.",
+    description: "Master computer science fundamentals, data structures, algorithms, object-oriented design, and scalable system architecture.",
     timeline: "8–12 Months",
     difficulty: "Intermediate",
     iconName: "Terminal",
@@ -1486,33 +1769,70 @@ export const rolesData: RoleData[] = [
     chapters: [
       {
         id: "chapter-swe-01",
-        title: "Data Structures & Algorithms",
+        title: "Data Structures & Time Complexity",
         nodes: [
           {
             id: "node-swe-01-dsa",
-            title: "Core Data Structures & Time Complexity",
-            simpleExplanation: "Master Big-O notation, Arrays, Linked Lists, Stacks, Queues, Hash Tables, and Binary Trees.",
-            whyItMatters: "Essential for passing technical interviews and writing efficient code.",
-            keyConcepts: ["Big-O Complexity (Time & Space)", "Hash Tables & Collisions", "Trees & Graphs", "Dynamic Programming"],
+            title: "Core Data Structures & Big-O Notation",
+            simpleExplanation: "Master Big-O time and space complexity for Arrays, Strings, Linked Lists, Stacks, and Queues.",
+            whyItMatters: "Essential for writing efficient code and passing technical coding interviews.",
+            keyConcepts: ["Big-O Complexity (Time & Space)", "Two Pointers Technique", "Sliding Window", "Recursion Basics"],
             resources: [
-              { title: "NeetCode Roadmap", url: "https://neetcode.io/", type: "Best Starting Point" },
+              { title: "NeetCode 150 Roadmap", url: "https://neetcode.io/", type: "Best Starting Point" },
               { title: "LeetCode Practice", url: "https://leetcode.com/", type: "Practice Resource" }
+            ]
+          },
+          {
+            id: "node-swe-02-trees-graphs",
+            title: "Trees, Graphs & Dynamic Programming",
+            simpleExplanation: "Master Binary Search Trees, Graph Traversal (DFS/BFS), Hash Tables, and Dynamic Programming.",
+            whyItMatters: "Graph and DP algorithms solve complex real-world routing and optimization problems.",
+            keyConcepts: ["Binary Search Trees", "DFS & BFS Traversal", "Hash Table Collisions", "Memoization & DP"],
+            resources: [
+              { title: "GeeksforGeeks DSA Guide", url: "https://www.geeksforgeeks.org/data-structures/", type: "Official Docs" }
             ]
           }
         ]
       },
       {
         id: "chapter-swe-02",
-        title: "System Design & Architecture",
+        title: "Object-Oriented Design & Clean Code",
         nodes: [
           {
-            id: "node-swe-02-system-design",
-            title: "Scalable System Design",
+            id: "node-swe-03-solid",
+            title: "SOLID Principles & Design Patterns",
+            simpleExplanation: "Write clean, modular, maintainable software using SOLID principles and GoF design patterns.",
+            whyItMatters: "Clean code allows large teams to work on codebases without breaking existing functionality.",
+            keyConcepts: ["SOLID Principles", "Factory Pattern", "Singleton & Observer Patterns", "Clean Code Rules"],
+            resources: [
+              { title: "Refactoring.Guru Design Patterns", url: "https://refactoring.guru/design-patterns", type: "Best Starting Point" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-swe-03",
+        title: "System Design & Distributed Architecture",
+        nodes: [
+          {
+            id: "node-swe-04-system-design",
+            title: "High-Level System Design (HLD)",
             simpleExplanation: "Design high-availability systems with Load Balancers, Caching, Databases, and Messaging Queues.",
-            whyItMatters: "Distinguishes mid-level engineers from senior architects building large-scale apps.",
+            whyItMatters: "Distinguishes mid-level engineers from senior architects building scalable web apps.",
             keyConcepts: ["Load Balancing", "Redis Caching", "Database Sharding & Replication", "Kafka Message Queues"],
             resources: [
-              { title: "System Design Primer by Donne Martin", url: "https://github.com/donnemartin/system-design-primer", type: "Official Docs" }
+              { title: "System Design Primer by Donne Martin", url: "https://github.com/donnemartin/system-design-primer", type: "Official Docs" },
+              { title: "ByteByteGo System Design Newsletter", url: "https://bytebytego.com/", type: "Best Starting Point" }
+            ]
+          },
+          {
+            id: "node-swe-05-testing",
+            title: "Software Testing & CI/CD Culture",
+            simpleExplanation: "Write Unit Tests, Integration Tests, and automated deployment pipelines.",
+            whyItMatters: "Automated tests prevent bugs from breaking live customer production apps.",
+            keyConcepts: ["Unit Testing (Jest/PyTest)", "Test-Driven Development (TDD)", "Integration Tests", "CI/CD Deployment"],
+            resources: [
+              { title: "Martin Fowler Testing Pyramid", url: "https://martinfowler.com/articles/practical-test-pyramid.html", type: "Official Docs" }
             ]
           }
         ]
@@ -1526,4 +1846,3 @@ export const getFlatNodes = (roleId: string): RoadmapNodeData[] => {
   if (!role) return [];
   return role.chapters.flatMap(chapter => chapter.nodes);
 };
-

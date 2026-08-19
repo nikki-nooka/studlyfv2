@@ -452,14 +452,59 @@ const RoadmapClone: React.FC = () => {
                   This roadmap is designed to remove confusion. You never need to wonder what to learn next. Complete one step at a time, and the next chapter unlocks automatically. Build consistency, not speed.
                 </p>
                 
-                {/* Visual Progression UI */}
-                <div className="bg-white/10 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm font-bold uppercase tracking-widest text-center">
-                  <span className="text-white">STEP 1</span>
-                  <ArrowLeft className="w-4 h-4 text-gray-500 hidden sm:block rotate-180" />
-                  <span className="text-[#EC4899] flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4"/> COMPLETE</span>
-                  <ArrowLeft className="w-4 h-4 text-gray-500 hidden sm:block rotate-180" />
-                  <span className="text-gray-400">STEP 2 UNLOCKED</span>
-                </div>
+                {/* Dynamic Visual Progression UI */}
+                {(() => {
+                  const currentChapter = selectedRole ? selectedRole.chapters[activeChapterIndex] : null;
+                  const nextChapter = selectedRole && activeChapterIndex < selectedRole.chapters.length - 1 
+                    ? selectedRole.chapters[activeChapterIndex + 1] 
+                    : null;
+                  const currentDoneCount = currentChapter ? currentChapter.nodes.filter(n => completedNodes.includes(n.id)).length : 0;
+                  const isCurrentChapterComplete = currentChapter ? currentChapter.nodes.every(n => completedNodes.includes(n.id)) : false;
+                  const isEntireRoadmapComplete = selectedRole ? selectedRole.chapters.every(c => c.nodes.every(n => completedNodes.includes(n.id))) : false;
+
+                  return (
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-bold uppercase tracking-wider text-center border border-white/10">
+                      {isEntireRoadmapComplete ? (
+                        <div className="w-full flex items-center justify-center gap-2 text-emerald-400 py-1 font-black text-sm">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400" /> ALL PHASES COMPLETED! YOU ARE INDUSTRY READY 🎉
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#6C2BFF] animate-pulse flex-shrink-0" />
+                            <span className="text-white">
+                              PHASE {activeChapterIndex + 1}: {currentChapter?.title}
+                            </span>
+                          </div>
+                          
+                          <ArrowLeft className="w-4 h-4 text-[#EC4899] hidden sm:block rotate-180 flex-shrink-0" />
+                          
+                          {isCurrentChapterComplete ? (
+                            <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
+                              <CheckCircle2 className="w-4 h-4"/> PHASE COMPLETE
+                            </span>
+                          ) : (
+                            <span className="text-amber-400 flex items-center gap-1.5 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30">
+                              IN PROGRESS ({currentDoneCount}/{currentChapter?.nodes.length || 0})
+                            </span>
+                          )}
+
+                          <ArrowLeft className="w-4 h-4 text-[#EC4899] hidden sm:block rotate-180 flex-shrink-0" />
+
+                          {nextChapter ? (
+                            <span className="text-gray-400">
+                              NEXT: PHASE {activeChapterIndex + 2} UNLOCKED
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400">
+                              FINAL PHASE
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

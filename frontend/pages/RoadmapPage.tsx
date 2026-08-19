@@ -198,14 +198,58 @@ const RoadmapPage: React.FC = () => {
                     This roadmap is designed to remove confusion. You never need to wonder what to learn next. Complete one step at a time, and the next chapter unlocks automatically. Build consistency, not speed.
                   </p>
                   
-                  {/* Visual Progression UI */}
-                  <div className="bg-white/10 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm font-bold uppercase tracking-widest text-center">
-                    <span className="text-white">STEP 1</span>
-                    <ArrowLeft className="w-4 h-4 text-gray-500 hidden sm:block rotate-180" />
-                    <span className="text-[#EC4899] flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4"/> COMPLETE</span>
-                    <ArrowLeft className="w-4 h-4 text-gray-500 hidden sm:block rotate-180" />
-                    <span className="text-gray-400">STEP 2 UNLOCKED</span>
-                  </div>
+                  {/* Dynamic Visual Progression UI */}
+                  {(() => {
+                    const currentChapter = selectedRoadmap ? selectedRoadmap.chapters[activeChapterIndex] : null;
+                    const nextChapter = selectedRoadmap && activeChapterIndex < selectedRoadmap.chapters.length - 1 
+                      ? selectedRoadmap.chapters[activeChapterIndex + 1] 
+                      : null;
+                    const currentDoneCount = currentChapter ? currentChapter.nodes.filter(n => completedNodes.includes(n.id)).length : 0;
+                    const totalInCurrent = currentChapter?.nodes.length || 0;
+                    const isCurrentChapterComplete = currentChapter ? currentChapter.nodes.every(n => completedNodes.includes(n.id)) : false;
+                    const isEntireRoadmapComplete = selectedRoadmap ? selectedRoadmap.chapters.every(c => c.nodes.every(n => completedNodes.includes(n.id))) : false;
+
+                    return (
+                      <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                        {isEntireRoadmapComplete ? (
+                          <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider py-1">
+                            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                            <span>ALL PHASES COMPLETED! INDUSTRY READY 🎉</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2.5 text-xs font-semibold">
+                            {/* Phase Header & Progress Pill */}
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-2 h-2 rounded-full bg-[#EC4899] animate-pulse flex-shrink-0" />
+                                <span className="text-white font-bold tracking-wider truncate">
+                                  PHASE {activeChapterIndex + 1}: {currentChapter?.title}
+                                </span>
+                              </div>
+
+                              {isCurrentChapterComplete ? (
+                                <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex-shrink-0 uppercase">
+                                  COMPLETE ✓
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-extrabold text-amber-400 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/30 flex-shrink-0 uppercase">
+                                  IN PROGRESS ({currentDoneCount}/{totalInCurrent})
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Next Step Footer */}
+                            <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-white/10">
+                              <span className="font-medium">Up Next:</span>
+                              <span className="font-bold text-gray-300 truncate">
+                                {nextChapter ? `Phase ${activeChapterIndex + 2}: ${nextChapter.title}` : 'Final Career Mastery'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

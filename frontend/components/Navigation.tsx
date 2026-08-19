@@ -41,13 +41,16 @@ const BentoCard = ({ title, desc, children, className = "", to = "#", onClick }:
 
 const LearnDropdown = ({ onItemClick }: { onItemClick: () => void }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-    <BentoCard onClick={onItemClick} to="/learn/courses-overview" title="Courses" desc="Role-focused tracks for elite engineering readiness." className="lg:col-span-2 lg:row-span-2 min-h-[160px] lg:min-h-[180px]">
+    <BentoCard onClick={onItemClick} to="/roadmaps" title="Career Roadmaps" desc="Execution-first role tracks for software, AI, & design." className="lg:col-span-1 lg:row-span-2 min-h-[160px] lg:min-h-[180px] bg-[#6C2BFF]/5 hover:border-[#6C2BFF]/30">
+      <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=400" className="absolute bottom-0 right-0 w-full h-1/2 object-cover opacity-100 transition-all duration-700 rounded-b-[1.5rem]" alt="Career Roadmaps" />
+    </BentoCard>
+    <BentoCard onClick={onItemClick} to="/learn/courses-overview" title="Courses" desc="Role-focused tracks for elite engineering readiness." className="lg:col-span-1 lg:row-span-2 min-h-[160px] lg:min-h-[180px]">
       <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600" className="absolute bottom-0 right-0 w-1/2 h-full object-cover opacity-100 transition-all duration-700" alt="Courses" />
     </BentoCard>
     <BentoCard onClick={onItemClick} to="/learn/company-modules" title="Company Learning Modules" desc="Institutional training for corporate internal teams." className="lg:col-span-1 lg:row-span-2 min-h-[160px] lg:min-h-[180px]">
       <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=400" className="absolute bottom-0 right-0 w-full h-1/2 object-cover opacity-100 transition-all duration-700 rounded-b-[1.5rem]" alt="Corporate" />
     </BentoCard>
-    <BentoCard onClick={onItemClick} to="/studhub" title="STUDHub" desc="The central nervous system for your student growth." className="lg:col-span-1 lg:row-span-2 min-h-[160px] lg:min-h-[180px] bg-[#6C2BFF]/5 hover:border-[#6C2BFF]/30">
+    <BentoCard onClick={onItemClick} to="/studhub" title="STUDHub" desc="The central nervous system for your student growth." className="lg:col-span-1 lg:row-span-2 min-h-[160px] lg:min-h-[180px]">
       <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=400" className="absolute bottom-0 right-0 w-full h-1/2 object-cover opacity-100 transition-all duration-700 rounded-b-[1.5rem]" alt="STUDHub" />
     </BentoCard>
   </div>
@@ -505,15 +508,15 @@ const Navigation: React.FC = () => {
                                 className="bg-black/30 border-t border-white/5 px-4 py-3 space-y-2 text-xs"
                               >
                                 <Link
-                                  to="/company-modules"
+                                  to="/roadmaps"
                                   onClick={() => setMobileMenuOpen(false)}
                                   className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                                 >
-                                  <Layers className="w-4 h-4 text-[#A78BFA]" />
-                                  <span>Company Modules</span>
+                                  <Compass className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Career Roadmaps</span>
                                 </Link>
                                 <Link
-                                  to="/courses"
+                                  to="/learn/courses-overview"
                                   onClick={() => setMobileMenuOpen(false)}
                                   className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                                 >
@@ -521,12 +524,12 @@ const Navigation: React.FC = () => {
                                   <span>All Courses</span>
                                 </Link>
                                 <Link
-                                  to="/learn"
+                                  to="/learn/company-modules"
                                   onClick={() => setMobileMenuOpen(false)}
                                   className="flex items-center gap-3 p-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                                 >
-                                  <Compass className="w-4 h-4 text-[#A78BFA]" />
-                                  <span>Learning Tracks</span>
+                                  <Layers className="w-4 h-4 text-[#A78BFA]" />
+                                  <span>Company Modules</span>
                                 </Link>
                               </motion.div>
                             )}

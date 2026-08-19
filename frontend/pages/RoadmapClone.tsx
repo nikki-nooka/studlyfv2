@@ -495,6 +495,8 @@ const RoadmapClone: React.FC = () => {
           onClose={() => setIsPanelOpen(false)}
           isCompleted={activePanelNode ? completedNodes.includes(activePanelNode.id) : false}
           onToggleComplete={handleToggleComplete}
+          allNodes={flatNodes}
+          onSelectNode={setActivePanelNode}
         />
       </div>
     </div>

@@ -109,6 +109,7 @@ const RoadmapClone: React.FC = () => {
 
   // Handlers
   const handleRoleSelect = (role: RoleData) => {
+    localStorage.setItem('studlyf_last_selected_role', role.id);
     navigate(`/roadmaps/${role.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -167,14 +168,27 @@ const RoadmapClone: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button 
-                onClick={() => document.getElementById('roles-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-4 bg-[#1A1A1A] text-white rounded-xl font-bold text-sm shadow-[0_8px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_30px_rgba(108,43,255,0.3)] hover:bg-[#6C2BFF] transition-all hover:-translate-y-1"
+                onClick={() => {
+                  const savedRole = localStorage.getItem('studlyf_last_selected_role') || 'frontend-developer';
+                  navigate(`/roadmaps/${savedRole}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="w-full sm:w-auto px-8 py-4 bg-[#1A1A1A] text-white rounded-xl font-bold text-sm shadow-[0_8px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_30px_rgba(108,43,255,0.3)] hover:bg-[#6C2BFF] transition-all hover:-translate-y-1 cursor-pointer"
               >
                 Start Your Roadmap
               </button>
               <button 
-                onClick={() => document.getElementById('roles-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-4 bg-white text-[#1A1A1A] border border-gray-200 rounded-xl font-bold text-sm hover:border-gray-300 shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
+                onClick={() => {
+                  const el = document.getElementById('roles-section');
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                  } else {
+                    const fallback = document.querySelector('#roles-section');
+                    if (fallback) fallback.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="w-full sm:w-auto px-8 py-4 bg-white text-[#1A1A1A] border border-gray-200 rounded-xl font-bold text-sm hover:border-gray-300 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer"
               >
                 Explore Roles
               </button>

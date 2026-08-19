@@ -1099,65 +1099,425 @@ export const rolesData: RoleData[] = [
   {
     id: "product-manager",
     title: "Product Manager",
-    description: "Lead product vision, strategy, and execution.",
+    description: "Lead product vision, strategy, user research, and cross-functional execution.",
     timeline: "4–6 Months",
     difficulty: "Beginner Friendly",
     iconName: "Target",
-    chapters: generateChapters("pm")
+    importanceDescription: "Product Managers connect user needs with business goals and technical feasibility. They define what to build, why to build it, and measure product success.",
+    importanceStats: [
+      { label: "High Executive Demand", icon: "TrendingUp" },
+      { label: "Cross-Functional Leadership", icon: "Layout" },
+      { label: "High Business Impact", icon: "Target" },
+      { label: "Strategic Vision", icon: "Rocket" }
+    ],
+    chapters: [
+      {
+        id: "chapter-pm-01",
+        title: "Product Strategy & Market Research",
+        nodes: [
+          {
+            id: "node-pm-01-vision",
+            title: "Product Vision & Strategy",
+            simpleExplanation: "Define the long-term direction of a product and how it solves real market problems.",
+            whyItMatters: "Without strategy, teams build feature bloat instead of high-value products.",
+            keyConcepts: ["Value Proposition", "Competitive Analysis", "Market Sizing (TAM/SAM/SOM)", "Product Positioning"],
+            resources: [
+              { title: "Product Strategy Guide by Mind the Product", url: "https://www.mindtheproduct.com/", type: "Best Starting Point" },
+              { title: "Reforge Product Frameworks", url: "https://www.reforge.com/blog", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-pm-02-user-research",
+            title: "User Research & Customer Interviews",
+            simpleExplanation: "Conduct qualitative and quantitative research to uncover core user pain points.",
+            whyItMatters: "Building what users actually need prevents costly product failures.",
+            keyConcepts: ["User Personas", "Jobs to be Done (JTBD)", "Customer Interviewing", "Survey Design"],
+            resources: [
+              { title: "The Mom Test Summary", url: "https://www.momtestbook.com/", type: "Beginner Friendly" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-pm-02",
+        title: "Agile Execution & Roadmapping",
+        nodes: [
+          {
+            id: "node-pm-03-roadmap",
+            title: "Feature Prioritization & Roadmaps",
+            simpleExplanation: "Decide what to build next using frameworks like RICE, Kano, and MoSCoW.",
+            whyItMatters: "Engineering bandwidth is limited; prioritizing high-impact features is essential.",
+            keyConcepts: ["RICE Framework", "Theme-based Roadmaps", "MVP Scope Definition", "Backlog Grooming"],
+            resources: [
+              { title: "Atlassian Product Roadmaps Guide", url: "https://www.atlassian.com/agile/product-management/roadmaps", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-pm-04-scrum",
+            title: "Agile, Scrum & PRD Writing",
+            simpleExplanation: "Write clear Product Requirement Documents (PRDs) and manage sprint planning.",
+            whyItMatters: "Ensures developers and designers have zero ambiguity during implementation.",
+            keyConcepts: ["Writing User Stories", "Acceptance Criteria", "PRD Templates", "Sprint Ceremonies"],
+            resources: [
+              { title: "Scrum Guide", url: "https://scrumguides.org/", type: "Official Docs" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-pm-03",
+        title: "Product Analytics & Growth",
+        nodes: [
+          {
+            id: "node-pm-05-metrics",
+            title: "Product Analytics & Success Metrics",
+            simpleExplanation: "Track North Star metrics, activation, retention, and funnel conversion rates.",
+            whyItMatters: "Data-driven PMs make objective decisions to grow retention and engagement.",
+            keyConcepts: ["North Star Metric", "AARRR Pirate Metrics", "Cohort Analysis", "Mixpanel / Amplitude basics"],
+            resources: [
+              { title: "Mixpanel Product Analytics Guide", url: "https://mixpanel.com/blog/", type: "Practice Resource" }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "ui-ux-designer",
     title: "UI/UX Designer",
-    description: "Design beautiful, user-centric digital experiences.",
+    description: "Design beautiful, intuitive, and user-centric digital experiences.",
     timeline: "4–6 Months",
     difficulty: "Beginner Friendly",
     iconName: "PenTool",
-    chapters: generateChapters("uiux")
+    importanceDescription: "UI/UX Designers create intuitive, visually stunning web and mobile interfaces that feel seamless for users.",
+    importanceStats: [
+      { label: "High Design Demand", icon: "TrendingUp" },
+      { label: "Figma & Design Systems", icon: "Layout" },
+      { label: "User Centric", icon: "Target" },
+      { label: "Portfolio Driven", icon: "PenTool" }
+    ],
+    chapters: [
+      {
+        id: "chapter-uiux-01",
+        title: "UX Fundamentals & Wireframing",
+        nodes: [
+          {
+            id: "node-uiux-01-foundations",
+            title: "User Experience Foundations",
+            simpleExplanation: "Understand cognitive psychology, usability heuristics, and user journey mapping.",
+            whyItMatters: "Great UI design is rooted in intuitive usability and seamless navigation.",
+            keyConcepts: ["Nielsen Norman 10 Heuristics", "Information Architecture", "User Flow Diagrams", "Mental Models"],
+            resources: [
+              { title: "NN/g 10 Usability Heuristics", url: "https://www.nngroup.com/articles/ten-usability-heuristics/", type: "Best Starting Point" }
+            ]
+          },
+          {
+            id: "node-uiux-02-wireframing",
+            title: "Wireframing & Lo-Fi Prototyping",
+            simpleExplanation: "Create low-fidelity structural sketches before jumping into visual details.",
+            whyItMatters: "Allows rapid iteration on core navigation and layout structure.",
+            keyConcepts: ["Paper Prototyping", "Balsamiq / Figma Lo-Fi", "Grid Systems", "Layout Hierarchy"],
+            resources: [
+              { title: "Figma Wireframing Basics", url: "https://www.figma.com/resource-library/", type: "Official Docs" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-uiux-02",
+        title: "Visual UI Design & Design Systems",
+        nodes: [
+          {
+            id: "node-uiux-03-figma",
+            title: "Mastering Figma & Auto Layout",
+            simpleExplanation: "Master modern UI design tools, Auto Layout, component variants, and interactive prototypes.",
+            whyItMatters: "Figma is the industry standard for collaborative product design.",
+            keyConcepts: ["Auto Layout 5.0", "Component Sets & Variants", "Interactive Components", "Color & Typography Tokens"],
+            resources: [
+              { title: "Figma Official Learn Hub", url: "https://help.figma.com/hc/en-us/categories/360002051613-Learn-Figma", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-uiux-04-design-systems",
+            title: "Design Systems & Component Libraries",
+            simpleExplanation: "Build scalable design systems with standard tokens, typography scales, and accessibility compliance.",
+            whyItMatters: "Design systems enable teams to maintain visual consistency across massive apps.",
+            keyConcepts: ["Design Tokens", "WCAG Accessibility Guidelines", "Dark Mode Tokens", "Developer Handoff"],
+            resources: [
+              { title: "Material Design 3", url: "https://m3.material.io/", type: "Official Docs" }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "data-analyst",
     title: "Data Analyst",
-    description: "Turn raw data into actionable business insights.",
+    description: "Turn raw data into actionable business insights using SQL, Excel, and visualization dashboards.",
     timeline: "5–7 Months",
     difficulty: "Beginner Friendly",
     iconName: "BarChart3",
-    chapters: generateChapters("data")
+    importanceDescription: "Data Analysts bridge raw databases with business decision-making through SQL queries, statistical analysis, and interactive dashboards.",
+    importanceStats: [
+      { label: "High Industry Need", icon: "TrendingUp" },
+      { label: "SQL & Visualization", icon: "BarChart3" },
+      { label: "Business Intelligence", icon: "Target" },
+      { label: "Entry-Level Friendly", icon: "GraduationCap" }
+    ],
+    chapters: [
+      {
+        id: "chapter-da-01",
+        title: "SQL & Relational Databases",
+        nodes: [
+          {
+            id: "node-da-01-sql",
+            title: "Mastering SQL Queries",
+            simpleExplanation: "Extract, filter, join, and aggregate data from PostgreSQL and MySQL databases.",
+            whyItMatters: "SQL is the #1 required skill for every data professional.",
+            keyConcepts: ["SELECT, WHERE, GROUP BY", "JOINs (Inner, Left, Right, Full)", "Subqueries & CTEs", "Window Functions (RANK, OVER)"],
+            resources: [
+              { title: "Mode Analytics SQL Tutorial", url: "https://mode.com/sql-tutorial/", type: "Best Starting Point" },
+              { title: "SQLZoo Practice", url: "https://sqlzoo.net/", type: "Practice Resource" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-da-02",
+        title: "Python Data Analysis & Dashboarding",
+        nodes: [
+          {
+            id: "node-da-02-pandas",
+            title: "Data Cleaning with Pandas & NumPy",
+            simpleExplanation: "Clean messy real-world datasets, handle missing values, and manipulate DataFrames.",
+            whyItMatters: "80% of data work involves cleaning and preparing data for analysis.",
+            keyConcepts: ["DataFrames", "Handling Null Values", "Groupby & Pivots", "Time Series Analysis"],
+            resources: [
+              { title: "Pandas Documentation", url: "https://pandas.pydata.org/docs/user_guide/index.html", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-da-03-tableau",
+            title: "Data Visualization with Tableau / Power BI",
+            simpleExplanation: "Build interactive executive dashboards that highlight key metrics.",
+            whyItMatters: "Stakeholders prefer visual dashboards over raw data tables.",
+            keyConcepts: ["Dashboard Storytelling", "Calculated Fields", "Filters & Parameters", "Publishing Reports"],
+            resources: [
+              { title: "Tableau Free Training", url: "https://www.tableau.com/learn/training", type: "Official Docs" }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "data-scientist",
     title: "Data Scientist",
-    description: "Turn raw data into actionable business insights using advanced analytics and machine learning.",
+    description: "Turn raw data into predictive intelligence using advanced analytics, statistics, and machine learning.",
     timeline: "5–7 Months",
-    difficulty: "Beginner Friendly",
+    difficulty: "Beginner Friendly → Intermediate",
     iconName: "BarChart3",
-    chapters: generateChapters("data")
+    importanceDescription: "Data Scientists combine computer science, mathematics, and domain knowledge to build predictive models and extract deep intelligence.",
+    importanceStats: [
+      { label: "Top Tech Role", icon: "TrendingUp" },
+      { label: "Machine Learning", icon: "BrainCircuit" },
+      { label: "Predictive Analytics", icon: "BarChart3" },
+      { label: "High Earning Potential", icon: "Target" }
+    ],
+    chapters: [
+      {
+        id: "chapter-ds-01",
+        title: "Mathematics & Exploratory Analysis",
+        nodes: [
+          {
+            id: "node-ds-01-stats",
+            title: "Applied Statistics & Probability",
+            simpleExplanation: "Master hypothesis testing, probability distributions, regression models, and confidence intervals.",
+            whyItMatters: "Statistical foundation ensures machine learning models produce reliable conclusions.",
+            keyConcepts: ["p-values & Hypothesis Testing", "Normal Distribution", "Linear & Logistic Regression", "A/B Testing Math"],
+            resources: [
+              { title: "StatQuest with Josh Starmer", url: "https://statquest.org/", type: "Best Starting Point" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-ds-02",
+        title: "Machine Learning Foundations",
+        nodes: [
+          {
+            id: "node-ds-02-sklearn",
+            title: "Supervised & Unsupervised Machine Learning",
+            simpleExplanation: "Train algorithms like Decision Trees, Random Forests, XGBoost, and K-Means using Scikit-Learn.",
+            whyItMatters: "Allows computer programs to learn patterns and make predictions from data.",
+            keyConcepts: ["Train/Test Split", "Cross-Validation", "Feature Engineering", "ROC-AUC & F1 Score"],
+            resources: [
+              { title: "Scikit-Learn User Guide", url: "https://scikit-learn.org/stable/user_guide.html", type: "Official Docs" }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "devops-engineer",
     title: "DevOps Engineer",
-    description: "Automate, deploy, and maintain cloud infrastructure.",
+    description: "Automate, deploy, scale, and maintain modern cloud infrastructure.",
     timeline: "6–9 Months",
     difficulty: "Intermediate",
     iconName: "CloudCog",
-    chapters: generateChapters("devops")
+    importanceDescription: "DevOps Engineers bridge software development and IT operations to enable rapid, reliable software releases through automation.",
+    importanceStats: [
+      { label: "Critical Cloud Role", icon: "CloudCog" },
+      { label: "Docker & Kubernetes", icon: "Layers" },
+      { label: "CI/CD Automation", icon: "TrendingUp" },
+      { label: "High Demand", icon: "Target" }
+    ],
+    chapters: [
+      {
+        id: "chapter-devops-01",
+        title: "Linux & Shell Automation",
+        nodes: [
+          {
+            id: "node-devops-01-linux",
+            title: "Linux Systems Administration & Bash Scripting",
+            simpleExplanation: "Navigate the Linux CLI, manage permissions, write automation scripts, and manage processes.",
+            whyItMatters: "99% of cloud infrastructure runs on Linux servers.",
+            keyConcepts: ["Linux Permissions & Systemd", "Bash Shell Scripting", "SSH & Key Authentication", "Networking (IP, Ports, DNS)"],
+            resources: [
+              { title: "Linux Journey", url: "https://linuxjourney.com/", type: "Best Starting Point" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-devops-02",
+        title: "Containers & CI/CD Pipelines",
+        nodes: [
+          {
+            id: "node-devops-02-docker",
+            title: "Containerization with Docker",
+            simpleExplanation: "Package applications with all their dependencies into lightweight, isolated containers.",
+            whyItMatters: "Eliminates 'it works on my machine' issues across dev and prod.",
+            keyConcepts: ["Dockerfiles", "Docker Compose", "Multi-stage Builds", "Container Volumes & Networks"],
+            resources: [
+              { title: "Docker Official Docs", url: "https://docs.docker.com/get-started/", type: "Official Docs" }
+            ]
+          },
+          {
+            id: "node-devops-03-cicd",
+            title: "CI/CD with GitHub Actions",
+            simpleExplanation: "Automate testing, building, and deployment every time code is pushed to Git.",
+            whyItMatters: "Enables continuous integration and seamless deployment to staging/production.",
+            keyConcepts: ["Workflows & Jobs", "Secrets Management", "Automated Testing Triggers", "Deployment Strategies"],
+            resources: [
+              { title: "GitHub Actions Documentation", url: "https://docs.github.com/en/actions", type: "Official Docs" }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "cybersecurity",
     title: "Cybersecurity",
-    description: "Secure applications, networks, and organizational data.",
+    description: "Protect applications, networks, and enterprise assets against security threats.",
     timeline: "8–10 Months",
     difficulty: "Intermediate",
     iconName: "ShieldCheck",
-    chapters: generateChapters("cyber")
+    importanceDescription: "Cybersecurity specialists safeguard critical enterprise infrastructure, user privacy, and applications from cyber threats.",
+    importanceStats: [
+      { label: "Zero-Unemployment Role", icon: "ShieldCheck" },
+      { label: "Web App Security", icon: "Target" },
+      { label: "Ethical Hacking", icon: "Terminal" },
+      { label: "High Responsibility", icon: "TrendingUp" }
+    ],
+    chapters: [
+      {
+        id: "chapter-cyber-01",
+        title: "Networking & Security Basics",
+        nodes: [
+          {
+            id: "node-cyber-01-network",
+            title: "Computer Networking & Protocols",
+            simpleExplanation: "Understand OSI 7-Layer model, TCP/IP, DNS, HTTP/HTTPS, and Wireshark packet capture.",
+            whyItMatters: "You cannot defend what you don't understand network-wise.",
+            keyConcepts: ["OSI & TCP/IP Model", "Packet Analysis", "Firewalls & VPNs", "SSL/TLS Handshake"],
+            resources: [
+              { title: "TryHackMe Networking Fundamentals", url: "https://tryhackme.com/", type: "Best Starting Point" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-cyber-02",
+        title: "Web Security & Ethical Hacking",
+        nodes: [
+          {
+            id: "node-cyber-02-owasp",
+            title: "OWASP Top 10 Vulnerabilities",
+            simpleExplanation: "Identify and exploit common web vulnerabilities like SQL Injection, XSS, and CSRF.",
+            whyItMatters: "OWASP Top 10 covers the most dangerous security threats in modern web apps.",
+            keyConcepts: ["SQL Injection (SQLi)", "Cross-Site Scripting (XSS)", "Broken Authentication", "Burp Suite Basics"],
+            resources: [
+              { title: "OWASP Top 10 Official Guide", url: "https://owasp.org/www-project-top-ten/", type: "Official Docs" },
+              { title: "PortSwigger Web Security Academy", url: "https://portswigger.net/web-security", type: "Practice Resource" }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "software-engineer",
     title: "Software Engineer",
-    description: "Master algorithms, data structures, and system design.",
+    description: "Master computer science fundamentals, data structures, algorithms, and scalable system design.",
     timeline: "8–12 Months",
     difficulty: "Intermediate",
     iconName: "Terminal",
-    chapters: generateChapters("swe")
+    importanceDescription: "Software Engineers solve complex architectural problems, build fault-tolerant systems, and craft robust software at scale.",
+    importanceStats: [
+      { label: "Core Industry Role", icon: "Terminal" },
+      { label: "DSA & System Design", icon: "Layers" },
+      { label: "High Demand", icon: "TrendingUp" },
+      { label: "Global Opportunities", icon: "Target" }
+    ],
+    chapters: [
+      {
+        id: "chapter-swe-01",
+        title: "Data Structures & Algorithms",
+        nodes: [
+          {
+            id: "node-swe-01-dsa",
+            title: "Core Data Structures & Time Complexity",
+            simpleExplanation: "Master Big-O notation, Arrays, Linked Lists, Stacks, Queues, Hash Tables, and Binary Trees.",
+            whyItMatters: "Essential for passing technical interviews and writing efficient code.",
+            keyConcepts: ["Big-O Complexity (Time & Space)", "Hash Tables & Collisions", "Trees & Graphs", "Dynamic Programming"],
+            resources: [
+              { title: "NeetCode Roadmap", url: "https://neetcode.io/", type: "Best Starting Point" },
+              { title: "LeetCode Practice", url: "https://leetcode.com/", type: "Practice Resource" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "chapter-swe-02",
+        title: "System Design & Architecture",
+        nodes: [
+          {
+            id: "node-swe-02-system-design",
+            title: "Scalable System Design",
+            simpleExplanation: "Design high-availability systems with Load Balancers, Caching, Databases, and Messaging Queues.",
+            whyItMatters: "Distinguishes mid-level engineers from senior architects building large-scale apps.",
+            keyConcepts: ["Load Balancing", "Redis Caching", "Database Sharding & Replication", "Kafka Message Queues"],
+            resources: [
+              { title: "System Design Primer by Donne Martin", url: "https://github.com/donnemartin/system-design-primer", type: "Official Docs" }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -1166,3 +1526,4 @@ export const getFlatNodes = (roleId: string): RoadmapNodeData[] => {
   if (!role) return [];
   return role.chapters.flatMap(chapter => chapter.nodes);
 };
+

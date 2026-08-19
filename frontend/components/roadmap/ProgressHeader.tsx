@@ -18,7 +18,7 @@ const ProgressHeader: React.FC<ProgressHeaderProps> = ({
   const progressPercentage = totalNodes === 0 ? 0 : Math.round((completedNodes.length / totalNodes) * 100);
 
   return (
-    <div className="sticky top-20 z-30 max-w-4xl mx-auto px-4 my-4 pointer-events-auto">
+    <div className="sticky top-20 z-30 my-6 pointer-events-auto">
       <div className="bg-white/90 backdrop-blur-xl border border-gray-200/80 shadow-md rounded-2xl px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
         
         {/* Left: Overall Progress */}

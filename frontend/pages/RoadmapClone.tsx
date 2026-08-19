@@ -387,18 +387,11 @@ const RoadmapClone: React.FC = () => {
   // ----------------------------
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans selection:bg-[#6C2BFF] selection:text-white">
-      <ProgressHeader 
-        completedNodes={completedNodes}
-        totalNodes={flatNodes.length}
-        nextNode={nextNode}
-        activeNode={isPanelOpen ? activePanelNode : null}
-      />
-
       <div className="flex-grow pb-32">
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28">
           
           {/* Track Header & Hero Info */}
-        <div className="mb-12">
+        <div className="mb-10">
           <button 
             onClick={handleBackToRoles}
             className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-[#6C2BFF] transition-colors mb-6 group"
@@ -412,7 +405,7 @@ const RoadmapClone: React.FC = () => {
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-black text-[#1A1A1A] tracking-tight mb-2">
-                Become an {selectedRole.title} <br className="hidden md:block"/>
+                Become {['a','e','i','o','u'].includes(selectedRole.title.charAt(0).toLowerCase()) ? 'an' : 'a'} {selectedRole.title} <br className="hidden md:block"/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C2BFF] to-[#EC4899]">Without the Chaos.</span>
               </h1>
               <p className="text-gray-500 font-medium text-lg max-w-2xl">{selectedRole.description}</p>
@@ -509,6 +502,14 @@ const RoadmapClone: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Sticky Progress Header */}
+        <ProgressHeader 
+          completedNodes={completedNodes}
+          totalNodes={flatNodes.length}
+          nextNode={nextNode}
+          activeNode={isPanelOpen ? activePanelNode : null}
+        />
 
         {/* Chapters */}
         <div className="space-y-6">
